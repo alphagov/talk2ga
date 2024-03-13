@@ -2,8 +2,6 @@ FROM python:3.11.4-slim
 
 WORKDIR /home/app
 
-COPY pyproject.toml ./
-COPY poetry.lock ./
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
@@ -14,10 +12,10 @@ RUN apt-get update \
 RUN pg_config --version
 RUN pip install poetry
 RUN poetry config virtualenvs.in-project true
+COPY pyproject.toml ./
+COPY poetry.lock ./
 RUN poetry install --no-ansi
 
-# COPY --chown=999:999 client/ client/
-
-COPY --chown=999:999 experiments/05-bq-vertex-ga4-full-dataset--guilhem/bigquery-notebook .
+COPY --chown=999:999 src/ .
 
 CMD ["poetry", "run", "python", "run_app.py"]

@@ -10,6 +10,10 @@ from deleteme import whole_chain
 
 from fastapi.middleware.cors import CORSMiddleware
 
+from fastapi.responses import HTMLResponse
+from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+
 
 app = FastAPI(
     title="LangChain Server",
@@ -38,10 +42,14 @@ add_routes(
     path="/whole-chain",
 )
 
+@app.get("/helloworld")
+def hello_world():
+    return HTMLResponse(content=open("webapp/static/index.html").read(), status_code=200)
+
 
 def run_server():
     import uvicorn
 
     print("Running server...")
-    uvicorn.run(app, host="0.0.0.0", port=80)
+    uvicorn.run("webapp.app:app", host="0.0.0.0", port=80, reload=True)
     print("Server running :check:")
