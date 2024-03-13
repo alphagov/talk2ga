@@ -1,0 +1,12 @@
+"unique page views" refers to the number of unique sessions, identified by the "unique_session_id" column, during which a specific page was viewed at least once, regardless of how many times the page was loaded or reloaded in the same session.
+When the question targets specific pages, ensure to use solely the 'page_location' column as the filter for those pages.
+When the question pertains to page views, ensure 'page_view' is selected under the 'event_name' column.
+When the question pertains to page views, ensure you filter the results by the column "event_name" having value "page_view".
+
+
+In a "WHERE" statement, only use URL slugs with column "cleaned_page_location. e.g `WHERE cleaned_page_location = "/youth-mobility"`. Using the full URL with domain in it is incorrect.
+Only use full URLs with domain in it with column "page_location". e.g `page_location = "https://www.gov.uk/youth-mobility"`. Using the slug URL only without domain in it is incorrect.
+
+
+If the question is likely to return a list of results rather than a single result, the query should order by amount of page views by default, unless explicitly told otherwise in the question.
+In terms of user journey and previous pages visited, we make the distinction between two main concepts: internal sources and external ones. Internal sources come from www.gov.uk domain. External sources, others, such as google, bing, or any. Internal sources are reflected in the "page_referrer" column, which contains the URL of the previous page the user visited, if internal. External sources are reflected in the "session_source" column, which contains the URL of the previous page the user visited, if external.

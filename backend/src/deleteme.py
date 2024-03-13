@@ -1,0 +1,49 @@
+from operator import itemgetter
+from langchain_core.runnables import (
+    RunnableLambda,
+    RunnablePassthrough,
+    RunnableParallel,
+)
+from langchain_core.runnables import chain
+from modules.knowledge_bases import get_text_knowledge_base, get_schema_description
+from modules.llm_chains import generate_sql, format_output
+from modules import config
+from modules import evaluation
+from modules import formatting
+from modules.db import query_sql_trial
+
+
+@chain
+def create_gen_sql_input(question):
+    obj = {
+        "DATASET": config.DATASET,
+        "schema_description": get_schema_description(),
+        "knowledge_base": get_text_knowledge_base(),
+        "user_query": question,
+    }
+    return obj
+
+
+gen_sql_chain = (
+    create_gen_sql_input
+    | generate_sql.chain
+    | RunnableLambda(evaluation.is_valid_sql)
+    | RunnableLambda(formatting.remove_sql_quotes)
+)
+
+
+
+whole_chain = (
+    RunnableParallel({
+        "pure_sql": gen_sql_chain.with_retry(
+            stop_after_attempt=2,
+        ),
+        "question": RunnablePassthrough(),
+    })
+    | RunnableParallel({
+        "user_query": itemgetter("question"),
+        "sql_query": itemgetter("pure_sql"),
+        "response_object": RunnableLambda(query_sql_trial),
+    })
+    | format_output.chain
+)
