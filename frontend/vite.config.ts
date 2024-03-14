@@ -7,14 +7,14 @@ export default defineConfig({
   build: {
     outDir: "../backend/src/webapp/static",
   },
-  base: "",
+  base: "/static",
   plugins: [svgr(), react()],
   server: {
     proxy: {
       "^.*/(config_schema|input_schema|stream_log|feedback)(/[a-zA-Z0-9-]*)?$": {
-        target: "http://127.0.0.1:80/whole-chain",
+        target: "http://127.0.0.1:80",
         changeOrigin: true,
-        rewrite: (path) => path.replace("/____LANGSERVE_BASE_URL", ""),
+        rewrite: (path) => path.replace("/static", ""),
       },
     },
   },

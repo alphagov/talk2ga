@@ -20,7 +20,7 @@ const useFeedbackMutation = (runId: string) => {
       const payload = { run_id: runId, key: arg.key, score: arg.score };
       setLastArg(arg);
 
-      const request = await fetch(resolveApiUrl("/feedback"), {
+      const request = await fetch(resolveApiUrl("/whole-chain/feedback"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

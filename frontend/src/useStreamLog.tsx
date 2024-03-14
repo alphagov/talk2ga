@@ -68,7 +68,7 @@ export function useStreamLog(callbacks: StreamCallback = {}) {
 
     let innerLatest: RunState | null = null;
 
-    await fetchEventSource(resolveApiUrl("/stream_log").toString(), {
+    await fetchEventSource(resolveApiUrl("/whole-chain/stream_log").toString(), {
       signal: controller.signal,
       method: "POST",
       headers: { "Content-Type": "application/json" },

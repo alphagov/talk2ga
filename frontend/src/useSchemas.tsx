@@ -22,12 +22,12 @@ declare global {
 }
 
 export function useFeedback() {
-  return useSWR(["/feedback"], async () => {
+  return useSWR(["/whole-chain/feedback"], async () => {
     if (!import.meta.env.DEV && window.FEEDBACK_ENABLED) {
       return window.FEEDBACK_ENABLED === "true";
     }
 
-    const response = await fetch(resolveApiUrl("/feedback"), {
+    const response = await fetch(resolveApiUrl("/whole-chain/feedback"), {
       method: "HEAD",
     });
     return response.ok;
@@ -35,12 +35,12 @@ export function useFeedback() {
 }
 
 export function useConfigSchema() {
-  return useSWR(["/config_schema"], async () => {
+  return useSWR(["/whole-chain/config_schema"], async () => {
     let schema: JsonSchema | null = null;
     if (!import.meta.env.DEV && window.CONFIG_SCHEMA) {
       schema = await simplifySchema(window.CONFIG_SCHEMA);
     } else {
-      const response = await fetch(resolveApiUrl(`/config_schema`));
+      const response = await fetch(resolveApiUrl(`/whole-chain/config_schema`));
       if (!response.ok) throw new Error(await response.text());
 
       const json = await response.json();
@@ -57,7 +57,7 @@ export function useConfigSchema() {
 
 export function useInputSchema(configData?: unknown) {
   return useSWR(
-    ["/input_schema", configData],
+    ["/whole-chain/input_schema", configData],
     async ([, configData]) => {
       // TODO: this won't work if we're already seeing a prefixed URL
       const prefix = configData
@@ -69,7 +69,7 @@ export function useInputSchema(configData?: unknown) {
       if (!prefix && !import.meta.env.DEV && window.INPUT_SCHEMA) {
         schema = await simplifySchema(window.INPUT_SCHEMA);
       } else {
-        const response = await fetch(resolveApiUrl(`${prefix}/input_schema`));
+        const response = await fetch(resolveApiUrl(`${prefix}/whole-chain/input_schema`));
         if (!response.ok) throw new Error(await response.text());
 
         const json = await response.json();

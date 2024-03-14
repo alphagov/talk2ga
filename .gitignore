@@ -4,5 +4,5 @@
 __pycache__
 node_modules
 .vscode
-backend/src/webapp/static
+backend/src/webapp/static/
 frontend/dist
