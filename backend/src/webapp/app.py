@@ -42,7 +42,10 @@ add_routes(
     path="/whole-chain",
 )
 
-@app.get("/helloworld")
+
+app.mount("/static", StaticFiles(directory="/Users/guilhemforey/GDS/talk2ga/backend/src/webapp/static"), name="static")
+
+@app.get("/")
 def hello_world():
     return HTMLResponse(content=open("webapp/static/index.html").read(), status_code=200)
 

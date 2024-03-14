@@ -1,9 +1,26 @@
 <!DOCTYPE html>
-<html>
-<head>
-    <title>Hello, World!</title>
-</head>
-<body>
-    <h1>Hello, World!</h1>
-</body>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/static/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Playground</title>
+    <script type="module" crossorigin src="/static/assets/index-1eebf62b.js"></script>
+    <link rel="stylesheet" href="/static/assets/index-52e8ab2f.css">
+  </head>
+  <body>
+    <div id="root"></div>
+    <script>
+      try {
+        window.CONFIG_SCHEMA = ____LANGSERVE_CONFIG_SCHEMA;
+        window.INPUT_SCHEMA = ____LANGSERVE_INPUT_SCHEMA;
+        window.OUTPUT_SCHEMA = ____LANGSERVE_OUTPUT_SCHEMA;
+        window.FEEDBACK_ENABLED = ____LANGSERVE_FEEDBACK_ENABLED;
+        window.PUBLIC_TRACE_LINK_ENABLED = ____LANGSERVE_PUBLIC_TRACE_LINK_ENABLED;
+      } catch (error) {
+        // pass
+      }
+    </script>
+    
+  </body>
 </html>
