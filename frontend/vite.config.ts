@@ -6,6 +6,9 @@ import svgr from "vite-plugin-svgr";
 export default defineConfig({
   build: {
     outDir: "../backend/src/webapp/static",
+    rollupOptions: {
+      external: ['/javascripts/govuk-frontend.min.js']
+    }
   },
   base: "/static",
   plugins: [svgr(), react()],
