@@ -1,4 +1,4 @@
-from modules.knowledge_bases import get_smart_answers_knowledge_base
+from llm.knowledge_bases import get_smart_answers_knowledge_base
 
 
 smart_answers_prompt_fragment = f"""

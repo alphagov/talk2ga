@@ -1,11 +1,11 @@
 from langchain_core.runnables import RunnableLambda
 from langchain_core.runnables import RunnablePassthrough
-from modules.knowledge_bases import get_text_knowledge_base, get_schema_description
-from modules.llm_chains import generate_sql, format_output, sql_chain
-from modules import config
-from modules import evaluation
-from modules import formatting
-from modules.db import query_sql
+from llm.knowledge_bases import get_text_knowledge_base, get_schema_description
+from llm.llm_chains import generate_sql, format_output, sql_chain
+from llm import config
+from llm import evaluation
+from llm import formatting
+from llm.db import query_sql
 
 
 def generate_sql_sub():

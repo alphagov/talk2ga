@@ -3,10 +3,10 @@ from fastapi import FastAPI, Depends
 
 from langserve import add_routes
 
-from modules.llm_chains.generate_sql import chain as generate_sql
+from llm.llm_chains.generate_sql import chain as generate_sql
 
-from modules import db
-from deleteme import whole_chain
+from llm import db
+from llm.whole_chain import whole_chain
 
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -51,7 +51,7 @@ add_routes(
 from pydantic import BaseModel
 from fastapi.encoders import jsonable_encoder
 from google.cloud import bigquery
-from modules.config import GCP_PROJECT
+from llm.config import GCP_PROJECT
 from webapp.config import get_dataset_url
 from datetime import datetime
 import pytz

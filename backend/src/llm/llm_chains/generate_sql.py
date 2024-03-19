@@ -1,7 +1,7 @@
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
-from modules.llms import code_bison_6k
-from modules.prompts.sql_generation import sql_generation_prompt
+from llm.llms import code_bison_6k
+from llm.prompts.sql_generation import sql_generation_prompt
 
 
 def create_sql_generation_chain(custom_prompt=None):

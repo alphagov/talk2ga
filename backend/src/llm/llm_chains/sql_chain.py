@@ -1,11 +1,11 @@
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
-from modules.llms import code_bison_6k
-from modules.prompts.sql_generation import sql_generation_prompt
-from modules.llm_chains.generate_sql import chain as generate_sql
+from llm.llms import code_bison_6k
+from llm.prompts.sql_generation import sql_generation_prompt
+from llm.llm_chains.generate_sql import chain as generate_sql
 from langchain_core.runnables import RunnableLambda
-from modules import formatting
-from modules import evaluation
+from llm import formatting
+from llm import evaluation
 
 
 def validate_sql(sql):
