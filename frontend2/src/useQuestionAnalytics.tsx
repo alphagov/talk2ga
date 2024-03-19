@@ -6,6 +6,16 @@ import { useState } from "react";
 import useSWR from "swr";
 import defaults from "./utils/defaults";
 
+
+
+type QuestionCompletionPayload = {
+  succeeded: boolean;
+  logs_json?: string | null;
+  final_output?: string | null;
+  duration?: number;
+}
+
+
 export function useQuestions() {
   const [currentQuestionId, setCurrentQuestionId] = useState<string | null>(
     null
@@ -28,7 +38,24 @@ export function useQuestions() {
     return json;
   };
 
-  const recordQuestionCompletion = () => {};
+  const recordQuestionCompletion = async (questionId: string, payload: QuestionCompletionPayload) => {
+    const response = await fetch(
+      resolveApiUrl(`/question/${questionId}`),
+      {
+        method: "PUT",
+        body: JSON.stringify(payload),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) throw new Error(await response.text());
+
+    const json = await response.json();
+
+    return json;
+  };
 
   const recordFeedback = () => {};
   const recordDetailedFeedback = () => {};

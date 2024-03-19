@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useStreamLog } from "./useStreamLog";
 import { useAppStreamCallbacks } from "./useStreamCallback";
 import { str } from "./utils/str";
-import { StreamOutput } from "./components/StreamOutput";
+import { streamOutputToString } from "./components/StreamOutput";
 import { useQuestions } from "./useQuestionAnalytics";
 
 function QuestionInput({
@@ -90,7 +90,8 @@ function Playground() {
 
   const { context, callbacks } = useAppStreamCallbacks();
   const { startStream, stopStream, latest } = useStreamLog(callbacks);
-  const { recordQuestion, currentQuestionId } = useQuestions();
+  const { recordQuestion, recordQuestionCompletion, currentQuestionId } =
+    useQuestions();
 
   const showLogsRef = useRef<(() => void) | null>(null);
   showLogsRef.current = () => {
@@ -106,26 +107,42 @@ function Playground() {
     });
   }, []);
 
-  const submitQuestion = (question: string) => {
-    recordQuestion(question);
-    startStream(question);
-    setIsStreaming(true);
-  };
+  useEffect(() => {
+    // OnStart callbacks
+    context.current.onStart["recordQuestion"] = ({ input }) =>
+      recordQuestion(input as string);
+    context.current.onStart["setIsStreaming"] = () => setIsStreaming(true);
 
-  const stopStreaming = () => {
-    stopStream && stopStream();
-    setIsStreaming(false);
-  };
+    // OnSuccess callbacks
+    context.current.onSuccess["recordSuccess"] = () =>
+      currentQuestionId &&
+      recordQuestionCompletion(currentQuestionId, {
+        succeeded: true,
+        logs_json: latest && JSON.stringify(latest.logs),
+        final_output: latest && streamOutputToString(latest.streamed_output),
+      });
+    context.current.onSuccess["setIsNotStreaming"] = () =>
+      setIsStreaming(false);
+
+    // OnError callbacks
+    context.current.onError["recordQuestionFailure"] = () =>
+      currentQuestionId &&
+      recordQuestionCompletion(currentQuestionId, { succeeded: false });
+  }, [latest, latest?.logs, latest?.final_output, currentQuestionId]);
 
   return (
     <>
+      <p>ID: {currentQuestionId || "null"}</p>
       <QuestionInput
-        handleSubmitQuestion={submitQuestion}
-        handleStopStreaming={stopStreaming}
+        handleSubmitQuestion={startStream}
+        handleStopStreaming={stopStream}
         isStreaming={isStreaming}
         toggleShowLogs={showLogsRef.current}
         showLogs={showLogs}
       />
+      {latest &&
+        latest.streamed_output &&
+        streamOutputToString(latest.streamed_output)}
       {showLogs &&
         latest &&
         latest.logs &&
@@ -140,9 +157,6 @@ function Playground() {
             </>
           );
         })}
-      {latest && latest.streamed_output && (
-        <StreamOutput streamed={latest.streamed_output} />
-      )}
     </>
   );
 }

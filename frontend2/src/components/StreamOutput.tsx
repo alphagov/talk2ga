@@ -84,10 +84,10 @@ function isAiMessageChunkFieldsList(
   return value.length > 0 && value.every((x) => isAiMessageChunkFields(x));
 }
 
-export function StreamOutput(props: { streamed: unknown[] }) {
+export function streamOutputToString(streamed: unknown[]) {
   // check if we're streaming AIMessageChunk
-  if (isAiMessageChunkFieldsList(props.streamed)) {
-    const concat = props.streamed.reduce<AIMessageChunk | null>(
+  if (isAiMessageChunkFieldsList(streamed)) {
+    const concat = streamed.reduce<AIMessageChunk | null>(
       (memo, field) => {
         const chunk = new AIMessageChunk(field);
         if (memo == null) return chunk;
@@ -104,5 +104,5 @@ export function StreamOutput(props: { streamed: unknown[] }) {
     );
   }
 
-  return props.streamed.map(str).join("") || "...";
+  return streamed.map(str).join("") || "...";
 }
