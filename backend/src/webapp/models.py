@@ -1,4 +1,5 @@
 from datetime import datetime
+import sqlalchemy as sa
 import pytz
 from sqlmodel import Field, SQLModel
 import uuid
@@ -22,7 +23,7 @@ class QuestionBase(SQLModel):
 
 class Question(QuestionBase, table=True):
     id: str = Field(primary_key=True, default_factory=lambda : str(uuid.uuid4()))
-    created_at: datetime = Field(default_factory=lambda : datetime.now(pytz.timezone('Europe/London')))
+    created_at: datetime = Field(sa_column=sa.Column(sa.DateTime(timezone=True)), default_factory=lambda : datetime.now(pytz.timezone('Europe/London')))
 
 
 class QuestionCreate(QuestionBase):

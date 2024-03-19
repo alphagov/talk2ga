@@ -61,36 +61,37 @@ from fastapi import FastAPI, HTTPException
 import uuid
 from webapp.models import Question, QuestionRead, QuestionCreate, QuestionUpdate
 from webapp.db import get_session, init_db
+from sqlmodel.ext.asyncio.session import AsyncSession
 
 
 
 @app.post("/question", response_model=QuestionRead)
-def create_question(question: QuestionCreate, session: Session = Depends(get_session)):
+async def create_question(question: QuestionCreate, session: AsyncSession = Depends(get_session)):
     db_question = Question.model_validate(question)
     session.add(db_question)
-    session.commit()
-    session.refresh(db_question)
+    await session.commit()
+    await session.refresh(db_question)
     return db_question
 
 
 # returns 404 if not found
 # update existing row, not create new one
 @app.put("/question/{question_id}", response_model=QuestionRead)
-def create_question(question_id: str, question: QuestionUpdate, session: Session = Depends(get_session)):
-    db_question = session.get(Question, question_id)
+async def create_question(question_id: str, question: QuestionUpdate, session: AsyncSession = Depends(get_session)):
+    db_question = await session.get(Question, question_id)
     if not db_question:
         raise HTTPException(status_code=404, detail="Question not found")
     question_data = question.model_dump(exclude_unset=True)
     db_question.sqlmodel_update(question_data)
     session.add(db_question)
-    session.commit()
-    session.refresh(db_question)
+    await session.commit()
+    await session.refresh(db_question)
     return db_question
 
 
 @app.get("/question/{question_id}", response_model=QuestionRead)
-def create_question(question_id: str, session: Session = Depends(get_session)):
-    db_question = session.get(Question, question_id)
+async def create_question(question_id: str, session: AsyncSession = Depends(get_session)):
+    db_question = await session.get(Question, question_id)
     if not db_question:
         raise HTTPException(status_code=404, detail="Question not found")
     return db_question
@@ -105,12 +106,13 @@ def hello_world():
 
 
 
+@app.on_event("startup")
+async def on_startup():
+    await init_db()
 
 def run_server():
     import uvicorn
-
-    init_db()
-
+    
     print("Running server...")
     uvicorn.run("webapp.app:app", host="0.0.0.0", port=80, reload=True)
     print("Server running :check:")
