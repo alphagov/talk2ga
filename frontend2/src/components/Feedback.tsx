@@ -84,92 +84,136 @@ const SatisfiedFeedback = () => (
 type TextInputData = {
   data: string;
   errors: string[];
-} | null
-
+} | null;
 
 const validateForm = (detailData: TextInputData, sqlData: TextInputData) => {
-  const errors: {detailData: string[], sqlData: string[]} = {
+  const errors: { detailData: string[]; sqlData: string[] } = {
     detailData: [],
     sqlData: [],
   };
-  if ((detailData?.data?.length ?? 0) < 20 || (detailData?.data?.length ?? 0) > 2100) {
-    errors.detailData.push("Invalid description: Length should be between 20 and 2100 characters.");
+  if (
+    (detailData?.data?.length ?? 0) < 20 ||
+    (detailData?.data?.length ?? 0) > 2100
+  ) {
+    errors.detailData.push(
+      "Please provide a description that is between 20 and 2100 characters long."
+    );
   }
 
-  if ((sqlData?.data?.length ?? 0) < 20 || (sqlData?.data?.length ?? 0) > 10000) {
-    errors.sqlData.push("Invalid SQL query: Length should be between 20 and 10000 characters.");
+  if (
+    (sqlData?.data?.length ?? 0) < 20 ||
+    (sqlData?.data?.length ?? 0) > 10000
+  ) {
+    errors.sqlData.push(
+      "Please provide a SQL query that is between 20 and 2100 characters long."
+    );
   }
 
   return errors;
-}
+};
 
 const FormFeedback = () => {
   const [detailData, setDetailData] = useState<TextInputData>(null);
   const [sqlData, setSqlData] = useState<TextInputData>(null);
 
   const submit = () => {
-    const errors = validateForm(detailData, sqlData)
-    
+    const errors = validateForm(detailData, sqlData);
 
     if (errors.detailData.length > 0 || errors.sqlData.length > 0) {
       console.log("Errors", errors);
-      setDetailData({ data: detailData?.data || "", errors: errors.detailData });
+      setDetailData({
+        data: detailData?.data || "",
+        errors: errors.detailData,
+      });
       setSqlData({ data: sqlData?.data || "", errors: errors.sqlData });
       return;
     }
 
     console.log("submitting", detailData?.data, sqlData?.data);
-  }
+  };
 
   return (
     <div
-    className="gem-c-feedback__prompt gem-c-feedback__js-show js-prompt"
-    tabIndex={-1}
-  >
-    <fieldset className="govuk-fieldset feedback-form-container">
-      <legend className="govuk-fieldset__legend govuk-fieldset__legend--l">
-        <h1 className="govuk-fieldset__heading">
-          Help us improve Chat Analytics
-        </h1>
-      </legend>
-      <div className="govuk-form-group">
-        <label className="govuk-label" htmlFor="feedbackDetails">
-          What could have been better?
-        </label>
-        <textarea
-        id="feedback-detail-textarea"
-        name="feedbackDetails"
-          className="govuk-textarea"
-          rows={5}
-          aria-describedby="feedback-detail"
-          value={detailData?.data || ""}
-          onChange={(e) => {
-            const target = e.target as HTMLTextAreaElement;
-            setDetailData({ data: target.value, errors: [] });
-          }}
-        ></textarea>
-      </div>
-      <div className="govuk-form-group">
-        <label className="govuk-label" htmlFor="feedbackSql">
-          If you know, please paste the correct SQL code for this question
-        </label>
-        <textarea
-        id="feedback-sql"
-        name="feedbackSql"
-          className="govuk-textarea"
-          rows={2}
-          aria-describedby="feedback-sql"
-          value={sqlData?.data || ""}
-          onChange={(e) => {
-            const target = e.target as HTMLTextAreaElement;
-            setSqlData({ data: target.value, errors: [] });
-          }}
-        ></textarea>
-      </div>
-      <button type="submit" className="govuk-button" data-module="govuk-button" onClick={submit}>
-        Save and continue
-      </button>
-    </fieldset>
+      className="gem-c-feedback__prompt gem-c-feedback__js-show js-prompt"
+      tabIndex={-1}
+    >
+      <fieldset className="govuk-fieldset feedback-form-container">
+        <legend className="govuk-fieldset__legend govuk-fieldset__legend--l">
+          <h1 className="govuk-fieldset__heading">
+            Help us improve Chat Analytics
+          </h1>
+        </legend>
+        <div
+          className={`govuk-form-group ${
+            detailData?.errors.length ? "govuk-form-group--error" : ""
+          }`}
+        >
+          <label className="govuk-label" htmlFor="feedbackDetails">
+            What could have been better?
+          </label>
+          {detailData?.errors.length ?
+            detailData?.errors.map((error, index) => (
+              <p id={`error-${index}`} className="govuk-error-message">
+                <span key={index} className="govuk-error-message">
+                  {error}
+                </span>
+              </p>
+            )) : ""}
+          <textarea
+            id="feedback-detail-textarea"
+            name="feedbackDetails"
+            className={`govuk-textarea ${
+              detailData?.errors.length ? "govuk-input--error" : ""
+            }`}
+            rows={5}
+            aria-describedby="feedback-detail"
+            value={detailData?.data || ""}
+            onChange={(e) => {
+              const target = e.target as HTMLTextAreaElement;
+              setDetailData({ data: target.value, errors: [] });
+            }}
+          ></textarea>
+        </div>
+        <div
+          className={`govuk-form-group ${
+            sqlData?.errors.length ? "govuk-form-group--error" : ""
+          }`}
+        >
+          <label className="govuk-label" htmlFor="feedbackSql">
+            If you know, please paste the correct SQL code for this question
+          </label>
+          {sqlData?.errors.length ?
+            sqlData?.errors.map((error, index) => (
+              <p id={`error-${index}`} className="govuk-error-message">
+                <span key={index} className="govuk-error-message">
+                  {error}
+                </span>
+              </p>
+            )) : ""}
+          <textarea
+            id="feedback-sql"
+            name="feedbackSql"
+            className={`govuk-textarea ${
+              detailData?.errors.length ? "govuk-input--error" : ""
+            }`}
+            rows={2}
+            aria-describedby="feedback-sql"
+            value={sqlData?.data || ""}
+            onChange={(e) => {
+              const target = e.target as HTMLTextAreaElement;
+              setSqlData({ data: target.value, errors: [] });
+            }}
+          ></textarea>
+        </div>
+        <button
+          type="submit"
+          className="govuk-button"
+          data-module="govuk-button"
+          onClick={submit}
+        >
+          Save and continue
+        </button>
+      </fieldset>
     </div>
   );
 };
@@ -188,23 +232,29 @@ const FormSentFeedback = () => (
   </div>
 );
 
-export default function Feedback({handleSatisfiedFeedback, handleNotSatisfiedFeedback}) {
+export default function Feedback({
+  handleSatisfiedFeedback,
+  handleNotSatisfiedFeedback,
+}) {
   const [state, setState] = useState<FeedbackState>(FeedbackState.Default);
 
   const onSatisfiedClick = () => {
     setState(FeedbackState.Satisfied);
-    handleSatisfiedFeedback()
-  }
+    handleSatisfiedFeedback();
+  };
   const onNotSatisfiedClick = () => {
     setState(FeedbackState.Form);
-    handleNotSatisfiedFeedback()
-  }
+    handleNotSatisfiedFeedback();
+  };
 
   let feedbackComponent;
 
   if (state === FeedbackState.Default) {
     feedbackComponent = (
-      <DefaultFeedback handleSatisfiedClick={onSatisfiedClick} handleNotSatisfiedClick={onNotSatisfiedClick} />
+      <DefaultFeedback
+        handleSatisfiedClick={onSatisfiedClick}
+        handleNotSatisfiedClick={onNotSatisfiedClick}
+      />
     );
   } else if (state === FeedbackState.Satisfied) {
     feedbackComponent = <SatisfiedFeedback />;
