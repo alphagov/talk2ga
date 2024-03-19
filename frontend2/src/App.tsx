@@ -6,6 +6,7 @@ import { useAppStreamCallbacks } from "./useStreamCallback";
 import { str } from "./utils/str";
 import { StreamOutput, streamOutputToString } from "./components/StreamOutput";
 import { useQuestions } from "./useQuestionAnalytics";
+import Feedback from "./components/Feedback"
 
 function QuestionInput({
   handleSubmitQuestion,
@@ -21,13 +22,10 @@ function QuestionInput({
 
   const submitRef = useRef<(() => void) | null>(null);
   submitRef.current = () => {
-    console.log("submitRef.current");
-    console.log({ inputData });
     if (isStreaming) {
       handleStopStreaming();
     } else {
       handleSubmitQuestion(inputData.data);
-      setIsStreaming(true);
     }
   };
 
@@ -90,7 +88,7 @@ function Playground() {
 
   const { context, callbacks } = useAppStreamCallbacks();
   const { startStream, stopStream, latest } = useStreamLog(callbacks);
-  const { recordQuestion, recordQuestionCompletion, currentQuestionId } =
+  const { recordQuestion, recordQuestionCompletion, recordFeedbackSatisfied, recordFeedbackNotSatisfied, currentQuestionId } =
     useQuestions();
 
   const showLogsRef = useRef<(() => void) | null>(null);
@@ -130,6 +128,16 @@ function Playground() {
       recordQuestionCompletion(currentQuestionId, { succeeded: false });
   }, [latest, latest?.logs, latest?.final_output, currentQuestionId]);
 
+  const hasCompleted = latest && latest.streamed_output
+
+  const onSatisfiedFeedback = () => {
+    currentQuestionId && recordFeedbackSatisfied(currentQuestionId)
+  }
+  
+  const onNotSatisfiedFeedback = () => {
+    currentQuestionId && recordFeedbackNotSatisfied(currentQuestionId)
+  }
+
   return (
     <>
       <p>ID: {currentQuestionId || "null"}</p>
@@ -140,8 +148,7 @@ function Playground() {
         toggleShowLogs={showLogsRef.current}
         showLogs={showLogs}
       />
-      {latest &&
-        latest.streamed_output &&
+      {hasCompleted &&
         <StreamOutput>{streamOutputToString(latest.streamed_output)}</StreamOutput>
       }
       {showLogs &&
@@ -158,6 +165,8 @@ function Playground() {
             </>
           );
         })}
+        {/* {hasCompleted && <Feedback/>} */}
+        <Feedback handleSatisfiedFeedback={onSatisfiedFeedback} handleNotSatisfiedFeedback={onNotSatisfiedFeedback}/>
     </>
   );
 }

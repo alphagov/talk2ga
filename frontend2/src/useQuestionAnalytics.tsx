@@ -9,7 +9,6 @@ import defaults from "./utils/defaults";
 
 
 type QuestionCompletionPayload = {
-  succeeded: boolean;
   logs_json?: string | null;
   final_output?: string | null;
   duration?: number;
@@ -57,14 +56,50 @@ export function useQuestions() {
     return json;
   };
 
-  const recordFeedback = () => {};
-  const recordDetailedFeedback = () => {};
+  const recordFeedbackSatisfied = async (questionId: string) => {
+    const response = await fetch(
+      resolveApiUrl(`/question/${questionId}`),
+      {
+        method: "PUT",
+        body: JSON.stringify({has_feedback: true, is_feedback_positive: true}),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) throw new Error(await response.text());
+
+    const json = await response.json();
+
+    return json;
+  };
+  
+  const recordFeedbackNotSatisfied = async (questionId: string) => {
+    const response = await fetch(
+      resolveApiUrl(`/question/${questionId}`),
+      {
+        method: "PUT",
+        body: JSON.stringify({has_feedback: true, is_feedback_positive: false}),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) throw new Error(await response.text());
+
+    const json = await response.json();
+
+    return json;
+  };
+  
 
   return {
     recordQuestion,
     recordQuestionCompletion,
-    recordFeedback,
-    recordDetailedFeedback,
+    recordFeedbackSatisfied,
+    recordFeedbackNotSatisfied,
     currentQuestionId,
   };
 }
