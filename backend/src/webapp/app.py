@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 
 from langserve import add_routes
 
@@ -65,38 +65,35 @@ from webapp.db import get_session, init_db
 
 
 @app.post("/question", response_model=QuestionRead)
-def create_question(question: QuestionCreate):
-    with get_session() as session:
-        db_question = Question.model_validate(question)
-        session.add(db_question)
-        session.commit()
-        session.refresh(db_question)
-        return db_question
+def create_question(question: QuestionCreate, session: Session = Depends(get_session)):
+    db_question = Question.model_validate(question)
+    session.add(db_question)
+    session.commit()
+    session.refresh(db_question)
+    return db_question
 
 
 # returns 404 if not found
 # update existing row, not create new one
 @app.put("/question/{question_id}", response_model=QuestionRead)
-def create_question(question_id: str, question: QuestionUpdate):
-    with get_session() as session:
-        db_question = session.get(Question, question_id)
-        if not db_question:
-            raise HTTPException(status_code=404, detail="Question not found")
-        question_data = question.model_dump(exclude_unset=True)
-        db_question.sqlmodel_update(question_data)
-        session.add(db_question)
-        session.commit()
-        session.refresh(db_question)
-        return db_question
+def create_question(question_id: str, question: QuestionUpdate, session: Session = Depends(get_session)):
+    db_question = session.get(Question, question_id)
+    if not db_question:
+        raise HTTPException(status_code=404, detail="Question not found")
+    question_data = question.model_dump(exclude_unset=True)
+    db_question.sqlmodel_update(question_data)
+    session.add(db_question)
+    session.commit()
+    session.refresh(db_question)
+    return db_question
 
 
 @app.get("/question/{question_id}", response_model=QuestionRead)
-def create_question(question_id: str):
-    with get_session() as session:
-        db_question = session.get(Question, question_id)
-        if not db_question:
-            raise HTTPException(status_code=404, detail="Question not found")
-        return db_question
+def create_question(question_id: str, session: Session = Depends(get_session)):
+    db_question = session.get(Question, question_id)
+    if not db_question:
+        raise HTTPException(status_code=404, detail="Question not found")
+    return db_question
         
 
 
