@@ -1,7 +1,7 @@
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
-from modules.llms import gemini_pro, code_bison_6k, chat_bison
-from modules.prompts.format_output import format_output_prompt
+from llm.llms import gemini_pro, code_bison_6k, chat_bison
+from llm.prompts.format_output import format_output_prompt
 from langchain_core.runnables import chain
 
 def create_format_output_chain(custom_prompt=None):

@@ -5,12 +5,12 @@ from langchain_core.runnables import (
     RunnableParallel,
 )
 from langchain_core.runnables import chain
-from modules.knowledge_bases import get_text_knowledge_base, get_schema_description
-from modules.llm_chains import generate_sql, format_output
-from modules import config
-from modules import evaluation
-from modules import formatting
-from modules.db import query_sql_trial
+from llm.knowledge_bases import get_text_knowledge_base, get_schema_description
+from llm.llm_chains import generate_sql, format_output
+from llm import config
+from llm import evaluation
+from llm import formatting
+from llm.db import query_sql_trial
 
 
 @chain

@@ -1,7 +1,7 @@
-from modules.llm_chains import generate_sql
-from modules import config, evaluation, formatting, db
-from modules.knowledge_bases import get_text_knowledge_base, get_schema_description
-from modules.prompts.smart_answers import smart_answers_prompt
+from llm.llm_chains import generate_sql
+from llm import config, evaluation, formatting, db
+from llm.knowledge_bases import get_text_knowledge_base, get_schema_description
+from llm.prompts.smart_answers import smart_answers_prompt
 
 
 """

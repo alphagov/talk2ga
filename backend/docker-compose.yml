@@ -1,0 +1,15 @@
+version: '3'
+services:
+  db:
+    image: postgres
+    environment:
+      POSTGRES_USER: local
+      POSTGRES_PASSWORD: local
+      POSTGRES_DB: local
+    ports:
+      - 5433:5432
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
