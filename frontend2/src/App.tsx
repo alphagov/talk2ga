@@ -86,6 +86,8 @@ function Playground() {
   const [isStreaming, setIsStreaming] = useState(false);
   const [showLogs, setShowLogs] = useState(false);
 
+  const [hasCompleted, setHasCompleted] = useState<bool>(false);
+
   const { context, callbacks } = useAppStreamCallbacks();
   const { startStream, stopStream, latest } = useStreamLog(callbacks);
   const { recordQuestion, recordQuestionCompletion, recordFeedbackSatisfied, recordFeedbackNotSatisfied, recordFeedbackNotSatisfiedDetails, currentQuestionId } =
@@ -110,6 +112,7 @@ function Playground() {
     context.current.onStart["recordQuestion"] = ({ input }) =>
       recordQuestion(input as string);
     context.current.onStart["setIsStreaming"] = () => setIsStreaming(true);
+    context.current.onStart["setHasCompletedFalse"] = () => setHasCompleted(false)
 
     // OnSuccess callbacks
     context.current.onSuccess["recordSuccess"] = () =>
@@ -121,6 +124,8 @@ function Playground() {
       });
     context.current.onSuccess["setIsNotStreaming"] = () =>
       setIsStreaming(false);
+    context.current.onSuccess["setHasCompletedTrue"] = () =>
+      setHasCompleted(true);
 
     // OnError callbacks
     context.current.onError["recordQuestionFailure"] = () =>
@@ -128,7 +133,6 @@ function Playground() {
       recordQuestionCompletion(currentQuestionId, { succeeded: false });
   }, [latest, latest?.logs, latest?.final_output, currentQuestionId]);
 
-  const hasCompleted = latest && latest.streamed_output
 
   const onSatisfiedFeedback = () => {
     currentQuestionId && recordFeedbackSatisfied(currentQuestionId)
@@ -156,6 +160,7 @@ function Playground() {
       {hasCompleted &&
         <StreamOutput>{streamOutputToString(latest.streamed_output)}</StreamOutput>
       }
+      {hasCompleted && <Feedback handleSatisfiedFeedback={onSatisfiedFeedback} handleNotSatisfiedFeedback={onNotSatisfiedFeedback} handleNotSatisfiedFeedbackFormSubmit={onNotSatisfiedFeedbackDetailsSubmit} />}
       {showLogs &&
         latest &&
         latest.logs &&
@@ -170,7 +175,6 @@ function Playground() {
             </>
           );
         })}
-        <Feedback handleSatisfiedFeedback={onSatisfiedFeedback} handleNotSatisfiedFeedback={onNotSatisfiedFeedback} handleNotSatisfiedFeedbackFormSubmit={onNotSatisfiedFeedbackDetailsSubmit} />
     </>
   );
 }
