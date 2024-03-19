@@ -5,7 +5,7 @@ import { useStreamLog } from "./useStreamLog";
 import { useAppStreamCallbacks } from "./useStreamCallback";
 import { str } from "./utils/str";
 import { StreamOutput, streamOutputToString } from "./components/StreamOutput";
-import { useQuestions } from "./useQuestionAnalytics";
+import { NotSatisfiedDetailsPayload, useQuestions } from "./useQuestionAnalytics";
 import Feedback from "./components/Feedback"
 
 function QuestionInput({
@@ -88,7 +88,7 @@ function Playground() {
 
   const { context, callbacks } = useAppStreamCallbacks();
   const { startStream, stopStream, latest } = useStreamLog(callbacks);
-  const { recordQuestion, recordQuestionCompletion, recordFeedbackSatisfied, recordFeedbackNotSatisfied, currentQuestionId } =
+  const { recordQuestion, recordQuestionCompletion, recordFeedbackSatisfied, recordFeedbackNotSatisfied, recordFeedbackNotSatisfiedDetails, currentQuestionId } =
     useQuestions();
 
   const showLogsRef = useRef<(() => void) | null>(null);
@@ -138,6 +138,11 @@ function Playground() {
     currentQuestionId && recordFeedbackNotSatisfied(currentQuestionId)
   }
 
+  const onNotSatisfiedFeedbackDetailsSubmit = ({feedbackText, feedbackSql}: NotSatisfiedDetailsPayload) => { 
+    currentQuestionId && recordFeedbackNotSatisfiedDetails(currentQuestionId, {feedbackText, feedbackSql})
+  }
+
+
   return (
     <>
       <p>ID: {currentQuestionId || "null"}</p>
@@ -165,7 +170,7 @@ function Playground() {
             </>
           );
         })}
-        <Feedback handleSatisfiedFeedback={onSatisfiedFeedback} handleNotSatisfiedFeedback={onNotSatisfiedFeedback}/>
+        <Feedback handleSatisfiedFeedback={onSatisfiedFeedback} handleNotSatisfiedFeedback={onNotSatisfiedFeedback} handleNotSatisfiedFeedbackFormSubmit={onNotSatisfiedFeedbackDetailsSubmit} />
     </>
   );
 }

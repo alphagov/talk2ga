@@ -1,10 +1,5 @@
 import { resolveApiUrl } from "./utils/url";
-import { simplifySchema } from "./utils/simplifySchema";
-import { JsonSchema } from "@jsonforms/core";
 import { useState } from "react";
-
-import useSWR from "swr";
-import defaults from "./utils/defaults";
 
 
 
@@ -12,6 +7,11 @@ type QuestionCompletionPayload = {
   logs_json?: string | null;
   final_output?: string | null;
   duration?: number;
+}
+
+export type NotSatisfiedDetailsPayload = {
+  feedbackText: string;
+  feedbackSql?: string;
 }
 
 
@@ -94,12 +94,38 @@ export function useQuestions() {
     return json;
   };
   
+  const recordFeedbackNotSatisfiedDetails = async (questionId: string, payload: NotSatisfiedDetailsPayload) => {
+    const finalPayload = {
+      has_feedback: true,
+      is_feedback_positive: false,
+      feedback_text: payload.feedbackText,
+      suggested_sql_correction: payload.feedbackSql
+    }
+    const response = await fetch(
+      resolveApiUrl(`/question/${questionId}`),
+      {
+        method: "PUT",
+        body: JSON.stringify(finalPayload),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) throw new Error(await response.text());
+
+    const json = await response.json();
+
+    return json;
+  };
+  
 
   return {
     recordQuestion,
     recordQuestionCompletion,
     recordFeedbackSatisfied,
     recordFeedbackNotSatisfied,
+    recordFeedbackNotSatisfiedDetails,
     currentQuestionId,
   };
 }

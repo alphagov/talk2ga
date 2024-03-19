@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import "./feedback.css";
+import { NotSatisfiedDetailsPayload } from "../useQuestionAnalytics";
 
 enum FeedbackState {
   Default,
@@ -101,8 +102,8 @@ const validateForm = (detailData: TextInputData, sqlData: TextInputData) => {
   }
 
   if (
-    (sqlData?.data?.length ?? 0) < 20 ||
-    (sqlData?.data?.length ?? 0) > 10000
+    (sqlData?.data?.length && sqlData.data.length < 20) ||
+    (sqlData?.data?.length && sqlData.data.length > 10000)
   ) {
     errors.sqlData.push(
       "Please provide a SQL query that is between 20 and 2100 characters long."
@@ -112,7 +113,7 @@ const validateForm = (detailData: TextInputData, sqlData: TextInputData) => {
   return errors;
 };
 
-const FormFeedback = () => {
+const FormFeedback = ({onSubmit}: {onSubmit: (args: NotSatisfiedDetailsPayload) => void}) => {
   const [detailData, setDetailData] = useState<TextInputData>(null);
   const [sqlData, setSqlData] = useState<TextInputData>(null);
 
@@ -130,8 +131,9 @@ const FormFeedback = () => {
     }
 
     console.log("submitting", detailData?.data, sqlData?.data);
+    onSubmit({ feedbackText: detailData?.data || "", feedbackSql: sqlData?.data });
   };
-
+  
   return (
     <div
       className="gem-c-feedback__prompt gem-c-feedback__js-show js-prompt"
@@ -180,7 +182,7 @@ const FormFeedback = () => {
           }`}
         >
           <label className="govuk-label" htmlFor="feedbackSql">
-            If you know, please paste the correct SQL code for this question
+            (Optional) If you know, please paste the correct SQL code for this question
           </label>
           {sqlData?.errors.length ?
             sqlData?.errors.map((error, index) => (
@@ -235,6 +237,7 @@ const FormSentFeedback = () => (
 export default function Feedback({
   handleSatisfiedFeedback,
   handleNotSatisfiedFeedback,
+  handleNotSatisfiedFeedbackFormSubmit
 }) {
   const [state, setState] = useState<FeedbackState>(FeedbackState.Default);
 
@@ -249,6 +252,12 @@ export default function Feedback({
 
   let feedbackComponent;
 
+
+  const onSubmitFeedbackForm = (args: NotSatisfiedDetailsPayload) => {
+    handleNotSatisfiedFeedbackFormSubmit(args);
+    setState(FeedbackState.FormSent);
+  }
+
   if (state === FeedbackState.Default) {
     feedbackComponent = (
       <DefaultFeedback
@@ -259,7 +268,7 @@ export default function Feedback({
   } else if (state === FeedbackState.Satisfied) {
     feedbackComponent = <SatisfiedFeedback />;
   } else if (state === FeedbackState.Form) {
-    feedbackComponent = <FormFeedback />;
+    feedbackComponent = <FormFeedback onSubmit={onSubmitFeedbackForm} />;
   } else if (state === FeedbackState.FormSent) {
     feedbackComponent = <FormSentFeedback />;
   }
