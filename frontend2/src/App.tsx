@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useStreamLog } from "./useStreamLog";
 import { useAppStreamCallbacks } from "./useStreamCallback";
 import { str } from "./utils/str";
-import { streamOutputToString } from "./components/StreamOutput";
+import { StreamOutput, streamOutputToString } from "./components/StreamOutput";
 import { useQuestions } from "./useQuestionAnalytics";
 
 function QuestionInput({
@@ -142,7 +142,8 @@ function Playground() {
       />
       {latest &&
         latest.streamed_output &&
-        streamOutputToString(latest.streamed_output)}
+        <StreamOutput>{streamOutputToString(latest.streamed_output)}</StreamOutput>
+      }
       {showLogs &&
         latest &&
         latest.logs &&
