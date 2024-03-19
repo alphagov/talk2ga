@@ -5,8 +5,15 @@ import { useStreamLog } from "./useStreamLog";
 import { useAppStreamCallbacks } from "./useStreamCallback";
 import { str } from "./utils/str";
 import { StreamOutput } from "./components/StreamOutput";
+import { useQuestions } from "./useQuestionAnalytics";
 
-function QuestionInput({ startStream, stopStream, isStreaming, setIsStreaming, toggleShowLogs, showLogs}) {
+function QuestionInput({
+  handleSubmitQuestion,
+  handleStopStreaming,
+  isStreaming,
+  toggleShowLogs,
+  showLogs,
+}) {
   const [inputData, setInputData] = useState({
     data: "",
     errors: [],
@@ -15,12 +22,11 @@ function QuestionInput({ startStream, stopStream, isStreaming, setIsStreaming, t
   const submitRef = useRef<(() => void) | null>(null);
   submitRef.current = () => {
     console.log("submitRef.current");
-    console.log({inputData})
+    console.log({ inputData });
     if (isStreaming) {
-      stopStream();
-      setIsStreaming(false);
+      handleStopStreaming();
     } else {
-      startStream(inputData.data);
+      handleSubmitQuestion(inputData.data);
       setIsStreaming(true);
     }
   };
@@ -84,7 +90,8 @@ function Playground() {
 
   const { context, callbacks } = useAppStreamCallbacks();
   const { startStream, stopStream, latest } = useStreamLog(callbacks);
-  
+  const { recordQuestion, currentQuestionId } = useQuestions();
+
   const showLogsRef = useRef<(() => void) | null>(null);
   showLogsRef.current = () => {
     setShowLogs(() => !showLogs);
@@ -98,21 +105,44 @@ function Playground() {
       }
     });
   }, []);
+
+  const submitQuestion = (question: string) => {
+    recordQuestion(question);
+    startStream(question);
+    setIsStreaming(true);
+  };
+
+  const stopStreaming = () => {
+    stopStream && stopStream();
+    setIsStreaming(false);
+  };
+
   return (
     <>
-      <QuestionInput startStream={startStream} stopStream={stopStream} isStreaming={isStreaming} setIsStreaming={setIsStreaming} toggleShowLogs={showLogsRef.current} showLogs={showLogs} />
-      {
-        showLogs && latest && latest.logs && Object.values(latest.logs).map((log) => {
+      <QuestionInput
+        handleSubmitQuestion={submitQuestion}
+        handleStopStreaming={stopStreaming}
+        isStreaming={isStreaming}
+        toggleShowLogs={showLogsRef.current}
+        showLogs={showLogs}
+      />
+      {showLogs &&
+        latest &&
+        latest.logs &&
+        Object.values(latest.logs).map((log) => {
           return (
             <>
-            <p><strong className="text-sm font-medium">{log.name}</strong></p>
-            <p>{str(log.final_output) ?? "..."}</p>
-            <br/>
+              <p>
+                <strong className="text-sm font-medium">{log.name}</strong>
+              </p>
+              <p>{str(log.final_output) ?? "..."}</p>
+              <br />
             </>
-          )
-        })
-      }
-      {latest && latest.streamed_output && <StreamOutput streamed={latest.streamed_output} />}
+          );
+        })}
+      {latest && latest.streamed_output && (
+        <StreamOutput streamed={latest.streamed_output} />
+      )}
     </>
   );
 }

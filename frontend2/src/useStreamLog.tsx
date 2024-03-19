@@ -61,7 +61,7 @@ export function useStreamLog(callbacks: StreamCallback = {}) {
   const errorRef = useRef(callbacks.onError);
   errorRef.current = callbacks.onError;
 
-  const startStream = useCallback(async (input: unknown, config: unknown) => {
+  const startStream = useCallback(async (input: unknown, config?: unknown) => {
     const controller = new AbortController();
     setController(controller);
     startRef.current?.({ input });
