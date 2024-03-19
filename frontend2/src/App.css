@@ -95,18 +95,7 @@
 /* --------------------------------------------------------------- */
 
 
-.feedback-container {
-  background-color: light-gray;
-  display: flex;
-  align-items: center;
-}
-
-.feedback-container img {
-  width: 30px;
-  height: 30px;
-}
-
-.feedback-container img:hover {
-  opacity: 50%;
-  cursor: pointer;
+.feedback-form-container {
+  padding: 20px;
+  margin-top: 30px;
 }

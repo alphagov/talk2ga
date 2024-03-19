@@ -165,7 +165,6 @@ function Playground() {
             </>
           );
         })}
-        {/* {hasCompleted && <Feedback/>} */}
         <Feedback handleSatisfiedFeedback={onSatisfiedFeedback} handleNotSatisfiedFeedback={onNotSatisfiedFeedback}/>
     </>
   );
