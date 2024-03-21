@@ -2,10 +2,10 @@ from sqlmodel import SQLModel
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.orm import sessionmaker
+from webapp.config import get_db_url
 
-postgres_url = "postgresql+asyncpg://local:local@127.0.0.1:5433/local"
 
-engine = create_async_engine(postgres_url, echo=True)
+engine = create_async_engine(get_db_url(), echo=True)
 
 
 async def init_db():

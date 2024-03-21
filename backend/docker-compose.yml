@@ -7,9 +7,16 @@ services:
       POSTGRES_PASSWORD: local
       POSTGRES_DB: local
     ports:
-      - 5433:5432
+      - "5433:5432"
 
   api:
     build:
       context: .
       dockerfile: Dockerfile
+    environment:
+      - ENVIRONMENT=local-docker
+    volumes:
+      - $HOME/.config/gcloud:/root/.config/gcloud
+      - "./src:/home/app/src"
+    ports:
+      - "80:80"
