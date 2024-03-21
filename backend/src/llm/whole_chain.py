@@ -10,11 +10,33 @@ from llm.llm_chains import generate_sql, format_output
 from llm import config
 from llm import evaluation
 from llm import formatting
+from llm.prompts.smart_answers import pertains_to_smart_answers, smart_answers_prompt
 from llm.db import query_sql_trial
 
 
 @chain
 def create_gen_sql_input(question):
+    if pertains_to_smart_answers(question):
+        print("""
+\n\n\n
+##################
+              
+IS SMART ANSWER
+              
+##################
+\n\n\n
+              """)
+        question = smart_answers_prompt(question)
+    else:
+        print("""
+\n\n\n
+##################
+            
+NOT A SMART ANSWER QUESTION
+            
+##################
+\n\n\n
+                """)
     obj = {
         "DATASET": config.DATASET,
         "schema_description": get_schema_description(),

@@ -2,12 +2,3 @@ scripts
 .vscode
 .mypycache
 *.ipynb
-experiments/00*
-experiments/01*
-experiments/02*
-experiments/03*
-experiments/04*
-experiments/05-bq-vertex-ga4-full-dataset--guilhem/exp*
-experiments/05-bq-vertex-ga4-full-dataset--guilhem/new*
-experiments/05-bq-vertex-ga4-full-dataset--guilhem/static
-experiments/05-bq-vertex-ga4-full-dataset--guilhem/Makefile
