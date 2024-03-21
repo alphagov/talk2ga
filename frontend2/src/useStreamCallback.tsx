@@ -18,31 +18,39 @@ export const AppCallbackContext = createContext<MutableRefObject<{
 export function useAppStreamCallbacks() {
   // callbacks handling
   const context = useRef<{
-    onStart: Exclude<StreamCallback["onStart"], undefined>[];
-    onChunk: Exclude<StreamCallback["onChunk"], undefined>[];
-    onSuccess: Exclude<StreamCallback["onSuccess"], undefined>[];
-    onError: Exclude<StreamCallback["onError"], undefined>[];
-  }>({ onStart: [], onChunk: [], onSuccess: [], onError: [] });
+    onStart: Record<string, Exclude<StreamCallback["onStart"], undefined>>;
+    onChunk: Record<string, Exclude<StreamCallback["onChunk"], undefined>>;
+    onSuccess: Record<string, Exclude<StreamCallback["onSuccess"], undefined>>;
+    onError: Record<string, Exclude<StreamCallback["onError"], undefined>>;
+  }>({ onStart: {}, onChunk: {}, onSuccess: {}, onError: {} });
 
   const callbacks: StreamCallback = {
     onStart(...args) {
-      for (const callback of context.current.onStart) {
-        callback(...args);
+      for (const key in context.current.onStart) {
+        if (typeof context.current.onStart[key] === 'function') {
+          context.current.onStart[key](...args);
+        }
       }
     },
     onChunk(...args) {
-      for (const callback of context.current.onChunk) {
-        callback(...args);
+      for (const key in context.current.onChunk) {
+        if (typeof context.current.onChunk[key] === 'function') {
+          context.current.onChunk[key](...args);
+        }
       }
     },
     onSuccess(...args) {
-      for (const callback of context.current.onSuccess) {
-        callback(...args);
+      for (const key in context.current.onSuccess) {
+        if (typeof context.current.onSuccess[key] === 'function') {
+          context.current.onSuccess[key](...args);
+        }
       }
     },
     onError(...args) {
-      for (const callback of context.current.onError) {
-        callback(...args);
+      for (const key in context.current.onError) {
+        if (typeof context.current.onError[key] === 'function') {
+          context.current.onError[key](...args);
+        }
       }
     },
   };

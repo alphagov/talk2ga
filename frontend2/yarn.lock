@@ -934,6 +934,11 @@
   dependencies:
     "@babel/runtime" "^7.13.10"
 
+"@ramseyinhouse/feedback-component@^1.0.3":
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@ramseyinhouse/feedback-component/-/feedback-component-1.0.3.tgz#484a38300b6de0a3e9b8138ca1d31dcff8727304"
+  integrity sha512-tngSwllk6TYT+Q1sOWyMJoKyY4PHeMachJf5zGa7+07sBYCoFKPuV3CfAEdHoY4d4FbNznvg7BbTB+ZEHvxeKw==
+
 "@rollup/pluginutils@^5.0.4":
   version "5.0.5"
   resolved "https://registry.yarnpkg.com/@rollup/pluginutils/-/pluginutils-5.0.5.tgz#bbb4c175e19ebfeeb8c132c2eea0ecb89941a66c"
