@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import os
 from fastapi import FastAPI, Depends
 
 from langserve import add_routes
@@ -52,7 +53,6 @@ from pydantic import BaseModel
 from fastapi.encoders import jsonable_encoder
 from google.cloud import bigquery
 from llm.config import GCP_PROJECT
-from webapp.config import get_dataset_url
 from datetime import datetime
 import pytz
 from sqlmodel import Field, Session, SQLModel, create_engine, select
@@ -98,7 +98,7 @@ async def create_question(question_id: str, session: AsyncSession = Depends(get_
         
 
 
-app.mount("/static", StaticFiles(directory="/Users/guilhemforey/GDS/talk2ga/backend/src/webapp/static"), name="static")
+app.mount("/static", StaticFiles(directory=os.path.join("webapp","static")), name="static")
 
 @app.get("/")
 def hello_world():

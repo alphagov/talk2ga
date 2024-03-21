@@ -50,7 +50,7 @@ function QuestionInput({
           </label>
         </h1>
         <div id="more-detail-hint" className="govuk-hint">
-          Make sure to provide specific URLs or page titles
+          It is better to provide specific URLs or page titles
         </div>
         <textarea
           className="govuk-textarea"
