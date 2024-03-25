@@ -20,3 +20,11 @@ services:
       - "./src:/home/app/src"
     ports:
       - "80:80"
+
+  cloud-sql-proxy:
+    image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:2.10.1
+    volumes:
+      - $HOME/.config/gcloud/application_default_credentials.json:/path/to/service-account-key.json
+    ports:
+      - "127.0.0.1:5434:5432"
+    command: --address 0.0.0.0 --port 5432 --auto-iam-authn --credentials-file /path/to/service-account-key.json data-insights-experimentation:europe-west2:chat-analytics-dev
