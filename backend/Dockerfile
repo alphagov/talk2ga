@@ -18,6 +18,8 @@ RUN poetry install --no-ansi
 
 COPY --chown=999:999 src/ ./src
 
+RUN poetry run python -m pretty_errors -s
+
 WORKDIR /home/app/src
 
 CMD ["poetry", "run", "python", "run_app.py"]
