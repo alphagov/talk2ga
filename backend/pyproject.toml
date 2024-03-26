@@ -29,9 +29,11 @@ pytz = "^2024.1"
 asyncpg = "^0.29.0"
 fuzzywuzzy = "^0.18.0"
 python-levenshtein = "^0.25.0"
+cloud-sql-python-connector = "^1.8.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.1.1"
+pretty-errors = "^1.2.25"
 
 [build-system]
 requires = ["poetry-core"]

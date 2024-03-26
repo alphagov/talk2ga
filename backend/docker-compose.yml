@@ -14,7 +14,7 @@ services:
       context: .
       dockerfile: Dockerfile
     environment:
-      - ENVIRONMENT=local-docker
+      - DB_URL=postgresql+asyncpg://local:local@db:5432/local
     volumes:
       - $HOME/.config/gcloud:/root/.config/gcloud
       - "./src:/home/app/src"

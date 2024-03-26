@@ -6,3 +6,4 @@ node_modules
 .vscode
 backend/src/webapp/static/
 frontend/dist
+.envrc
