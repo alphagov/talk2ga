@@ -11,14 +11,30 @@ import {
 } from "./useQuestionAnalytics";
 import Feedback from "./components/Feedback";
 
+
+
+
+type InputData = {
+  data: string;
+  errors: string[];
+};
+
+type QuestionInputProps = {
+  handleSubmitQuestion: (data: string) => void;
+  handleStopStreaming?: () => void;
+  isStreaming: boolean;
+  toggleShowLogs: () => void;
+  showLogs: boolean;
+};
+
 function QuestionInput({
   handleSubmitQuestion,
   handleStopStreaming,
   isStreaming,
   toggleShowLogs,
   showLogs,
-}) {
-  const [inputData, setInputData] = useState({
+}: QuestionInputProps) {
+  const [inputData, setInputData] = useState<InputData>({
     data: "",
     errors: [],
   });
@@ -26,7 +42,7 @@ function QuestionInput({
   const submitRef = useRef<(() => void) | null>(null);
   submitRef.current = () => {
     if (isStreaming) {
-      handleStopStreaming();
+      handleStopStreaming && handleStopStreaming();
     } else {
       handleSubmitQuestion(inputData.data);
     }
@@ -85,7 +101,7 @@ function QuestionInput({
   );
 }
 
-const Typewriter = ({ text, delay }) => {
+const Typewriter = ({ text, delay }: { text: string, delay: number }) => {
   const [currentText, setCurrentText] = useState("");
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -113,7 +129,7 @@ function Playground() {
   const [isStreaming, setIsStreaming] = useState(false);
   const [showLogs, setShowLogs] = useState(false);
 
-  const [hasCompleted, setHasCompleted] = useState<bool>(false);
+  const [hasCompleted, setHasCompleted] = useState<boolean>(false);
 
   const { context, callbacks } = useAppStreamCallbacks();
   const { startStream, stopStream, latest } = useStreamLog(callbacks);
@@ -187,7 +203,7 @@ function Playground() {
   };
 
   const isLoading = isStreaming && !hasCompleted;
-
+  
   return (
     <>
       <QuestionInput
@@ -198,7 +214,7 @@ function Playground() {
         showLogs={showLogs}
       />
       {isLoading && <Loading />}
-      {hasCompleted && (
+      {hasCompleted && latest && (
         <StreamOutput>
           {streamOutputToString(latest.streamed_output)}
         </StreamOutput>

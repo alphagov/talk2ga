@@ -104,7 +104,7 @@ export function streamOutputToString(streamed: unknown[]) {
   return streamed.map(str).join("") || "...";
 }
 
-export function StreamOutput({ children }) {
+export function StreamOutput({ children }: { children: React.ReactNode }) {
   return (
     <div
       className="govuk-notification-banner"

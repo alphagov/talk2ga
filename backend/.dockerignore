@@ -2,3 +2,8 @@ scripts
 .vscode
 .mypycache
 *.ipynb
+docs
+.envrc
+__pycache__
+node_modules
+tests
