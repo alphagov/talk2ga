@@ -11,6 +11,7 @@ import {
 } from "./useQuestionAnalytics";
 import Feedback from "./components/Feedback";
 import SQLViewer from "./components/SQLViewer";
+import { useStreamLogExplain } from "./useStreamLogExplain";
 
 type InputData = {
   data: string;
@@ -134,6 +135,8 @@ function Playground() {
 
   const { context, callbacks } = useAppStreamCallbacks();
   const { startStream, stopStream, latest } = useStreamLog(callbacks);
+  const { startStreamExplain, stopStreamExplain, latestExplain } =
+    useStreamLogExplain(callbacks);
   const {
     recordQuestion,
     recordQuestionCompletion,
@@ -206,8 +209,12 @@ function Playground() {
   const getSqlFromLogs = () =>
     latest &&
     latest.logs &&
-    Object.values(latest.logs).find((l) => l.name === "RunnableParallel<pure_sql,question>")
+    Object.values(latest.logs)
+      .find((l) => l.name === "RunnableParallel<pure_sql,question>")
       ?.final_output?.pure_sql.replace("\\n", " ");
+
+  const handleExplainSQLClick = () =>
+    startStreamExplain(question, getSqlFromLogs());
 
   const isLoading = isStreaming && !hasCompleted;
   const showSQL = true;
@@ -215,7 +222,7 @@ function Playground() {
   return (
     <>
       <div className="govuk-grid-row">
-        <div className={showSQL ? "govuk-grid-column-two-thirds" : ""}>
+        <div>
           <QuestionInput
             handleSubmitQuestion={startStream}
             handleStopStreaming={stopStream}
@@ -238,29 +245,40 @@ function Playground() {
               }
             />
           )}
-          {showLogs &&
-            latest &&
-            latest.logs &&
-            Object.values(latest.logs).map((log) => {
-              if (log.name === "RunnableParallel<pure_sql,question>") {
-                console.log({ finalOutput: log.final_output });
-              }
-              return (
-                <>
-                  <p>
-                    <strong className="text-sm font-medium">{log.name}</strong>
-                  </p>
-                  <p>{str(log.final_output) ?? "..."}</p>
-                  <br />
-                </>
-              );
-            })}
         </div>
-        {showSQL && hasCompleted && (
-          <div className="govuk-grid-column-one-third">
+      </div>
+      {showSQL && hasCompleted && (
+        <div className="govuk-grid-row">
+          <div className="govuk-grid-column-two-thirds">
             <SQLViewer sql={getSqlFromLogs()} />
+            <button
+              onClick={handleExplainSQLClick}
+              className="govuk-button"
+              data-module="govuk-button"
+            >
+              Explain
+            </button>
           </div>
-        )}
+        </div>
+      )}
+      <div className="govuk-grid-row">
+        {showLogs &&
+          latest &&
+          latest.logs &&
+          Object.values(latest.logs).map((log) => {
+            if (log.name === "RunnableParallel<pure_sql,question>") {
+              console.log({ finalOutput: log.final_output });
+            }
+            return (
+              <>
+                <p>
+                  <strong className="text-sm font-medium">{log.name}</strong>
+                </p>
+                <p>{str(log.final_output) ?? "..."}</p>
+                <br />
+              </>
+            );
+          })}
       </div>
     </>
   );
