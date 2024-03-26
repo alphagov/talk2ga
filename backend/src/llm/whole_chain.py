@@ -17,26 +17,10 @@ from llm.db import query_sql_trial
 @chain
 def create_gen_sql_input(question):
     if pertains_to_smart_answers(question):
-        print("""
-\n\n\n
-##################
-              
-IS SMART ANSWER
-              
-##################
-\n\n\n
-              """)
+        print("IS SMART ANSWER")
         question = smart_answers_prompt(question)
     else:
-        print("""
-\n\n\n
-##################
-            
-NOT A SMART ANSWER QUESTION
-            
-##################
-\n\n\n
-                """)
+        print("NOT A SMART ANSWER QUESTION")
     obj = {
         "DATASET": config.DATASET,
         "schema_description": get_schema_description(),
