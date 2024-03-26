@@ -88,3 +88,14 @@
 .vertical-layout {
   @apply flex flex-col gap-4;
 }
+
+
+/* --------------------------------------------------------------- */
+/* CUSTOM STYLES */
+/* --------------------------------------------------------------- */
+
+
+.feedback-form-container {
+  padding: 20px;
+  margin-top: 30px;
+}
