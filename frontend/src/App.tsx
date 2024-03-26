@@ -10,9 +10,7 @@ import {
   useQuestions,
 } from "./useQuestionAnalytics";
 import Feedback from "./components/Feedback";
-
-
-
+import SQLViewer from "./components/SQLViewer";
 
 type InputData = {
   data: string;
@@ -101,7 +99,7 @@ function QuestionInput({
   );
 }
 
-const Typewriter = ({ text, delay }: { text: string, delay: number }) => {
+const Typewriter = ({ text, delay }: { text: string; delay: number }) => {
   const [currentText, setCurrentText] = useState("");
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -121,7 +119,10 @@ const Typewriter = ({ text, delay }: { text: string, delay: number }) => {
 
 const Loading = () => (
   <div className="govuk-inset-text">
-    <Typewriter text="Thinking about it 🤔... Writing some SQL 💻... Running some queries 🏃‍♂️... Crafting an answer ✍️..." delay={20} />
+    <Typewriter
+      text="Thinking about it 🤔... Writing some SQL 💻... Running some queries 🏃‍♂️... Crafting an answer ✍️..."
+      delay={20}
+    />
   </div>
 );
 
@@ -202,46 +203,65 @@ function Playground() {
       });
   };
 
+  const getSqlFromLogs = () =>
+    latest &&
+    latest.logs &&
+    Object.values(latest.logs).find((l) => l.name === "RunnableParallel<pure_sql,question>")
+      ?.final_output?.pure_sql.replace("\\n", " ");
+
   const isLoading = isStreaming && !hasCompleted;
-  
+  const showSQL = true;
+
   return (
     <>
-      <QuestionInput
-        handleSubmitQuestion={startStream}
-        handleStopStreaming={stopStream}
-        isStreaming={isStreaming}
-        toggleShowLogs={showLogsRef.current}
-        showLogs={showLogs}
-      />
-      {isLoading && <Loading />}
-      {hasCompleted && latest && (
-        <StreamOutput>
-          {streamOutputToString(latest.streamed_output)}
-        </StreamOutput>
-      )}
-      {hasCompleted && (
-        <Feedback
-          handleSatisfiedFeedback={onSatisfiedFeedback}
-          handleNotSatisfiedFeedback={onNotSatisfiedFeedback}
-          handleNotSatisfiedFeedbackFormSubmit={
-            onNotSatisfiedFeedbackDetailsSubmit
-          }
-        />
-      )}
-      {showLogs &&
-        latest &&
-        latest.logs &&
-        Object.values(latest.logs).map((log) => {
-          return (
-            <>
-              <p>
-                <strong className="text-sm font-medium">{log.name}</strong>
-              </p>
-              <p>{str(log.final_output) ?? "..."}</p>
-              <br />
-            </>
-          );
-        })}
+      <div className="govuk-grid-row">
+        <div className={showSQL ? "govuk-grid-column-two-thirds" : ""}>
+          <QuestionInput
+            handleSubmitQuestion={startStream}
+            handleStopStreaming={stopStream}
+            isStreaming={isStreaming}
+            toggleShowLogs={showLogsRef.current}
+            showLogs={showLogs}
+          />
+          {isLoading && <Loading />}
+          {hasCompleted && latest && (
+            <StreamOutput>
+              {streamOutputToString(latest.streamed_output)}
+            </StreamOutput>
+          )}
+          {hasCompleted && (
+            <Feedback
+              handleSatisfiedFeedback={onSatisfiedFeedback}
+              handleNotSatisfiedFeedback={onNotSatisfiedFeedback}
+              handleNotSatisfiedFeedbackFormSubmit={
+                onNotSatisfiedFeedbackDetailsSubmit
+              }
+            />
+          )}
+          {showLogs &&
+            latest &&
+            latest.logs &&
+            Object.values(latest.logs).map((log) => {
+              if (log.name === "RunnableParallel<pure_sql,question>") {
+                console.log({ finalOutput: log.final_output });
+              }
+              return (
+                <>
+                  <p>
+                    <strong className="text-sm font-medium">{log.name}</strong>
+                  </p>
+                  <p>{str(log.final_output) ?? "..."}</p>
+                  <br />
+                </>
+              );
+            })}
+        </div>
+        {showSQL && hasCompleted && (
+          <div className="govuk-grid-column-one-third">
+            <SQLViewer sql={getSqlFromLogs()} />
+          </div>
+        )}
+      </div>
     </>
   );
 }

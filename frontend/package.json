@@ -30,8 +30,10 @@
     "govuk-frontend": "^5.2.0",
     "lodash": "^4.17.21",
     "lz-string": "^1.5.0",
+    "prismjs": "^1.29.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "sql-formatter": "^15.3.0",
     "styled-components": "^6.1.8",
     "swr": "^2.2.4",
     "tailwind-merge": "^1.14.0",
@@ -40,6 +42,7 @@
   },
   "devDependencies": {
     "@types/lodash": "^4.14.200",
+    "@types/node": "^20.11.30",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
