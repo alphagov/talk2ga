@@ -1,18 +1,12 @@
 import { useEffect, useState } from "react";
 import { format } from "sql-formatter";
+// @ts-ignore
 import Prism from "prismjs";
 import "prismjs/components/prism-sql";
 import "prismjs/themes/prism-coy.css";
 import { useStreamLogExplain } from "../useStreamLogExplain";
 import { useAppStreamCallbacks } from "../useStreamCallback";
 import { streamOutputToString } from "../utils/streamToString";
-
-const sqlExample = `
-SELECT COUNT(CustomerID), Country
-FROM Customers
-GROUP BY Country
-HAVING COUNT(CustomerID) > 5;
-`;
 
 type SQLViewerProps = {
   sql: string;
@@ -21,7 +15,7 @@ type SQLViewerProps = {
 
 const SQLViewer = ({ sql, question }: SQLViewerProps) => {
   const { context, callbacks } = useAppStreamCallbacks();
-  const { startStream, stopStream, latest } = useStreamLogExplain(callbacks);
+  const { startStream, latest } = useStreamLogExplain(callbacks);
   const [isStreaming, setIsStreaming] = useState(false);
   const [hasCompleted, setHasCompleted] = useState<boolean>(false);
 

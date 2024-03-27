@@ -122,7 +122,7 @@ function Playground() {
   const getSqlFromLogs = () =>
     latest &&
     latest.logs &&
-    Object.values(latest.logs)
+    (Object.values(latest.logs) as any[])
       .find((l) => l.name === "RunnableParallel<pure_sql,question>")
       ?.final_output?.pure_sql.replace("\\n", " ");
 
@@ -167,7 +167,7 @@ function Playground() {
             />
           )}
         </div>
-        {showSql && (
+        {showSql && question && (
           <div className="govuk-grid-column-one-half">
             <SQLViewer
               question={question}

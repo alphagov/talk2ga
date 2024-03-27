@@ -81,14 +81,16 @@ function QuestionInput({
         >
           {isStreaming ? "Abort" : "Submit"}
         </button>
-        <button
-          onClick={toggleShowLogs}
-          type="submit"
-          className="govuk-button govuk-button--secondary"
-          data-module="govuk-button"
-        >
-          {showLogs ? "Hide Logs" : "Show Logs"}
-        </button>
+        {hasCompleted && (
+          <button
+            onClick={toggleShowLogs}
+            type="submit"
+            className="govuk-button govuk-button--secondary"
+            data-module="govuk-button"
+          >
+            {showLogs ? "Hide Logs" : "Show Logs"}
+          </button>
+        )}
         {hasCompleted && (
           <button
             onClick={toggleShowSQL}
