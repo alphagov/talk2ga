@@ -1,4 +1,4 @@
-import { str } from "../utils/str";
+import { str } from "./str";
 
 // inlined from langchain/schema
 interface BaseMessageFields {
@@ -74,57 +74,32 @@ class AIMessageChunk {
 }
 
 function isAiMessageChunkFields(value: unknown): value is BaseMessageFields {
-  if (typeof value !== "object" || value == null) return false;
-  return "content" in value && typeof value["content"] === "string";
-}
-
-function isAiMessageChunkFieldsList(
-  value: unknown[]
-): value is BaseMessageFields[] {
-  return value.length > 0 && value.every((x) => isAiMessageChunkFields(x));
-}
-
-export function streamOutputToString(streamed: unknown[]) {
-  // check if we're streaming AIMessageChunk
-  if (isAiMessageChunkFieldsList(streamed)) {
-    const concat = streamed.reduce<AIMessageChunk | null>((memo, field) => {
-      const chunk = new AIMessageChunk(field);
-      if (memo == null) return chunk;
-      return memo.concat(chunk);
-    }, null);
-
-    const functionCall = concat?.additional_kwargs?.function_call;
-    return (
-      concat?.content ||
-      (!!functionCall && JSON.stringify(functionCall, null, 2)) ||
-      "..."
-    );
+    if (typeof value !== "object" || value == null) return false;
+    return "content" in value && typeof value["content"] === "string";
   }
 
-  return streamed.map(str).join("") || "...";
-}
+function isAiMessageChunkFieldsList(
+    value: unknown[]
+  ): value is BaseMessageFields[] {
+    return value.length > 0 && value.every((x) => isAiMessageChunkFields(x));
+  }
 
-export function StreamOutput({ children }: { children: React.ReactNode }) {
-  return (
-    <div
-      className="govuk-notification-banner"
-      role="region"
-      aria-labelledby="govuk-notification-banner-title"
-      data-module="govuk-notification-banner"
-    >
-      <div className="govuk-notification-banner__header">
-        <h2
-          className="govuk-notification-banner__title"
-          id="govuk-notification-banner-title"
-        >
-          Answer
-        </h2>
-      </div>
-      <div className="govuk-notification-banner__content">
-        <p className="govuk-notification-banner__heading">
-          {children}
-        </p>
-      </div>
-    </div>
-  );
-}
+export function streamOutputToString(streamed: unknown[]) {
+    // check if we're streaming AIMessageChunk
+    if (isAiMessageChunkFieldsList(streamed)) {
+      const concat = streamed.reduce<AIMessageChunk | null>((memo, field) => {
+        const chunk = new AIMessageChunk(field);
+        if (memo == null) return chunk;
+        return memo.concat(chunk);
+      }, null);
+  
+      const functionCall = concat?.additional_kwargs?.function_call;
+      return (
+        concat?.content ||
+        (!!functionCall && JSON.stringify(functionCall, null, 2)) ||
+        "..."
+      );
+    }
+  
+    return streamed.map(str).join("") || "...";
+  }

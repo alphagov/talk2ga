@@ -4,14 +4,15 @@ import { useEffect, useRef, useState } from "react";
 import { useStreamLog } from "./useStreamLog";
 import { useAppStreamCallbacks } from "./useStreamCallback";
 import { str } from "./utils/str";
-import { StreamOutput, streamOutputToString } from "./components/StreamOutput";
+import { streamOutputToString } from "./utils/streamToString";
+import { MainAnswer } from "./components/MainAnswer";
 import {
   NotSatisfiedDetailsPayload,
   useQuestions,
 } from "./useQuestionAnalytics";
 import Feedback from "./components/Feedback";
 import SQLViewer from "./components/SQLViewer";
-import { useStreamLogExplain } from "./useStreamLogExplain";
+
 import QuestionInput from "./components/QuestionInput";
 import TypeWriterLoading from "./components/TypeWriterLoading";
 
@@ -19,13 +20,14 @@ function Playground() {
   const [isStreaming, setIsStreaming] = useState(false);
   const [showLogs, setShowLogs] = useState(false);
   const [showSQLBtnActive, setShowSQLBtnActive] = useState(false);
+  const [question, setQuestion] = useState<string | null>(null);
 
   const [hasCompleted, setHasCompleted] = useState<boolean>(false);
 
   const { context, callbacks } = useAppStreamCallbacks();
+
   const { startStream, stopStream, latest } = useStreamLog(callbacks);
-  const { startStreamExplain, stopStreamExplain, latestExplain } =
-    useStreamLogExplain(callbacks);
+
   const {
     recordQuestion,
     recordQuestionCompletion,
@@ -49,8 +51,11 @@ function Playground() {
     });
   }, []);
 
+  /* Callbacks for ASK QUESTION */
   useEffect(() => {
     // OnStart callbacks
+    context.current.onStart["setQuestion"] = ({ input }) =>
+      setQuestion(input as string);
     context.current.onStart["recordQuestion"] = ({ input }) =>
       recordQuestion(input as string);
     context.current.onStart["setIsStreaming"] = () => setIsStreaming(true);
@@ -102,9 +107,6 @@ function Playground() {
       .find((l) => l.name === "RunnableParallel<pure_sql,question>")
       ?.final_output?.pure_sql.replace("\\n", " ");
 
-  const handleExplainSQLClick = () =>
-    startStreamExplain(question, getSqlFromLogs());
-
   const isLoading = isStreaming && !hasCompleted;
 
   const handleToggleShowSQL = () =>
@@ -131,9 +133,9 @@ function Playground() {
           />
           {isLoading && <TypeWriterLoading />}
           {hasCompleted && latest && (
-            <StreamOutput>
+            <MainAnswer>
               {streamOutputToString(latest.streamed_output)}
-            </StreamOutput>
+            </MainAnswer>
           )}
           {hasCompleted && (
             <Feedback
@@ -147,14 +149,10 @@ function Playground() {
         </div>
         {showSql && (
           <div className="govuk-grid-column-one-half">
-            <SQLViewer sql={hasCompleted ? getSqlFromLogs() : undefined} />
-            <button
-              onClick={handleExplainSQLClick}
-              className="govuk-button"
-              data-module="govuk-button"
-            >
-              Explain
-            </button>
+            <SQLViewer
+              question={question}
+              sql={hasCompleted ? getSqlFromLogs() : undefined}
+            />
           </div>
         )}
       </div>

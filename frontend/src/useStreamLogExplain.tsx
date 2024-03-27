@@ -46,7 +46,7 @@ function reducer(state: RunState | null, action: Operation[]) {
 }
 
 export function useStreamLogExplain(callbacks: StreamCallback = {}) {
-  const [latestExplain, setLatestExplain] = useState<RunState | null>(null);
+  const [latest, setLatest] = useState<RunState | null>(null);
   const [controller, setController] = useState<AbortController | null>(null);
 
   const startRef = useRef(callbacks.onStart);
@@ -61,15 +61,16 @@ export function useStreamLogExplain(callbacks: StreamCallback = {}) {
   const errorRef = useRef(callbacks.onError);
   errorRef.current = callbacks.onError;
 
-  const startStreamExplain = useCallback(
+  const startStream = useCallback(
     async (question: string, sql: string, config?: unknown) => {
+      console.log("in");
       const input = JSON.stringify({ question, sql });
       const controller = new AbortController();
       setController(controller);
       startRef.current?.({ input });
 
       let innerLatest: RunState | null = null;
-
+      console.log("feth");
       await fetchEventSource(resolveApiUrl("/explain/stream_log").toString(), {
         signal: controller.signal,
         method: "POST",
@@ -78,7 +79,7 @@ export function useStreamLogExplain(callbacks: StreamCallback = {}) {
         onmessage(msg) {
           if (msg.event === "data") {
             innerLatest = reducer(innerLatest, JSON.parse(msg.data)?.ops);
-            setLatestExplain(innerLatest);
+            setLatest(innerLatest);
             chunkRef.current?.(JSON.parse(msg.data), innerLatest);
           }
         },
@@ -97,14 +98,14 @@ export function useStreamLogExplain(callbacks: StreamCallback = {}) {
     []
   );
 
-  const stopStreamExplain = useCallback(() => {
+  const stopStream = useCallback(() => {
     controller?.abort();
     setController(null);
   }, [controller]);
 
   return {
-    startStreamExplain,
-    stopStreamExplain: controller ? stopStreamExplain : undefined,
-    latestExplain,
+    startStream,
+    stopStream: controller ? stopStream : undefined,
+    latest,
   };
 }
