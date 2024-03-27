@@ -12,5 +12,4 @@ import relativeDate from "dayjs/plugin/relativeTime";
 dayjs.extend(relativeDate);
 dayjs.extend(utc);
 
-
 ReactDOM.createRoot(document.getElementById("root")!).render(<App />);

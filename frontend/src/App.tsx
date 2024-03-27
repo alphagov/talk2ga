@@ -12,124 +12,13 @@ import {
 import Feedback from "./components/Feedback";
 import SQLViewer from "./components/SQLViewer";
 import { useStreamLogExplain } from "./useStreamLogExplain";
-
-type InputData = {
-  data: string;
-  errors: string[];
-};
-
-type QuestionInputProps = {
-  handleSubmitQuestion: (data: string) => void;
-  handleStopStreaming?: () => void;
-  isStreaming: boolean;
-  toggleShowLogs: () => void;
-  showLogs: boolean;
-};
-
-function QuestionInput({
-  handleSubmitQuestion,
-  handleStopStreaming,
-  isStreaming,
-  toggleShowLogs,
-  showLogs,
-}: QuestionInputProps) {
-  const [inputData, setInputData] = useState<InputData>({
-    data: "",
-    errors: [],
-  });
-
-  const submitRef = useRef<(() => void) | null>(null);
-  submitRef.current = () => {
-    if (isStreaming) {
-      handleStopStreaming && handleStopStreaming();
-    } else {
-      handleSubmitQuestion(inputData.data);
-    }
-  };
-
-  useEffect(() => {
-    window.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault();
-        submitRef.current?.();
-      }
-    });
-  }, []);
-
-  return (
-    <div>
-      <div className="govuk-form-group">
-        <h1 className="govuk-label-wrapper">
-          <label className="govuk-label govuk-label--l">
-            What is your question?
-          </label>
-        </h1>
-        <div id="more-detail-hint" className="govuk-hint">
-          It is better to provide specific URLs or page titles
-        </div>
-        <textarea
-          className="govuk-textarea"
-          id="more-detail"
-          name="moreDetail"
-          rows={1}
-          aria-describedby="more-detail-hint"
-          value={inputData.data}
-          onChange={(e) => {
-            const target = e.target as HTMLTextAreaElement;
-            setInputData({ data: target.value, errors: [] });
-          }}
-        ></textarea>
-      </div>
-      <button
-        onClick={submitRef.current}
-        type="submit"
-        className="govuk-button"
-        data-module="govuk-button"
-      >
-        {isStreaming ? "Abort" : "Submit"}
-      </button>
-      <button
-        onClick={toggleShowLogs}
-        type="submit"
-        className="govuk-button"
-        data-module="govuk-button"
-      >
-        {showLogs ? "Hide Logs" : "Show Logs"}
-      </button>
-    </div>
-  );
-}
-
-const Typewriter = ({ text, delay }: { text: string; delay: number }) => {
-  const [currentText, setCurrentText] = useState("");
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  useEffect(() => {
-    if (currentIndex < text.length) {
-      const timeout = setTimeout(() => {
-        setCurrentText((prevText) => prevText + text[currentIndex]);
-        setCurrentIndex((prevIndex) => prevIndex + 1);
-      }, delay);
-
-      return () => clearTimeout(timeout);
-    }
-  }, [currentIndex, delay, text]); // Depend on currentIndex, delay, and text for re-render
-
-  return <span>{currentText}</span>;
-};
-
-const Loading = () => (
-  <div className="govuk-inset-text">
-    <Typewriter
-      text="Thinking about it 🤔... Writing some SQL 💻... Running some queries 🏃‍♂️... Crafting an answer ✍️..."
-      delay={20}
-    />
-  </div>
-);
+import QuestionInput from "./components/QuestionInput";
+import TypeWriterLoading from "./components/TypeWriterLoading";
 
 function Playground() {
   const [isStreaming, setIsStreaming] = useState(false);
   const [showLogs, setShowLogs] = useState(false);
+  const [showSQLBtnActive, setShowSQLBtnActive] = useState(false);
 
   const [hasCompleted, setHasCompleted] = useState<boolean>(false);
 
@@ -217,20 +106,30 @@ function Playground() {
     startStreamExplain(question, getSqlFromLogs());
 
   const isLoading = isStreaming && !hasCompleted;
-  const showSQL = true;
+
+  const handleToggleShowSQL = () =>
+    setShowSQLBtnActive(() => !showSQLBtnActive);
+
+  const showSql = hasCompleted && showSQLBtnActive;
 
   return (
     <>
       <div className="govuk-grid-row">
-        <div>
+        <div
+          className={
+            showSql ? "govuk-grid-column-one-half" : "govuk-grid-column-full"
+          }
+        >
           <QuestionInput
             handleSubmitQuestion={startStream}
             handleStopStreaming={stopStream}
             isStreaming={isStreaming}
             toggleShowLogs={showLogsRef.current}
+            toggleShowSQL={handleToggleShowSQL}
             showLogs={showLogs}
+            hasCompleted={hasCompleted}
           />
-          {isLoading && <Loading />}
+          {isLoading && <TypeWriterLoading />}
           {hasCompleted && latest && (
             <StreamOutput>
               {streamOutputToString(latest.streamed_output)}
@@ -246,11 +145,9 @@ function Playground() {
             />
           )}
         </div>
-      </div>
-      {showSQL && hasCompleted && (
-        <div className="govuk-grid-row">
-          <div className="govuk-grid-column-two-thirds">
-            <SQLViewer sql={getSqlFromLogs()} />
+        {showSql && (
+          <div className="govuk-grid-column-one-half">
+            <SQLViewer sql={hasCompleted ? getSqlFromLogs() : undefined} />
             <button
               onClick={handleExplainSQLClick}
               className="govuk-button"
@@ -259,16 +156,13 @@ function Playground() {
               Explain
             </button>
           </div>
-        </div>
-      )}
+        )}
+      </div>
       <div className="govuk-grid-row">
         {showLogs &&
           latest &&
           latest.logs &&
           Object.values(latest.logs).map((log) => {
-            if (log.name === "RunnableParallel<pure_sql,question>") {
-              console.log({ finalOutput: log.final_output });
-            }
             return (
               <>
                 <p>
