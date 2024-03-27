@@ -12,6 +12,7 @@ type QuestionInputProps = {
   toggleShowLogs: () => void;
   toggleShowSQL: () => void;
   showLogs: boolean;
+  showSQLBtnActive: boolean;
   hasCompleted: boolean;
 };
 
@@ -22,6 +23,7 @@ function QuestionInput({
   toggleShowLogs,
   toggleShowSQL,
   showLogs,
+  showSQLBtnActive,
   hasCompleted,
 }: QuestionInputProps) {
   const [inputData, setInputData] = useState<InputData>({
@@ -94,7 +96,7 @@ function QuestionInput({
             className="govuk-button govuk-button--secondary"
             data-module="govuk-button"
           >
-            {showLogs ? "Hide SQL" : "Show SQL"}
+            {showSQLBtnActive ? "Hide SQL" : "Show SQL"}
           </button>
         )}
       </div>
