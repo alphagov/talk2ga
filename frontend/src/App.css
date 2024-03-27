@@ -11,3 +11,8 @@
 .questionBtnsContainer button {
   margin-right: 10px;
 }
+
+.logs-container * {
+  margin-top: 20px;
+  font-size: 12px !important;
+}
