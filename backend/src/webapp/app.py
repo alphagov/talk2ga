@@ -8,6 +8,7 @@ from llm.llm_chains.generate_sql import chain as generate_sql
 
 from llm import db
 from llm.whole_chain import whole_chain
+from llm.llm_chains.explain import explain_sql_chain
 
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -41,6 +42,13 @@ add_routes(
     app,
     whole_chain.with_types(input_type=str, output_type=str),
     path="/whole-chain",
+)
+
+
+add_routes(
+    app,
+    explain_sql_chain.with_types(input_type=str, output_type=str),
+    path="/explain",
 )
 
 #######
