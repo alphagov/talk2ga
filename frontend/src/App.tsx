@@ -3,7 +3,6 @@ import "./App.css";
 import { useEffect, useRef, useState } from "react";
 import { useStreamLog } from "./useStreamLog";
 import { useAppStreamCallbacks } from "./useStreamCallback";
-import { str } from "./utils/str";
 import { streamOutputToString } from "./utils/streamToString";
 import { MainAnswer } from "./components/MainAnswer";
 import {
@@ -15,6 +14,7 @@ import SQLViewer from "./components/SQLViewer";
 
 import QuestionInput from "./components/QuestionInput";
 import TypeWriterLoading from "./components/TypeWriterLoading";
+import Logs from "./components/Logs";
 
 function Playground() {
   const [isStreaming, setIsStreaming] = useState(false);
@@ -157,20 +157,7 @@ function Playground() {
         )}
       </div>
       <div className="govuk-grid-row">
-        {showLogs &&
-          latest &&
-          latest.logs &&
-          Object.values(latest.logs).map((log) => {
-            return (
-              <>
-                <p>
-                  <strong className="text-sm font-medium">{log.name}</strong>
-                </p>
-                <p>{str(log.final_output) ?? "..."}</p>
-                <br />
-              </>
-            );
-          })}
+        {showLogs && latest && latest.logs && <Logs logs={latest.logs} />}
       </div>
     </>
   );

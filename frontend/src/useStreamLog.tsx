@@ -68,29 +68,32 @@ export function useStreamLog(callbacks: StreamCallback = {}) {
 
     let innerLatest: RunState | null = null;
 
-    await fetchEventSource(resolveApiUrl("/whole-chain/stream_log").toString(), {
-      signal: controller.signal,
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ input, config }),
-      onmessage(msg) {
-        if (msg.event === "data") {
-          innerLatest = reducer(innerLatest, JSON.parse(msg.data)?.ops);
-          setLatest(innerLatest);
-          chunkRef.current?.(JSON.parse(msg.data), innerLatest);
-        }
-      },
-      openWhenHidden: true,
-      onclose() {
-        setController(null);
-        successRef.current?.({ input, output: innerLatest?.final_output });
-      },
-      onerror(error) {
-        setController(null);
-        errorRef.current?.();
-        throw error;
-      },
-    });
+    await fetchEventSource(
+      resolveApiUrl("/whole-chain/stream_log").toString(),
+      {
+        signal: controller.signal,
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ input, config }),
+        onmessage(msg) {
+          if (msg.event === "data") {
+            innerLatest = reducer(innerLatest, JSON.parse(msg.data)?.ops);
+            setLatest(innerLatest);
+            chunkRef.current?.(JSON.parse(msg.data), innerLatest);
+          }
+        },
+        openWhenHidden: true,
+        onclose() {
+          setController(null);
+          successRef.current?.({ input, output: innerLatest?.final_output });
+        },
+        onerror(error) {
+          setController(null);
+          errorRef.current?.();
+          throw error;
+        },
+      }
+    );
   }, []);
 
   const stopStream = useCallback(() => {
