@@ -16,11 +16,22 @@ import QuestionInput from "./components/QuestionInput";
 import TypeWriterLoading from "./components/TypeWriterLoading";
 import Logs from "./components/Logs";
 
+type DurationTrack = {
+  startTime?: Date;
+  endTime?: Date;
+  durationMs?: number;
+};
+
+const DEFAULT_DURATION_TRACK: DurationTrack = {};
+
 function Playground() {
   const [isStreaming, setIsStreaming] = useState(false);
   const [showLogs, setShowLogs] = useState(false);
   const [showSQLBtnActive, setShowSQLBtnActive] = useState(false);
   const [question, setQuestion] = useState<string | null>(null);
+  const [duration, setDuration] = useState<DurationTrack>(
+    DEFAULT_DURATION_TRACK
+  );
 
   const [hasCompleted, setHasCompleted] = useState<boolean>(false);
 
@@ -54,6 +65,8 @@ function Playground() {
   /* Callbacks for ASK QUESTION */
   useEffect(() => {
     // OnStart callbacks
+    context.current.onStart["setDurationStart"] = () =>
+      setDuration({ ...DEFAULT_DURATION_TRACK, startTime: new Date() });
     context.current.onStart["setQuestion"] = ({ input }) =>
       setQuestion(input as string);
     context.current.onStart["recordQuestion"] = ({ input }) =>
@@ -63,13 +76,19 @@ function Playground() {
       setHasCompleted(false);
 
     // OnSuccess callbacks
-    context.current.onSuccess["recordSuccess"] = () =>
+    context.current.onSuccess["recordSuccess"] = () => {
+      const endTime = new Date();
+      const durationMs =
+        duration.startTime && endTime.getTime() - duration.startTime.getTime();
       currentQuestionId &&
-      recordQuestionCompletion(currentQuestionId, {
-        succeeded: true,
-        logs_json: latest && JSON.stringify(latest.logs),
-        final_output: latest && streamOutputToString(latest.streamed_output),
-      });
+        recordQuestionCompletion(currentQuestionId, {
+          succeeded: true,
+          logs_json: latest && JSON.stringify(latest.logs),
+          final_output: latest && streamOutputToString(latest.streamed_output),
+          duration: durationMs,
+        });
+      setDuration({ ...duration, endTime, durationMs });
+    };
     context.current.onSuccess["setIsNotStreaming"] = () =>
       setIsStreaming(false);
     context.current.onSuccess["setHasCompletedTrue"] = () =>
@@ -103,7 +122,7 @@ function Playground() {
   const getSqlFromLogs = () =>
     latest &&
     latest.logs &&
-    Object.values(latest.logs)
+    (Object.values(latest.logs) as any[])
       .find((l) => l.name === "RunnableParallel<pure_sql,question>")
       ?.final_output?.pure_sql.replace("\\n", " ");
 
@@ -129,6 +148,7 @@ function Playground() {
             toggleShowLogs={showLogsRef.current}
             toggleShowSQL={handleToggleShowSQL}
             showLogs={showLogs}
+            showSQLBtnActive={showSQLBtnActive}
             hasCompleted={hasCompleted}
           />
           {isLoading && <TypeWriterLoading />}
@@ -147,7 +167,7 @@ function Playground() {
             />
           )}
         </div>
-        {showSql && (
+        {showSql && question && (
           <div className="govuk-grid-column-one-half">
             <SQLViewer
               question={question}

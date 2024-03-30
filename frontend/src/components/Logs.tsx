@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { LogEntry } from "../useStreamLog";
 import { str } from "../utils/str";
+// @ts-ignore
 import Prism from "prismjs";
 import "prismjs/components/prism-json";
 import "prismjs/themes/prism-coy.css";
