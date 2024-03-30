@@ -135,6 +135,7 @@ function Playground() {
 
   return (
     <>
+      <h1 className="govuk-heading-xl">Chat Analytics</h1>
       <div className="govuk-grid-row">
         <div
           className={
