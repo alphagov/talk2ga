@@ -1,6 +1,5 @@
 import ReactDOM from "react-dom/client";
 import App from "./App.tsx";
-// import App2 from "./App2.tsx";
 // @ts-ignore
 import { initAll } from "./govuk-frontend.min.js";
 
@@ -13,5 +12,5 @@ import relativeDate from "dayjs/plugin/relativeTime";
 dayjs.extend(relativeDate);
 dayjs.extend(utc);
 
+
 ReactDOM.createRoot(document.getElementById("root")!).render(<App />);
-// ReactDOM.createRoot(document.getElementById("root")!).render(<App2 />);

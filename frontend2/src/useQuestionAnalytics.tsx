@@ -7,6 +7,7 @@ type QuestionCompletionPayload = {
   logs_json?: string | null;
   final_output?: string | null;
   duration?: number;
+  succeeded?: boolean
 }
 
 export type NotSatisfiedDetailsPayload = {

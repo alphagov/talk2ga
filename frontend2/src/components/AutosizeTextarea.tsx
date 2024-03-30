@@ -1,9 +1,3 @@
-import { cn } from "../utils/cn";
-
-const COMMON_CLS = cn(
-  "text-lg col-[1] row-[1] m-0 resize-none overflow-hidden whitespace-pre-wrap break-words border-none bg-transparent p-0"
-);
-
 export function AutosizeTextarea(props: {
   id?: string;
   value?: string | null | undefined;
@@ -20,15 +14,6 @@ export function AutosizeTextarea(props: {
 }) {
   return (
     <div className="govuk-form-group">
-      {/* <h1 className="govuk-label-wrapper">
-        <label className="govuk-label govuk-label--l">
-          Can you provide more detail?
-        </label>
-      </h1>
-      <div id="more-detail-hint" className="govuk-hint">
-        Do not include personal or financial information, like your National
-        Insurance number or credit card details.
-      </div> */}
       <textarea
         className="govuk-textarea"
         aria-describedby={`input-${props.id}`}

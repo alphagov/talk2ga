@@ -2,10 +2,11 @@ from sqlmodel import SQLModel
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.orm import sessionmaker
-from webapp.config import get_db_url
+from webapp import config
 
 
-engine = create_async_engine(get_db_url(), echo=True)
+
+engine = create_async_engine(config.db_url, echo=True)
 
 
 async def init_db():

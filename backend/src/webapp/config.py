@@ -1,20 +1,18 @@
 import os
+from dotenv import load_dotenv
 
-environment: str = os.getenv("ENVIRONMENT", "local")
+load_dotenv()
 
-db_urls = {
-    "local": "postgresql+asyncpg://local:local@localhost:5433/local",
-    "local-docker": "postgresql+asyncpg://local:local@db:5432/local",
-    "development": os.getenv("DB_URL", "!Missing!"),
-    "production": os.getenv("DB_URL", "!Missing!"),
-}
+environment = os.getenv("ENV", "local")
+db_url = os.getenv("DB_URL")
 
+assert db_url, "DB_URL environment variable is not set"
 
-def get_db_url() -> str:
-    return db_urls[environment]
+print(f"Environment: {environment}")
+print(f"Dataset URL: {db_url}")
 
 
 if __name__ == "__main__":
     print(f"Environment: {environment}")
-    print(f"Dataset URL: {get_db_url()}")
+    print(f"Dataset URL: {db_url}")
     print()

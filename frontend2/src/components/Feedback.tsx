@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import "./feedback.css";
 import { NotSatisfiedDetailsPayload } from "../useQuestionAnalytics";
 
@@ -9,7 +9,15 @@ enum FeedbackState {
   FormSent,
 }
 
-const DefaultFeedback = ({ handleSatisfiedClick, handleNotSatisfiedClick }) => (
+type DefaultFeedbackProps = {
+  handleSatisfiedClick: () => void;
+  handleNotSatisfiedClick: () => void;
+};
+
+const DefaultFeedback = ({
+  handleSatisfiedClick,
+  handleNotSatisfiedClick
+}: DefaultFeedbackProps) => (
   <div
     className="gem-c-feedback__prompt gem-c-feedback__js-show js-prompt"
     tabIndex={-1}
@@ -234,11 +242,17 @@ const FormSentFeedback = () => (
   </div>
 );
 
+export type FeedbackProps = {
+  handleSatisfiedFeedback: () => void;
+  handleNotSatisfiedFeedback: () => void;
+  handleNotSatisfiedFeedbackFormSubmit: (args: NotSatisfiedDetailsPayload) => void;
+};
+
 export default function Feedback({
   handleSatisfiedFeedback,
   handleNotSatisfiedFeedback,
   handleNotSatisfiedFeedbackFormSubmit
-}) {
+}: FeedbackProps) {
   const [state, setState] = useState<FeedbackState>(FeedbackState.Default);
 
   const onSatisfiedClick = () => {
