@@ -16,10 +16,12 @@ def get_smart_answers_knowledge_base():
         return f.read()
 
 
-def get_schema_description():
+def get_schema_description(type="json"):
     """
     Returns the content of the schema description knowledge base
     This knowledge base contains JSON schema description of the BigQuery dataset
     """
-    with open("llm/static/schema-description.txt", "r") as f:
+
+    file = f"llm/static/schema-description.{'json' if type == 'json' else 'txt'}"
+    with open(file, "r") as f:
         return f.read()
