@@ -5,6 +5,7 @@ import { useStreamLog } from "./useStreamLog";
 import { useAppStreamCallbacks } from "./useStreamCallback";
 import { streamOutputToString } from "./utils/streamToString";
 import { MainAnswer } from "./components/MainAnswer";
+import ErrorAnswer from "./components/ErrorAnswer";
 import {
   NotSatisfiedDetailsPayload,
   useQuestions,
@@ -32,6 +33,7 @@ function Playground() {
   const [duration, setDuration] = useState<DurationTrack>(
     DEFAULT_DURATION_TRACK
   );
+  const [isError, setIsError] = useState(false);
 
   const [hasCompleted, setHasCompleted] = useState<boolean>(false);
 
@@ -64,7 +66,9 @@ function Playground() {
 
   /* Callbacks for ASK QUESTION */
   useEffect(() => {
-    // OnStart callbacks
+    /**
+     * OnStart
+     */
     context.current.onStart["setDurationStart"] = () =>
       setDuration({ ...DEFAULT_DURATION_TRACK, startTime: new Date() });
     context.current.onStart["setQuestion"] = ({ input }) =>
@@ -75,29 +79,44 @@ function Playground() {
     context.current.onStart["setHasCompletedFalse"] = () =>
       setHasCompleted(false);
 
-    // OnSuccess callbacks
-    context.current.onSuccess["recordSuccess"] = () => {
+    /**
+     * OnComplete
+     */
+    context.current.onComplete["recordCompletion"] = () => {
       const endTime = new Date();
       const durationMs =
         duration.startTime && endTime.getTime() - duration.startTime.getTime();
       currentQuestionId &&
         recordQuestionCompletion(currentQuestionId, {
-          succeeded: true,
           logs_json: latest && JSON.stringify(latest.logs),
-          final_output: latest && streamOutputToString(latest.streamed_output),
           duration: durationMs,
         });
       setDuration({ ...duration, endTime, durationMs });
     };
-    context.current.onSuccess["setIsNotStreaming"] = () =>
+    context.current.onComplete["setIsNotStreaming"] = () =>
       setIsStreaming(false);
-    context.current.onSuccess["setHasCompletedTrue"] = () =>
+    context.current.onComplete["setHasCompletedTrue"] = () =>
       setHasCompleted(true);
 
-    // OnError callbacks
-    context.current.onError["recordQuestionFailure"] = () =>
+    /**
+     * OnSuccess
+     */
+    context.current.onSuccess["recordSuccess"] = () => {
       currentQuestionId &&
-      recordQuestionCompletion(currentQuestionId, { succeeded: false });
+        recordQuestionCompletion(currentQuestionId, {
+          succeeded: true,
+          final_output: latest && streamOutputToString(latest.streamed_output),
+        });
+    };
+
+    /**
+     * OnError
+     */
+    context.current.onError["setIsErrorTrue"] = () => setIsError(true);
+    context.current.onError["recordFailure"] = () => {
+      currentQuestionId &&
+        recordQuestionCompletion(currentQuestionId, { succeeded: false });
+    };
   }, [latest, latest?.logs, latest?.final_output, currentQuestionId]);
 
   const onSatisfiedFeedback = () => {
@@ -132,6 +151,7 @@ function Playground() {
     setShowSQLBtnActive(() => !showSQLBtnActive);
 
   const showSql = hasCompleted && showSQLBtnActive;
+  const successful = hasCompleted && !isError;
 
   return (
     <>
@@ -153,11 +173,12 @@ function Playground() {
             hasCompleted={hasCompleted}
           />
           {isLoading && <TypeWriterLoading />}
-          {hasCompleted && latest && (
+          {successful && latest && (
             <MainAnswer>
               {streamOutputToString(latest.streamed_output)}
             </MainAnswer>
           )}
+          {isError && <ErrorAnswer />}
           {hasCompleted && (
             <Feedback
               handleSatisfiedFeedback={onSatisfiedFeedback}

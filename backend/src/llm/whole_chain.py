@@ -1,3 +1,4 @@
+# type: ignore
 from operator import itemgetter
 from langchain_core.runnables import (
     RunnableLambda,
@@ -36,7 +37,6 @@ gen_sql_chain = (
     | RunnableLambda(evaluation.is_valid_sql)
     | RunnableLambda(formatting.remove_sql_quotes)
 )
-
 
 
 whole_chain = (
