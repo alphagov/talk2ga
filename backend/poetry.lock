@@ -2328,6 +2328,20 @@ files = [
 ]
 
 [[package]]
+name = "sql-metadata"
+version = "2.10.0"
+description = "Uses tokenized query returned by python-sqlparse and generates query metadata"
+optional = false
+python-versions = ">=3.8,<4.0"
+files = [
+    {file = "sql_metadata-2.10.0-py3-none-any.whl", hash = "sha256:5b482735ed4dfcd1575f3a48b4af86b8161ae0326a8524ab1682d1bbaa35f731"},
+    {file = "sql_metadata-2.10.0.tar.gz", hash = "sha256:69f9ef71ac69759ae339f0aab6a8a718cf548100d08b742d24bb1800b7a2ea20"},
+]
+
+[package.dependencies]
+sqlparse = ">=0.4.1,<0.5.0"
+
+[[package]]
 name = "sqlalchemy"
 version = "2.0.28"
 description = "Database Abstraction Library"
@@ -2428,6 +2442,22 @@ files = [
 [package.dependencies]
 pydantic = ">=1.10.13,<3.0.0"
 SQLAlchemy = ">=2.0.0,<2.1.0"
+
+[[package]]
+name = "sqlparse"
+version = "0.4.4"
+description = "A non-validating SQL parser."
+optional = false
+python-versions = ">=3.5"
+files = [
+    {file = "sqlparse-0.4.4-py3-none-any.whl", hash = "sha256:5430a4fe2ac7d0f93e66f1efc6e1338a41884b7ddf2a350cedd20ccc4d9d28f3"},
+    {file = "sqlparse-0.4.4.tar.gz", hash = "sha256:d446183e84b8349fa3061f0fe7f06ca94ba65b426946ffebe6e3e8295332420c"},
+]
+
+[package.extras]
+dev = ["build", "flake8"]
+doc = ["sphinx"]
+test = ["pytest", "pytest-cov"]
 
 [[package]]
 name = "sse-starlette"
@@ -2771,4 +2801,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "3.11.4"
-content-hash = "46a34596147721cb09b538241cc631e40e132094427dd7553a36e26041eb709f"
+content-hash = "5076f17d6a6ca60327e86a7a7102c762a205f32fa30d9cfba3f038afa8471f43"
