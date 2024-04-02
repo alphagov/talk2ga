@@ -61,6 +61,9 @@ export function useStreamLog(callbacks: StreamCallback = {}) {
   const errorRef = useRef(callbacks.onError);
   errorRef.current = callbacks.onError;
 
+  const completionRef = useRef(callbacks.onComplete);
+  completionRef.current = callbacks.onComplete;
+
   const startStream = useCallback(async (input: unknown, config?: unknown) => {
     const controller = new AbortController();
     setController(controller);
@@ -81,16 +84,24 @@ export function useStreamLog(callbacks: StreamCallback = {}) {
             setLatest(innerLatest);
             chunkRef.current?.(JSON.parse(msg.data), innerLatest);
           }
+          if (msg.event === "error") {
+            controller?.abort();
+            setController(null);
+            completionRef.current?.();
+            errorRef.current?.(msg.data);
+            throw new Error(msg.data);
+          }
         },
         openWhenHidden: true,
         onclose() {
           setController(null);
+          completionRef.current?.();
           successRef.current?.({ input, output: innerLatest?.final_output });
         },
         onerror(error) {
-          setController(null);
-          errorRef.current?.();
-          throw error;
+          // setController(null);
+          // errorRef.current?.();
+          // throw error;
         },
       }
     );
