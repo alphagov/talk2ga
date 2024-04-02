@@ -27,6 +27,7 @@ python-levenshtein = "^0.25.0"
 fastapi = "^0.110.0"
 loguru = "^0.7.2"
 greenlet = "^3.0.3"
+sql-metadata = "^2.10.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.1.1"

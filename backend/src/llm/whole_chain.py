@@ -34,8 +34,8 @@ def create_gen_sql_input(question):
 gen_sql_chain = (
     create_gen_sql_input
     | generate_sql.chain
-    | RunnableLambda(evaluation.is_valid_sql)
     | RunnableLambda(formatting.remove_sql_quotes)
+    | RunnableLambda(evaluation.is_valid_sql)
 )
 
 

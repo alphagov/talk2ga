@@ -18,6 +18,9 @@ def remove_sql_quotes(input: str) -> str:
 
     if "```" in relevant_str:
         relevant_str = relevant_str.split("```")[0]
+    
+
+    relevant_str = relevant_str.strip().replace("\n", " ")
 
     # Return the first match or an empty string if no match is found
     # if len(matches) > 0 and matches[0]:
