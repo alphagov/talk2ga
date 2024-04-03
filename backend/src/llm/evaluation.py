@@ -15,7 +15,8 @@ def validate_sql_columns(sql: str):
 
     wrong_columns = [col for col in columns if col not in schema_columns]
 
-    assert len(wrong_columns) == 0, f"INVALID SQL OUTPUT: contains wrong columns: {wrong_columns}"
+    if len(wrong_columns) != 0:
+        raise Exception("INVALID SQL OUTPUT: contains wrong columns: {wrong_columns}")
 
     return True
 
