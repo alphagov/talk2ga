@@ -98,11 +98,11 @@ export function useStreamLog(callbacks: StreamCallback = {}) {
           completionRef.current?.();
           successRef.current?.({ input, output: innerLatest?.final_output });
         },
-        onerror(error) {
-          // setController(null);
-          // errorRef.current?.();
-          // throw error;
-        },
+        // onerror(error) {
+        //   setController(null);
+        //   errorRef.current?.();
+        //   throw error;
+        // },
       }
     );
   }, []);

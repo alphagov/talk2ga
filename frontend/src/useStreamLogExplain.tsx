@@ -90,7 +90,7 @@ export function useStreamLogExplain(callbacks: StreamCallback = {}) {
         },
         onerror(error) {
           setController(null);
-          errorRef.current?.();
+          errorRef.current?.(error);
           throw error;
         },
       });

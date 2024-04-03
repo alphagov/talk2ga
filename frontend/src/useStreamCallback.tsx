@@ -82,16 +82,17 @@ export function useStreamCallback<
   useEffect(() => {
     // @ts-expect-error Not sure why I can't expand the tuple
     const current = (...args) => callbackRef.current?.(...args);
-    appCbRef?.current[type].push(current);
+    appCbRef?.current[type as keyof typeof appCbRef.current].push(current);
 
     return () => {
       if (!appCbRef) return;
 
       // @ts-expect-error Assingability issues due to the tuple object
       // eslint-disable-next-line react-hooks/exhaustive-deps
-      appCbRef.current[type] = appCbRef.current[type].filter(
-        (callbacks) => callbacks !== current
-      );
+      appCbRef.current[type as keyof typeof appCbRef.current] =
+        appCbRef.current[type as keyof typeof appCbRef.current].filter(
+          (callbacks) => callbacks !== current
+        );
     };
   }, [type, appCbRef]);
 }
