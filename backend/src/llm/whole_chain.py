@@ -18,10 +18,7 @@ from llm.db import query_sql_trial
 @chain
 def create_gen_sql_input(question):
     if pertains_to_smart_answers(question):
-        print("IS SMART ANSWER")
         question = smart_answers_prompt(question)
-    else:
-        print("NOT A SMART ANSWER QUESTION")
     obj = {
         "DATASET": config.DATASET,
         "schema_description": get_schema_description(),
@@ -31,19 +28,46 @@ def create_gen_sql_input(question):
     return obj
 
 
-gen_sql_chain = (
-    create_gen_sql_input
-    | generate_sql.chain
-    | RunnableLambda(formatting.remove_sql_quotes)
-    | RunnableLambda(evaluation.is_valid_sql)
-)
+def chain_with_retry(retries_nb):
+    def chain_with_retry_decorator(func):
+        @chain
+        def wrapper(input):
+            max_tries = retries_nb
+            count_retries = 0
+
+            output = None
+            latest_exception = None
+
+            while output is None and count_retries < max_tries:
+                try:
+                    output = func(input)
+                except Exception as e:
+                    count_retries += 1
+                    latest_exception = e
+
+            if output is None:
+                raise latest_exception
+
+            return output
+
+        return wrapper
+    
+    return chain_with_retry_decorator
+
+
+@chain_with_retry(3)
+def gen_sql_chain(input):
+    return (
+        create_gen_sql_input
+        | generate_sql.chain
+        | RunnableLambda(formatting.remove_sql_quotes)
+        | RunnableLambda(evaluation.is_valid_sql)
+    ).invoke(input)
 
 
 whole_chain = (
     RunnableParallel({
-        "pure_sql": gen_sql_chain.with_retry(
-            stop_after_attempt=2,
-        ),
+        "pure_sql": gen_sql_chain,
         "question": RunnablePassthrough(),
     })
     | RunnableParallel({
