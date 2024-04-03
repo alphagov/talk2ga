@@ -33,14 +33,3 @@ def query_sql(sql):
     query_job = client.query(sql)
     rows = query_job.result()  # Waits for query to finish
     return [dict(row.items()) for row in rows]
-
-
-def query_sql_trial(input):
-    """
-    Execute a SQL query against a BQ dataset and return the result as a list of dictionaries
-    """
-    if "pure_sql" not in input:
-        raise Exception('Missing key in input: "pure_sql"')
-    query_job = client.query(input["pure_sql"])
-    rows = query_job.result()  # Waits for query to finish
-    return [dict(row.items()) for row in rows]

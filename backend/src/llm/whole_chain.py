@@ -1,9 +1,6 @@
 # type: ignore
-from operator import itemgetter
 from langchain_core.runnables import (
     RunnableLambda,
-    RunnablePassthrough,
-    RunnableParallel,
 )
 from langchain_core.runnables import chain
 from llm.knowledge_bases import get_text_knowledge_base, get_schema_description
@@ -12,7 +9,7 @@ from llm import config
 from llm import evaluation
 from llm import formatting
 from llm.prompts.smart_answers import pertains_to_smart_answers, smart_answers_prompt
-from llm.db import query_sql_trial
+from llm.db import query_sql
 
 
 @chain
@@ -43,6 +40,7 @@ def chain_with_retry(retries_nb):
                     output = func(input)
                 except Exception as e:
                     count_retries += 1
+                    print(f"\n{func.__name__}: Retrying {count_retries}/{max_tries}...\n")
                     latest_exception = e
 
             if output is None:
@@ -65,15 +63,14 @@ def gen_sql_chain(input):
     ).invoke(input)
 
 
-whole_chain = (
-    RunnableParallel({
-        "pure_sql": gen_sql_chain,
-        "question": RunnablePassthrough(),
+@chain
+def whole_chain(question: str):
+    sql = gen_sql_chain.invoke(question)
+    response_object = query_sql(sql)
+    final_output = format_output.chain.invoke({
+        "user_query": question,
+        "sql_query": sql,
+        "response_object": response_object,
     })
-    | RunnableParallel({
-        "user_query": itemgetter("question"),
-        "sql_query": itemgetter("pure_sql"),
-        "response_object": RunnableLambda(query_sql_trial),
-    })
-    | format_output.chain
-)
+    
+    return final_output
