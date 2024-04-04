@@ -55,6 +55,8 @@ const SQLViewer = ({ sql, question }: SQLViewerProps) => {
     question && startStream(question, sql);
   };
 
+  const copySqlToClipboard = () => navigator.clipboard.writeText(formattedSql);
+
   const formattedSql = format(sql);
 
   return (
@@ -63,7 +65,10 @@ const SQLViewer = ({ sql, question }: SQLViewerProps) => {
         <h1 className="govuk-label-wrapper">
           <label className="govuk-label govuk-label--l">Generated SQL</label>
         </h1>
-        <pre>
+        <pre className="sql-viewer-container">
+          <div className="copy-clipboard-button" onClick={copySqlToClipboard}>
+            Copy
+          </div>
           <code className="language-sql">{formattedSql}</code>
         </pre>
         <button

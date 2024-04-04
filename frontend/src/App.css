@@ -23,3 +23,30 @@
   font-weight: lighter;
   padding-top: 10px;
 }
+
+.sql-viewer-container {
+  position: relative
+}
+
+.copy-clipboard-button {
+  position: absolute;
+  top: 0;
+  right:0;
+  /* height: 40px; */
+  padding: 5px;
+  width: 40px;
+  background-color: rgba(0, 0, 0, 0.1);
+  color: black;
+  z-index: 100;
+  user-select: none; 
+}
+
+.copy-clipboard-button:hover {
+  cursor: pointer;
+  color: white;
+  background-color: #888;
+}
+
+.copy-clipboard-button:active {
+  background-color: green;
+}
