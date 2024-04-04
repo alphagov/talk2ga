@@ -3,16 +3,16 @@ from langchain_core.runnables import (
     RunnableLambda,
 )
 from langchain_core.runnables import chain
-from llm.knowledge_bases import get_text_knowledge_base, get_schema_description
-from llm.llm_chains import generate_sql, format_output
+from llm.knowledge_bases import get_text_knowledge_base, get_schema_description, get_schema_columns
+from llm.llm_chains import generate_sql, format_output, generate_sql_correction
 from llm import config
 from llm import evaluation
 from llm import formatting
 from llm.prompts.smart_answers import pertains_to_smart_answers, smart_answers_prompt
 from llm.db import query_sql
+from llm.evaluation import InvalidSQLColumnsException
 
 
-@chain
 def create_gen_sql_input(question):
     if pertains_to_smart_answers(question):
         question = smart_answers_prompt(question)
@@ -53,19 +53,49 @@ def chain_with_retry(retries_nb):
     return chain_with_retry_decorator
 
 
-@chain_with_retry(3)
+@chain_with_retry(2)
 def gen_sql_chain(input):
+    input = create_gen_sql_input(input)
     return (
-        create_gen_sql_input
-        | generate_sql.chain
+        generate_sql.chain
         | RunnableLambda(formatting.remove_sql_quotes)
         | RunnableLambda(evaluation.is_valid_sql)
     ).invoke(input)
 
 
+@chain_with_retry(2)
+def gen_sql_correction(payload: dict[str, list[str] | str]):
+    input = {
+        **payload,
+        "schema_description": get_schema_description(),
+        "knowledge_base": get_text_knowledge_base(),
+        "table_name": config.DATASET,
+    }
+    return (
+        generate_sql_correction.chain
+        | RunnableLambda(formatting.remove_sql_quotes)
+        | RunnableLambda(evaluation.is_valid_sql)
+    ).invoke(input)
+
+
+def generate_sql_from_question(question:str):
+    try:
+        return gen_sql_chain.invoke(question)
+    except InvalidSQLColumnsException as e:
+        input = {
+            "schema_columns": get_schema_columns(),
+            "wrong_columns": e.wrong_columns,
+            "wrong_query": e.sql,
+            "knowledge_base": get_text_knowledge_base(),
+            "question": question,
+        }
+        corrected_sql = gen_sql_correction.invoke(input)
+        return corrected_sql
+    
+
 @chain
 def whole_chain(question: str):
-    sql = gen_sql_chain.invoke(question)
+    sql = generate_sql_from_question(question)
     response_object = query_sql(sql)
     final_output = format_output.chain.invoke({
         "user_query": question,

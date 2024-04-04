@@ -1,6 +1,14 @@
-from llm.knowledge_bases import get_schema_description
+from llm.knowledge_bases import get_schema_columns
 import json
 from sql_metadata import Parser
+
+
+class InvalidSQLColumnsException(Exception):
+    def __init__(self, columns, wrong_columns, sql):
+        self.columns = columns
+        self.wrong_columns = wrong_columns
+        self.sql = sql
+        super().__init__(f"INVALID SQL OUTPUT: contains wrong columns: {wrong_columns}")
 
 
 def extract_columns(sql_query: str) -> list[str]:
@@ -10,13 +18,12 @@ def extract_columns(sql_query: str) -> list[str]:
 
 def validate_sql_columns(sql: str):
     columns = extract_columns(sql)
-    schema = json.loads(get_schema_description())
-    schema_columns = [col["name"] for col in schema]
+    schema_columns = get_schema_columns()
 
     wrong_columns = [col for col in columns if col not in schema_columns]
 
     if len(wrong_columns) != 0:
-        raise Exception(f"INVALID SQL OUTPUT: contains wrong columns: {wrong_columns}")
+        raise InvalidSQLColumnsException(columns, wrong_columns, sql)
 
     return True
 

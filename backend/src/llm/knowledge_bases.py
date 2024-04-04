@@ -1,3 +1,5 @@
+import json
+
 def get_text_knowledge_base():
     """
     Returns the content of the textfile knowledge base
@@ -25,3 +27,12 @@ def get_schema_description(type="json"):
     file = f"llm/static/schema-description.{'json' if type == 'json' else 'txt'}"
     with open(file, "r") as f:
         return f.read()
+
+
+def get_schema_columns():
+    """
+    Returns the columns of the table
+    """
+    schema = json.loads(get_schema_description())
+    schema_columns = [col["name"] for col in schema]
+    return schema_columns
