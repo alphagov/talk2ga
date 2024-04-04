@@ -141,9 +141,9 @@ function Playground() {
   const getSqlFromLogs = () =>
     latest &&
     latest.logs &&
-    (Object.values(latest.logs) as any[])
-      .find((l) => l.name === "RunnableParallel<pure_sql,question>")
-      ?.final_output?.pure_sql.replace("\\n", " ");
+    (Object.values(latest.logs) as any[]).find(
+      (l) => l.name === "remove_sql_quotes"
+    )?.final_output?.output;
 
   const isLoading = isStreaming && !hasCompleted;
 
