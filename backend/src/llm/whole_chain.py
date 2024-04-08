@@ -129,8 +129,20 @@ def generate_sql_from_question(question:str):
 
 @chain
 def whole_chain(question: str):
-    sql = generate_sql_from_question(question)
-    response_object = query_sql(sql)
+    max_tries = 2
+    count_retries = 0
+    response_object = None
+    while response_object is None and count_retries < max_tries:
+        try:
+            sql = generate_sql_from_question(question)
+            response_object = query_sql(sql)
+        except Exception as e:
+            count_retries += 1
+            print(f"\nquery_sql failed. Retrying {count_retries}/{max_tries}...\n")
+    
+    if response_object is None:
+        raise Exception("All attempts failed to generate and query SQL.")
+    
     final_output = format_output.chain.invoke({
         "user_query": question,
         "sql_query": sql,
