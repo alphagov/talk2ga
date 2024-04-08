@@ -9,7 +9,16 @@ class InvalidSQLColumnsException(Exception):
         self.wrong_columns = wrong_columns
         self.sql = sql
         super().__init__(f"INVALID SQL OUTPUT: contains wrong columns: {wrong_columns}")
+    
 
+    def __str__(self):
+        return json.dumps({
+            "columns": self.columns,
+            "wrong_columns": self.wrong_columns,
+            "sql": self.sql,
+            "code": "INVALID_SQL_COLUMNS"
+        })
+    
 
 def extract_columns(sql_query: str) -> list[str]:
     columns = Parser(sql_query).columns 

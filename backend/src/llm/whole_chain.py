@@ -1,6 +1,7 @@
 # type: ignore
 from langchain_core.runnables import (
     RunnableLambda,
+    RunnableParallel
 )
 from langchain_core.runnables import chain
 from llm.knowledge_bases import get_text_knowledge_base, get_schema_description, get_schema_columns
@@ -11,6 +12,7 @@ from llm import formatting
 from llm.prompts.smart_answers import pertains_to_smart_answers, smart_answers_prompt
 from llm.db import query_sql
 from llm.evaluation import InvalidSQLColumnsException
+import random
 
 
 def create_gen_sql_input(question):
@@ -53,14 +55,46 @@ def chain_with_retry(retries_nb):
     return chain_with_retry_decorator
 
 
-@chain_with_retry(2)
+@chain
 def gen_sql_chain(input):
     input = create_gen_sql_input(input)
-    return (
-        generate_sql.chain
-        | RunnableLambda(formatting.remove_sql_quotes)
-        | RunnableLambda(evaluation.is_valid_sql)
+
+    @chain
+    def validation_chain(gen_sql_output):
+        print(f"\n\n\nValidating\n{gen_sql_output}\n\n\n")
+        try:
+          return (RunnableLambda(formatting.remove_sql_quotes)| RunnableLambda(evaluation.is_valid_sql)).invoke(gen_sql_output)
+        except Exception as e:
+            # LangChain does not support return exceptions in chains as they are not json serializable
+            # So we need to return a dictionary with the error information
+            return {
+                "is_error": True,
+                "type": e.__class__.__name__,
+                "error": str(e),
+                "attrs": e.__dict__
+            }
+    
+
+    outputs = (
+        RunnableParallel(
+            gen1=generate_sql.chain | validation_chain,
+            gen2=generate_sql.chain | validation_chain,
+            gen3=generate_sql.chain | validation_chain,
+        )
     ).invoke(input)
+
+    is_error = lambda x: x.get("is_error", False)
+
+    correct_outputs = [v for v in outputs.values() if not is_error(v)]
+    if len(correct_outputs) > 0:
+        return random.choice(correct_outputs)
+
+    
+    for _, v in outputs.items():
+        if is_error(v) and v["type"] == "InvalidSQLColumnsException":
+            raise InvalidSQLColumnsException(**v["attrs"])
+    
+    raise Exception("All attempts failed with unexpected errors: ", outputs.values())
 
 
 @chain_with_retry(2)
