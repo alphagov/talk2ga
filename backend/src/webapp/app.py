@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import os
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, Request
 
 from langserve import add_routes
 
@@ -31,6 +31,28 @@ app.add_middleware(
     allow_headers=["*"],
     expose_headers=["*"],
 )
+
+def create_question_analytics():
+    return str(uuid.uuid4())
+
+
+def add_uid_to_response(response, uid):
+    response.headers["X-Question-UID"] = uid
+    return response
+
+@app.middleware("http")
+async def test(request: Request, call_next):
+    if request.url.path == "/whole-chain/stream_log":
+        uid = create_question_analytics()
+
+    response = await call_next(request)
+
+    if request.url.path == "/whole-chain/stream_log":
+        response = add_uid_to_response(response, uid)
+
+    return response
+
+
 
 add_routes(
     app,
