@@ -140,7 +140,6 @@ def log_error_to_analytics(func):
             if question_id := config.get("question_id"):
                 await analytics_controller.log_error(question_id, format_exception(e))
 
-
             raise e
     
     return wrapper
