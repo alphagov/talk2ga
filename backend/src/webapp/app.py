@@ -15,6 +15,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
+from webapp.analytics_controller import create_question
 
 
 app = FastAPI(
@@ -32,23 +33,23 @@ app.add_middleware(
     expose_headers=["*"],
 )
 
-def create_question_analytics():
-    return str(uuid.uuid4())
 
 
-def add_uid_to_response(response, uid):
-    response.headers["X-Question-UID"] = uid
+def add_uid_to_response(response, question_id):
+    response.headers["X-Question-UID"] = question_id
     return response
 
 @app.middleware("http")
 async def test(request: Request, call_next):
     if request.url.path == "/whole-chain/stream_log":
-        uid = create_question_analytics()
+        body = await request.json()
+        question = Question(**{"text": body['input']})
+        question = await create_question(question)
 
     response = await call_next(request)
 
     if request.url.path == "/whole-chain/stream_log":
-        response = add_uid_to_response(response, uid)
+        response = add_uid_to_response(response, question.id)
 
     return response
 
@@ -79,16 +80,7 @@ add_routes(
 #
 #######
 
-from pydantic import BaseModel
-from fastapi.encoders import jsonable_encoder
-from google.cloud import bigquery
-from llm.config import GCP_PROJECT
-from datetime import datetime
-import pytz
-from sqlmodel import Field, Session, SQLModel, create_engine, select
-import sqlalchemy as sa
 from fastapi import FastAPI, HTTPException
-import uuid
 from webapp.models import Question, QuestionRead, QuestionCreate, QuestionUpdate
 from webapp.db import get_session, init_db
 from sqlmodel.ext.asyncio.session import AsyncSession
@@ -96,7 +88,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 
 @app.post("/question", response_model=QuestionRead)
-async def create_question(question: QuestionCreate, session: AsyncSession = Depends(get_session)):
+async def create_question_handler(question: QuestionCreate, session: AsyncSession = Depends(get_session)):
     db_question = Question.model_validate(question)
     session.add(db_question)
     await session.commit()
@@ -107,7 +99,7 @@ async def create_question(question: QuestionCreate, session: AsyncSession = Depe
 # returns 404 if not found
 # update existing row, not create new one
 @app.put("/question/{question_id}", response_model=QuestionRead)
-async def create_question(question_id: str, question: QuestionUpdate, session: AsyncSession = Depends(get_session)):
+async def update_question_handler(question_id: str, question: QuestionUpdate, session: AsyncSession = Depends(get_session)):
     db_question = await session.get(Question, question_id)
     if not db_question:
         raise HTTPException(status_code=404, detail="Question not found")
@@ -120,7 +112,7 @@ async def create_question(question_id: str, question: QuestionUpdate, session: A
 
 
 @app.get("/question/{question_id}", response_model=QuestionRead)
-async def create_question(question_id: str, session: AsyncSession = Depends(get_session)):
+async def read_question_handler(question_id: str, session: AsyncSession = Depends(get_session)):
     db_question = await session.get(Question, question_id)
     if not db_question:
         raise HTTPException(status_code=404, detail="Question not found")
