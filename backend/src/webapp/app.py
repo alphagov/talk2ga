@@ -62,7 +62,7 @@ async def test(request: Request, call_next):
 
 def pass_question_id_to_chain(config: Dict[str, Any], request: Request) -> Dict[str, Any]:
     if qid := request.state.question_id:
-        config["question_id"] = qid§
+        config["question_id"] = qid
     else:
         raise HTTPException(401, "No question ID provided")
 

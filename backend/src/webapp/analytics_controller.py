@@ -16,3 +16,14 @@ async def create_question(question: QuestionCreate, session: AsyncSession | None
     await session.commit()
     await session.refresh(db_question)
     return db_question
+
+
+
+async def log_error(question_id: int, error: str):
+    async with async_session() as session:
+        question = await session.get(Question, question_id)
+        question.sqlmodel_update({"error_msg": error})
+        session.add(question)
+        await session.commit()
+        await session.refresh(question)
+        return question
