@@ -50,3 +50,7 @@
 .copy-clipboard-button:active {
   background-color: green;
 }
+
+.answer-banner {
+  max-width: 100% !important
+}

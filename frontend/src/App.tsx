@@ -174,9 +174,7 @@ function Playground() {
           />
           {isLoading && <TypeWriterLoading />}
           {successful && latest && (
-            <MainAnswer>
-              {streamOutputToString(latest.streamed_output)}
-            </MainAnswer>
+            <MainAnswer text={streamOutputToString(latest.streamed_output)} />
           )}
           {isError && <ErrorAnswer />}
           {hasCompleted && (
