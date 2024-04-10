@@ -1,4 +1,8 @@
-export function MainAnswer({ children }: { children: React.ReactNode }) {
+function splitByLineReturns(input: string) {
+  return input.split(/\r\n|\r|\n/);
+}
+
+export function MainAnswer({ text }: { text: string }) {
   return (
     <div
       className="govuk-notification-banner"
@@ -15,7 +19,14 @@ export function MainAnswer({ children }: { children: React.ReactNode }) {
         </h2>
       </div>
       <div className="govuk-notification-banner__content">
-        <p className="govuk-notification-banner__heading">{children}</p>
+        <p className="govuk-notification-banner__heading answer-banner">
+          {splitByLineReturns(text).map((line, i) => (
+            <span key={i}>
+              {line}
+              <br />
+            </span>
+          ))}
+        </p>
         <p className="answer-date-range-caveat">
           Answer is based on data from 2024/02/12.
         </p>
