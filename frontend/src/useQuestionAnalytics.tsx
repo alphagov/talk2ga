@@ -118,5 +118,6 @@ export function useQuestions() {
     recordFeedbackNotSatisfied,
     recordFeedbackNotSatisfiedDetails,
     currentQuestionId,
+    setCurrentQuestionId,
   };
 }

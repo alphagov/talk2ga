@@ -42,12 +42,12 @@ function Playground() {
   const { startStream, stopStream, latest } = useStreamLog(callbacks);
 
   const {
-    recordQuestion,
     recordQuestionCompletion,
     recordFeedbackSatisfied,
     recordFeedbackNotSatisfied,
     recordFeedbackNotSatisfiedDetails,
     currentQuestionId,
+    setCurrentQuestionId,
   } = useQuestions();
 
   const showLogsRef = useRef<(() => void) | null>(null);
@@ -73,8 +73,8 @@ function Playground() {
       setDuration({ ...DEFAULT_DURATION_TRACK, startTime: new Date() });
     context.current.onStart["setQuestion"] = ({ input }) =>
       setQuestion(input as string);
-    context.current.onStart["recordQuestion"] = ({ input }) =>
-      recordQuestion(input as string);
+    context.current.onStart["setQuestionId"] = ({ questionId }) =>
+      setCurrentQuestionId(questionId);
     context.current.onStart["setIsStreaming"] = () => setIsStreaming(true);
     context.current.onStart["setHasCompletedFalse"] = () =>
       setHasCompleted(false);
