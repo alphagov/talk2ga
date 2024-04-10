@@ -83,7 +83,7 @@ def gen_sql_chain(input):
         )
     ).invoke(input)
 
-    is_error = lambda x: x.get("is_error", False)
+    is_error = lambda x: type(x) is not str and  x.get("is_error", False)
 
     correct_outputs = [v for v in outputs.values() if not is_error(v)]
     if len(correct_outputs) > 0:
@@ -139,6 +139,7 @@ def whole_chain(question: str):
         except Exception as e:
             count_retries += 1
             print(f"\nquery_sql failed. Retrying {count_retries}/{max_tries}...\n")
+            print(e)
     
     if response_object is None:
         raise Exception("All attempts failed to generate and query SQL.")
