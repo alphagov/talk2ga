@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import os
+from typing import Any, Dict
 from fastapi import FastAPI, Depends, Request
 
 from langserve import add_routes
@@ -39,12 +40,17 @@ def add_uid_to_response(response, question_id):
     response.headers["X-Question-UID"] = question_id
     return response
 
+def add_uid_to_request_state(request: Request, question_id):
+    request.state.question_id = question_id
+    return request
+
 @app.middleware("http")
 async def test(request: Request, call_next):
     if request.url.path == "/whole-chain/stream_log":
         body = await request.json()
         question = Question(**{"text": body['input']})
         question = await create_question(question)
+        request = add_uid_to_request_state(request, question.id)
 
     response = await call_next(request)
 
@@ -52,6 +58,15 @@ async def test(request: Request, call_next):
         response = add_uid_to_response(response, question.id)
 
     return response
+
+
+def pass_question_id_to_chain(config: Dict[str, Any], request: Request) -> Dict[str, Any]:
+    if qid := request.state.question_id:
+        config["question_id"] = qid§
+    else:
+        raise HTTPException(401, "No question ID provided")
+
+    return config
 
 
 
@@ -65,6 +80,7 @@ add_routes(
     app,
     whole_chain.with_types(input_type=str, output_type=str),
     path="/whole-chain",
+    per_req_config_modifier=pass_question_id_to_chain,
 )
 
 

@@ -128,7 +128,8 @@ def generate_sql_from_question(question:str):
     
 
 @chain
-def whole_chain(question: str):
+def whole_chain(question: str, config: dict[str, any]):
+    question_id = config.get("question_id")
     max_tries = 2
     count_retries = 0
     response_object = None
