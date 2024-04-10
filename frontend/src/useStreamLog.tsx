@@ -67,7 +67,6 @@ export function useStreamLog(callbacks: StreamCallback = {}) {
   const startStream = useCallback(async (input: unknown, config?: unknown) => {
     const controller = new AbortController();
     setController(controller);
-    startRef.current?.({ input });
 
     let innerLatest: RunState | null = null;
 
@@ -78,6 +77,14 @@ export function useStreamLog(callbacks: StreamCallback = {}) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ input, config }),
+        async onopen(response) {
+          if (response.ok && response.headers.get("X-Question-Uid")) {
+            startRef.current?.({
+              input,
+              questionId: response.headers.get("X-Question-Uid") as string,
+            });
+          }
+        },
         onmessage(msg) {
           if (msg.event === "data") {
             innerLatest = reducer(innerLatest, JSON.parse(msg.data)?.ops);
