@@ -130,17 +130,15 @@ def generate_sql_from_question(question:str):
     
 
 def log_error_to_analytics(func):
-    async def wrapper(*args, **kwargs):
+    async def wrapper(question: str, config: dict[str, any]):
         try:
-            return func(*args, **kwargs)
+            return func(question, config)
         except Exception as e:
             print(f"\n{func.__name__} failed\n")
-            print(e)
 
             # Log error to analytics
-            question_id = kwargs.get("config", {}).get("question_id")
-            if question_id:
-                await analytics_controller.log_error(question_id, str(e))
+            if question_id := config.get("question_id"):
+                await analytics_controller.log_error(question_id, format_exception(e))
 
 
             raise e
@@ -149,46 +147,30 @@ def log_error_to_analytics(func):
 
 
 
-
-
 @chain
-# @log_error_to_analytics
-async def whole_chain(question: str, config: dict[str, any]):
-    try:
-        question_id = config.get("question_id")
-        max_tries = 2
-        count_retries = 0
-        response_object = None
+@log_error_to_analytics
+def whole_chain(question: str, config: dict[str, any]):
+    question_id = config.get("question_id")
+    max_tries = 2
+    count_retries = 0
+    response_object = None
 
-        raise InvalidSQLColumnsException(["column1", "column2"], ['cewqrofsdfj'], "SELECT * FROM table WHERE column1 = 1")
-        # raise Exception("Test error")
-        
-        while response_object is None and count_retries < max_tries:
-            try:
-                sql = generate_sql_from_question(question)
-                response_object = query_sql(sql)
-            except Exception as e:
-                count_retries += 1
-                print(f"\nquery_sql failed. Retrying {count_retries}/{max_tries}...\n")
-                print(e)
-        
-        if response_object is None:
-            raise Exception("All attempts failed to generate and query SQL.")
-        
-        final_output = format_output.chain.invoke({
-            "user_query": question,
-            "sql_query": sql,
-            "response_object": response_object,
-        })
-        
-        return final_output
-    except Exception as e:
-        # print(f"\n{func.__name__} failed\n")
-        print(e)
-
-        # Log error to analytics
-        if question_id:
-            await analytics_controller.log_error(question_id, format_exception(e))
-
-
-        raise e
+    while response_object is None and count_retries < max_tries:
+        try:
+            sql = generate_sql_from_question(question)
+            response_object = query_sql(sql)
+        except Exception as e:
+            count_retries += 1
+            print(f"\nquery_sql failed. Retrying {count_retries}/{max_tries}...\n")
+            print(e)
+    
+    if response_object is None:
+        raise Exception("All attempts failed to generate and query SQL.")
+    
+    final_output = format_output.chain.invoke({
+        "user_query": question,
+        "sql_query": sql,
+        "response_object": response_object,
+    })
+    
+    return final_output
