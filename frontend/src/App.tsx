@@ -127,15 +127,11 @@ function Playground() {
     currentQuestionId && recordFeedbackNotSatisfied(currentQuestionId);
   };
 
-  const onNotSatisfiedFeedbackDetailsSubmit = ({
-    feedbackText,
-    feedbackSql,
-  }: NotSatisfiedDetailsPayload) => {
+  const onNotSatisfiedFeedbackDetailsSubmit = (
+    args: NotSatisfiedDetailsPayload
+  ) => {
     currentQuestionId &&
-      recordFeedbackNotSatisfiedDetails(currentQuestionId, {
-        feedbackText,
-        feedbackSql,
-      });
+      recordFeedbackNotSatisfiedDetails(currentQuestionId, args);
   };
 
   const getSqlFromLogs = () =>

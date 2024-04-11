@@ -16,7 +16,7 @@ type DefaultFeedbackProps = {
 
 const DefaultFeedback = ({
   handleSatisfiedClick,
-  handleNotSatisfiedClick
+  handleNotSatisfiedClick,
 }: DefaultFeedbackProps) => (
   <div
     className="gem-c-feedback__prompt gem-c-feedback__js-show js-prompt"
@@ -121,7 +121,12 @@ const validateForm = (detailData: TextInputData, sqlData: TextInputData) => {
   return errors;
 };
 
-const FormFeedback = ({onSubmit}: {onSubmit: (args: NotSatisfiedDetailsPayload) => void}) => {
+const FormFeedback = ({
+  onSubmit,
+}: {
+  onSubmit: (args: NotSatisfiedDetailsPayload) => void;
+}) => {
+  const [usernameData, setUsernameData] = useState<TextInputData>(null);
   const [detailData, setDetailData] = useState<TextInputData>(null);
   const [sqlData, setSqlData] = useState<TextInputData>(null);
 
@@ -139,9 +144,13 @@ const FormFeedback = ({onSubmit}: {onSubmit: (args: NotSatisfiedDetailsPayload) 
     }
 
     console.log("submitting", detailData?.data, sqlData?.data);
-    onSubmit({ feedbackText: detailData?.data || "", feedbackSql: sqlData?.data });
+    onSubmit({
+      feedbackText: detailData?.data || "",
+      feedbackSql: sqlData?.data,
+      username: usernameData?.data,
+    });
   };
-  
+
   return (
     <div
       className="gem-c-feedback__prompt gem-c-feedback__js-show js-prompt"
@@ -161,14 +170,15 @@ const FormFeedback = ({onSubmit}: {onSubmit: (args: NotSatisfiedDetailsPayload) 
           <label className="govuk-label" htmlFor="feedbackDetails">
             What could have been better?
           </label>
-          {detailData?.errors.length ?
-            detailData?.errors.map((error, index) => (
-              <p id={`error-${index}`} className="govuk-error-message">
-                <span key={index} className="govuk-error-message">
-                  {error}
-                </span>
-              </p>
-            )) : ""}
+          {detailData?.errors.length
+            ? detailData?.errors.map((error, index) => (
+                <p id={`error-${index}`} className="govuk-error-message">
+                  <span key={index} className="govuk-error-message">
+                    {error}
+                  </span>
+                </p>
+              ))
+            : ""}
           <textarea
             id="feedback-detail-textarea"
             name="feedbackDetails"
@@ -190,16 +200,18 @@ const FormFeedback = ({onSubmit}: {onSubmit: (args: NotSatisfiedDetailsPayload) 
           }`}
         >
           <label className="govuk-label" htmlFor="feedbackSql">
-            (Optional) If you know, please paste the correct SQL code for this question
+            (Optional) If you know, please paste the correct SQL code for this
+            question
           </label>
-          {sqlData?.errors.length ?
-            sqlData?.errors.map((error, index) => (
-              <p id={`error-${index}`} className="govuk-error-message">
-                <span key={index} className="govuk-error-message">
-                  {error}
-                </span>
-              </p>
-            )) : ""}
+          {sqlData?.errors.length
+            ? sqlData?.errors.map((error, index) => (
+                <p id={`error-${index}`} className="govuk-error-message">
+                  <span key={index} className="govuk-error-message">
+                    {error}
+                  </span>
+                </p>
+              ))
+            : ""}
           <textarea
             id="feedback-sql"
             name="feedbackSql"
@@ -212,6 +224,48 @@ const FormFeedback = ({onSubmit}: {onSubmit: (args: NotSatisfiedDetailsPayload) 
             onChange={(e) => {
               const target = e.target as HTMLTextAreaElement;
               setSqlData({ data: target.value, errors: [] });
+            }}
+          ></textarea>
+        </div>
+        <div
+          className={`govuk-form-group ${
+            usernameData?.errors.length ? "govuk-form-group--error" : ""
+          }`}
+        >
+          <label className="govuk-label" htmlFor="feedbackDetails">
+            What is your name? (Optional){" "}
+            <span style={{ fontSize: 16 }}>
+              <br />
+              <i>
+                By letting us contacting you, you'll help us fine tune our
+                model.
+              </i>
+            </span>
+          </label>
+          {usernameData?.errors.length
+            ? usernameData?.errors.map((error, index) => (
+                <p id={`error-${index}`} className="govuk-error-message">
+                  <span
+                    key={`${index}-${error}`}
+                    className="govuk-error-message"
+                  >
+                    {error}
+                  </span>
+                </p>
+              ))
+            : ""}
+          <textarea
+            id="feedback-detail-textarea"
+            name="feedbackDetails"
+            className={`govuk-textarea ${
+              usernameData?.errors.length ? "govuk-input--error" : ""
+            }`}
+            rows={1}
+            aria-describedby="feedback-detail"
+            value={usernameData?.data || ""}
+            onChange={(e) => {
+              const target = e.target as HTMLTextAreaElement;
+              setUsernameData({ data: target.value, errors: [] });
             }}
           ></textarea>
         </div>
@@ -245,13 +299,15 @@ const FormSentFeedback = () => (
 export type FeedbackProps = {
   handleSatisfiedFeedback: () => void;
   handleNotSatisfiedFeedback: () => void;
-  handleNotSatisfiedFeedbackFormSubmit: (args: NotSatisfiedDetailsPayload) => void;
+  handleNotSatisfiedFeedbackFormSubmit: (
+    args: NotSatisfiedDetailsPayload
+  ) => void;
 };
 
 export default function Feedback({
   handleSatisfiedFeedback,
   handleNotSatisfiedFeedback,
-  handleNotSatisfiedFeedbackFormSubmit
+  handleNotSatisfiedFeedbackFormSubmit,
 }: FeedbackProps) {
   const [state, setState] = useState<FeedbackState>(FeedbackState.Default);
 
@@ -266,11 +322,10 @@ export default function Feedback({
 
   let feedbackComponent;
 
-
   const onSubmitFeedbackForm = (args: NotSatisfiedDetailsPayload) => {
     handleNotSatisfiedFeedbackFormSubmit(args);
     setState(FeedbackState.FormSent);
-  }
+  };
 
   if (state === FeedbackState.Default) {
     feedbackComponent = (
