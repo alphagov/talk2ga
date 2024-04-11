@@ -16,6 +16,7 @@ import SQLViewer from "./components/SQLViewer";
 import QuestionInput from "./components/QuestionInput";
 import TypeWriterLoading from "./components/TypeWriterLoading";
 import Logs from "./components/Logs";
+import { getUsername } from "./localstorage";
 
 type DurationTrack = {
   startTime?: Date;
@@ -90,6 +91,7 @@ function Playground() {
         recordQuestionCompletion(currentQuestionId, {
           logs_json: latest && JSON.stringify(latest.logs),
           duration: durationMs,
+          username: getUsername() || undefined,
         });
       setDuration({ ...duration, endTime, durationMs });
     };
