@@ -75,7 +75,7 @@ function Playground() {
     context.current.onStart["setQuestion"] = ({ input }) =>
       setQuestion(input as string);
     context.current.onStart["setQuestionId"] = ({ questionId }) =>
-      setCurrentQuestionId(questionId);
+      questionId && setCurrentQuestionId(questionId);
     context.current.onStart["setIsStreaming"] = () => setIsStreaming(true);
     context.current.onStart["setHasCompletedFalse"] = () =>
       setHasCompleted(false);
