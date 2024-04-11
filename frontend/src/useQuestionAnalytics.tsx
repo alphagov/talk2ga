@@ -11,6 +11,7 @@ type QuestionCompletionPayload = {
 export type NotSatisfiedDetailsPayload = {
   feedbackText: string;
   feedbackSql?: string;
+  username?: string;
 };
 
 export function useQuestions() {
@@ -95,6 +96,7 @@ export function useQuestions() {
       is_feedback_positive: false,
       feedback_text: payload.feedbackText,
       suggested_sql_correction: payload.feedbackSql,
+      username: payload.username,
     };
     const response = await fetch(resolveApiUrl(`/question/${questionId}`), {
       method: "PUT",
