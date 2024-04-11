@@ -63,14 +63,12 @@ export function useStreamLogExplain(callbacks: StreamCallback = {}) {
 
   const startStream = useCallback(
     async (question: string, sql: string, config?: unknown) => {
-      console.log("in");
       const input = JSON.stringify({ question, sql });
       const controller = new AbortController();
       setController(controller);
       startRef.current?.({ input });
 
       let innerLatest: RunState | null = null;
-      console.log("feth");
       await fetchEventSource(resolveApiUrl("/explain/stream_log").toString(), {
         signal: controller.signal,
         method: "POST",

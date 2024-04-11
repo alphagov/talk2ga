@@ -8,6 +8,6 @@ export interface StreamCallback {
     aggregatedState: RunState | null
   ) => void;
   onError?: (error: unknown) => void;
-  onStart?: (ctx: { input: unknown; questionId: string }) => void;
+  onStart?: (ctx: { input: unknown; questionId?: string }) => void;
   onComplete?: () => void;
 }
