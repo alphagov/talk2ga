@@ -1,6 +1,7 @@
 import { useState } from "react";
 import "./feedback.css";
 import { NotSatisfiedDetailsPayload } from "../useQuestionAnalytics";
+import { setUsername } from "../localstorage";
 
 enum FeedbackState {
   Default,
@@ -149,6 +150,8 @@ const FormFeedback = ({
       feedbackSql: sqlData?.data,
       username: usernameData?.data,
     });
+    // Also cache the username
+    setUsername(usernameData?.data || "");
   };
 
   return (

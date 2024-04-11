@@ -6,6 +6,7 @@ type QuestionCompletionPayload = {
   final_output?: string | null;
   duration?: number;
   succeeded?: boolean;
+  username?: string;
 };
 
 export type NotSatisfiedDetailsPayload = {
