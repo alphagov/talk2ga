@@ -28,6 +28,7 @@ greenlet = "^3.0.3"
 sql-metadata = "^2.10.0"
 langchain = "^0.1.14"
 alembic = "^1.13.1"
+langfuse = "^2.25.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.1.1"

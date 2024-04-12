@@ -28,3 +28,17 @@ services:
     ports:
       - "127.0.0.1:5434:5432"
     command: --address 0.0.0.0 --port 5432 --auto-iam-authn --credentials-file /path/to/service-account-key.json data-insights-experimentation:europe-west2:chat-analytics-dev
+
+  langfuse-server:
+    image: ghcr.io/langfuse/langfuse:latest
+    depends_on:
+      - db
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://local:local@db:5432/langfuse
+      - NEXTAUTH_SECRET=mysecret
+      - SALT=mysalt
+      - NEXTAUTH_URL=http://localhost:3000
+      - TELEMETRY_ENABLED=${TELEMETRY_ENABLED:-true}
+      - LANGFUSE_ENABLE_EXPERIMENTAL_FEATURES=${LANGFUSE_ENABLE_EXPERIMENTAL_FEATURES:-false}

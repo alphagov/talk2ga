@@ -1,4 +1,5 @@
 # type: ignore
+from langfuse.decorators import observe
 from langchain_core.runnables import (
     RunnableLambda,
     RunnableParallel
@@ -16,7 +17,7 @@ from webapp import analytics_controller
 from webapp.exceptions import format_exception
 import random
 
-
+@observe()
 def create_gen_sql_input(question):
     if pertains_to_smart_answers(question):
         question = smart_answers_prompt(question)
@@ -58,10 +59,12 @@ def chain_with_retry(retries_nb):
 
 
 @chain
+@observe()
 def gen_sql_chain(input):
     input = create_gen_sql_input(input)
 
     @chain
+    @observe()
     def validation_chain(gen_sql_output):
         print(f"\n\n\nValidating\n{gen_sql_output}\n\n\n")
         try:
@@ -75,15 +78,20 @@ def gen_sql_chain(input):
                 "error": str(e),
                 "attrs": e.__dict__
             }
-    
 
-    outputs = (
-        RunnableParallel(
-            gen1=generate_sql.chain | validation_chain,
-            gen2=generate_sql.chain | validation_chain,
-            gen3=generate_sql.chain | validation_chain,
-        )
-    ).invoke(input)
+    @observe()
+    def parallel_sql_gen(input):
+        outputs = (
+            RunnableParallel(
+                gen1=generate_sql.chain | validation_chain,
+                gen2=generate_sql.chain | validation_chain,
+                gen3=generate_sql.chain | validation_chain,
+            )
+        ).invoke(input)
+
+        return outputs
+    
+    outputs = parallel_sql_gen(input)
 
     is_error = lambda x: type(x) is not str and  x.get("is_error", False)
 
@@ -100,6 +108,7 @@ def gen_sql_chain(input):
 
 
 @chain_with_retry(2)
+@observe()
 def gen_sql_correction(payload: dict[str, list[str] | str]):
     input = {
         **payload,
@@ -114,6 +123,7 @@ def gen_sql_correction(payload: dict[str, list[str] | str]):
     ).invoke(input)
 
 
+@observe()
 def generate_sql_from_question(question:str):
     try:
         return gen_sql_chain.invoke(question)
@@ -148,6 +158,7 @@ def log_error_to_analytics(func):
 
 @chain
 @log_error_to_analytics
+@observe()
 def whole_chain(question: str, config: dict[str, any]):
     question_id = config.get("question_id")
     max_tries = 2
