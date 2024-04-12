@@ -103,7 +103,12 @@ export function useStreamLog(callbacks: StreamCallback = {}) {
         onclose() {
           setController(null);
           completionRef.current?.();
-          successRef.current?.({ input, output: innerLatest?.final_output });
+          successRef.current?.({
+            input,
+            output: innerLatest?.final_output,
+            logs:
+              (innerLatest && JSON.stringify(innerLatest.logs)) || undefined,
+          });
         },
         // onerror(error) {
         //   setController(null);

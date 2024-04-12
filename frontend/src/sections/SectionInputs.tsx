@@ -18,15 +18,6 @@ export function SectionInputs(props: {
     );
   }, [props.input, props.value.data]);
 
-
-  console.log({
-    schema: props.input,
-    data: props.value.data,
-    renderers: renderers,
-    cells: cells,
-  
-  })
-
   return (
     <div className="flex flex-col gap-3">
       <div className="p-4 border border-divider-700 flex flex-col gap-3 rounded-2xl bg-background">
