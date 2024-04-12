@@ -51,7 +51,6 @@ const SQLViewer = ({ sql, question }: SQLViewerProps) => {
   }, []);
 
   const handleExplainSQLClick = () => {
-    console.log("START", question);
     question && startStream(question, sql);
   };
 

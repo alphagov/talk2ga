@@ -103,11 +103,12 @@ function Playground() {
     /**
      * OnSuccess
      */
-    context.current.onSuccess["recordSuccess"] = () => {
+    context.current.onSuccess["recordSuccess"] = ({ output, logs }) => {
       currentQuestionId &&
         recordQuestionCompletion(currentQuestionId, {
+          logs_json: logs,
           succeeded: true,
-          final_output: latest && streamOutputToString(latest.streamed_output),
+          final_output: output as string,
         });
     };
 
