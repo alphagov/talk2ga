@@ -5,8 +5,33 @@ type InputData = {
   errors: string[];
 };
 
+export type DateRange = {
+  start_date: string;
+  end_date: string;
+};
+
+function generateDummyTimeRange(): DateRange {
+  /**
+   * Dummy function awaiting for proper implementation of a date picker
+   */
+  const today = new Date();
+
+  // Subtract 3 days
+  const threeDaysAgoDateTime = new Date(today.setDate(today.getDate() - 3));
+  const sixDaysAgoDateTime = new Date(today.setDate(today.getDate() - 6));
+
+  // Format to ISO date string (YYYY-MM-DD)
+  const threeDateStringISO = threeDaysAgoDateTime.toISOString().split("T")[0];
+  const sixDateStringISO = sixDaysAgoDateTime.toISOString().split("T")[0];
+
+  return {
+    start_date: sixDateStringISO,
+    end_date: threeDateStringISO,
+  };
+}
+
 type QuestionInputProps = {
-  handleSubmitQuestion: (data: string) => void;
+  handleSubmitQuestion: (question: string, dateRange: DateRange) => void;
   handleStopStreaming?: () => void;
   isStreaming: boolean;
   toggleShowLogs: () => void;
@@ -36,7 +61,7 @@ function QuestionInput({
     if (isStreaming) {
       handleStopStreaming && handleStopStreaming();
     } else {
-      handleSubmitQuestion(inputData.data);
+      handleSubmitQuestion(inputData.data, generateDummyTimeRange());
     }
   };
 

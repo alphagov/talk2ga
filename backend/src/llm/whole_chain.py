@@ -1,4 +1,5 @@
 # type: ignore
+import json
 from langfuse.decorators import observe
 from langchain_core.runnables import (
     RunnableLambda,
@@ -156,10 +157,15 @@ def log_error_to_analytics(func):
 
 
 
+
+
 @chain
 @log_error_to_analytics
 @observe()
-def whole_chain(question: str, config: dict[str, any]):
+def whole_chain(json_input: str, config: dict[str, any]):
+    input = json.loads(json_input)
+    question = input.get("question")
+    date_range = input.get("dateRange")
     question_id = config.get("question_id")
     max_tries = 2
     count_retries = 0
@@ -168,6 +174,7 @@ def whole_chain(question: str, config: dict[str, any]):
     while response_object is None and count_retries < max_tries:
         try:
             sql = generate_sql_from_question(question)
+            # sql = insert_date_range(sql, date_range)
             response_object = query_sql(sql)
         except Exception as e:
             count_retries += 1
