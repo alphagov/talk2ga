@@ -17,13 +17,6 @@
   font-size: 12px !important;
 }
 
-.answer-date-range-caveat {
-  font-size: 10px;
-  font-style: italic;
-  font-weight: lighter;
-  padding-top: 10px;
-}
-
 .sql-viewer-container {
   position: relative
 }
