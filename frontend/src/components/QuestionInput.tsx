@@ -65,10 +65,12 @@ function QuestionInput({
           What is your question?
         </label>
       </h1>
-      <div id="more-detail-hint" className="govuk-hint">
-        It is better to provide specific URLs or page titles
+      <div className="legend-container">
+        <div id="more-detail-hint" className="govuk-hint">
+          It is better to provide specific URLs or page titles
+        </div>
+        <DateRangePicker handleDateChange={handleDateChange} />
       </div>
-      <DateRangePicker handleDateChange={handleDateChange} />
       <textarea
         className="govuk-textarea"
         id="more-detail"
