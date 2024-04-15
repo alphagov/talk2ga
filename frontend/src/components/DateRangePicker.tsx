@@ -20,6 +20,7 @@ export default function DateRangePicker({
       shouldDisableDate={combine(allowedMaxDays(3), after(yesterday))}
       onChange={handleDateChange}
       block
+      showOneCalendar
     />
   );
 }

@@ -47,3 +47,23 @@
 .answer-banner {
   max-width: 100% !important
 }
+
+
+/**
+*  Date Picker
+*/
+
+.rs-input-group.rs-input-group-lg.rs-input-group-inside {
+  border: 2px solid black;
+  cursor: pointer;
+  border-radius: 0;
+}
+
+input.rs-date-range-input.rs-input {
+  cursor: pointer;
+}
+
+/* Actual calendar widget */
+div.rs-picker-daterange-content {
+  font-family: GDS Transport, arial, sans-serif !important;
+}
