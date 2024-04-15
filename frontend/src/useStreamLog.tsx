@@ -3,6 +3,7 @@ import { applyPatch, Operation } from "fast-json-patch";
 import { fetchEventSource } from "@microsoft/fetch-event-source";
 import { resolveApiUrl } from "./utils/url";
 import { StreamCallback } from "./types";
+import { DateRange } from "./components/QuestionInput";
 
 export interface LogEntry {
   // ID of the sub-run.
@@ -64,60 +65,67 @@ export function useStreamLog(callbacks: StreamCallback = {}) {
   const completionRef = useRef(callbacks.onComplete);
   completionRef.current = callbacks.onComplete;
 
-  const startStream = useCallback(async (input: unknown, config?: unknown) => {
-    const controller = new AbortController();
-    setController(controller);
+  const startStream = useCallback(
+    async (question: string, dateRange: DateRange, config?: unknown) => {
+      const controller = new AbortController();
+      setController(controller);
 
-    let innerLatest: RunState | null = null;
+      let innerLatest: RunState | null = null;
 
-    await fetchEventSource(
-      resolveApiUrl("/whole-chain/stream_log").toString(),
-      {
-        signal: controller.signal,
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ input, config }),
-        async onopen(response) {
-          if (response.ok && response.headers.get("X-Question-Uid")) {
-            startRef.current?.({
-              input,
-              questionId: response.headers.get("X-Question-Uid") as string,
-            });
-          }
-        },
-        onmessage(msg) {
-          if (msg.event === "data") {
-            innerLatest = reducer(innerLatest, JSON.parse(msg.data)?.ops);
-            setLatest(innerLatest);
-            chunkRef.current?.(JSON.parse(msg.data), innerLatest);
-          }
-          if (msg.event === "error") {
-            controller?.abort();
+      const payload = JSON.stringify({ question, dateRange });
+
+      await fetchEventSource(
+        resolveApiUrl("/whole-chain/stream_log").toString(),
+        {
+          signal: controller.signal,
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ input: payload, config }),
+          async onopen(response) {
+            if (response.ok && response.headers.get("X-Question-Uid")) {
+              startRef.current?.({
+                question,
+                dateRange,
+                questionId: response.headers.get("X-Question-Uid") as string,
+              });
+            }
+          },
+          onmessage(msg) {
+            if (msg.event === "data") {
+              innerLatest = reducer(innerLatest, JSON.parse(msg.data)?.ops);
+              setLatest(innerLatest);
+              chunkRef.current?.(JSON.parse(msg.data), innerLatest);
+            }
+            if (msg.event === "error") {
+              controller?.abort();
+              setController(null);
+              completionRef.current?.();
+              errorRef.current?.(msg.data);
+              throw new Error(msg.data);
+            }
+          },
+          openWhenHidden: true,
+          onclose() {
             setController(null);
             completionRef.current?.();
-            errorRef.current?.(msg.data);
-            throw new Error(msg.data);
-          }
-        },
-        openWhenHidden: true,
-        onclose() {
-          setController(null);
-          completionRef.current?.();
-          successRef.current?.({
-            input,
-            output: innerLatest?.final_output,
-            logs:
-              (innerLatest && JSON.stringify(innerLatest.logs)) || undefined,
-          });
-        },
-        // onerror(error) {
-        //   setController(null);
-        //   errorRef.current?.();
-        //   throw error;
-        // },
-      }
-    );
-  }, []);
+            successRef.current?.({
+              question,
+              dateRange,
+              output: innerLatest?.final_output,
+              logs:
+                (innerLatest && JSON.stringify(innerLatest.logs)) || undefined,
+            });
+          },
+          // onerror(error) {
+          //   setController(null);
+          //   errorRef.current?.();
+          //   throw error;
+          // },
+        }
+      );
+    },
+    []
+  );
 
   const stopStream = useCallback(() => {
     controller?.abort();

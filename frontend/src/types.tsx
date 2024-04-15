@@ -1,13 +1,23 @@
 import type { Operation } from "fast-json-patch";
 import type { RunState } from "./useStreamLog";
+import { DateRange } from "./components/QuestionInput";
 
 export interface StreamCallback {
-  onSuccess?: (ctx: { input: unknown; output: unknown; logs?: string }) => void;
+  onSuccess?: (ctx: {
+    question: string;
+    dateRange: DateRange;
+    output: unknown;
+    logs?: string;
+  }) => void;
   onChunk?: (
     chunk: { ops?: Operation[] },
     aggregatedState: RunState | null
   ) => void;
   onError?: (error: unknown) => void;
-  onStart?: (ctx: { input: unknown; questionId?: string }) => void;
+  onStart?: (ctx: {
+    question: string;
+    dateRange: DateRange;
+    questionId?: string;
+  }) => void;
   onComplete?: () => void;
 }
