@@ -27,9 +27,6 @@ export function MainAnswer({ text }: { text: string }) {
             </span>
           ))}
         </p>
-        <p className="answer-date-range-caveat">
-          Answer is based on data from 2024/02/12.
-        </p>
       </div>
     </div>
   );
