@@ -1,11 +1,11 @@
 # type: ignore
 import json
 from langfuse.decorators import observe
+from langchain_core.runnables import chain
 from langchain_core.runnables import (
     RunnableLambda,
     RunnableParallel
 )
-from langchain_core.runnables import chain
 from llm.knowledge_bases import get_text_knowledge_base, get_schema_description, get_schema_columns
 from llm.llm_chains import generate_sql, format_output, generate_sql_correction
 from llm import config
@@ -59,17 +59,18 @@ def chain_with_retry(retries_nb):
     return chain_with_retry_decorator
 
 
-@chain
 @observe()
-def gen_sql_chain(input):
+def gen_sql_chain(input, date_range):
     input = create_gen_sql_input(input)
 
     @chain
     @observe()
-    def validation_chain(gen_sql_output):
-        print(f"\n\n\nValidating\n{gen_sql_output}\n\n\n")
+    def validation_chain(sql: str):
         try:
-          return (RunnableLambda(formatting.remove_sql_quotes)| RunnableLambda(evaluation.is_valid_sql)).invoke(gen_sql_output)
+          formatted_sql = formatting.remove_sql_quotes(sql)
+          formatted_sql = formatting.insert_correct_dates(formatted_sql, date_range)
+          validated_sql = evaluation.is_valid_sql(formatted_sql)
+          return validated_sql
         except Exception as e:
             # LangChain does not support return exceptions in chains as they are not json serializable
             # So we need to return a dictionary with the error information
@@ -84,9 +85,9 @@ def gen_sql_chain(input):
     def parallel_sql_gen(input):
         outputs = (
             RunnableParallel(
-                gen1=generate_sql.chain | validation_chain,
-                gen2=generate_sql.chain | validation_chain,
-                gen3=generate_sql.chain | validation_chain,
+                gen1=generate_sql.gen | validation_chain,
+                gen2=generate_sql.gen | validation_chain,
+                gen3=generate_sql.gen | validation_chain,
             )
         ).invoke(input)
 
@@ -125,9 +126,9 @@ def gen_sql_correction(payload: dict[str, list[str] | str]):
 
 
 @observe()
-def generate_sql_from_question(question:str):
+def generate_sql_from_question(question:str, date_range):
     try:
-        return gen_sql_chain.invoke(question)
+        return gen_sql_chain(question, date_range)
     except InvalidSQLColumnsException as e:
         input = {
             "schema_columns": get_schema_columns(),
@@ -173,8 +174,7 @@ def whole_chain(json_input: str, config: dict[str, any]):
 
     while response_object is None and count_retries < max_tries:
         try:
-            sql = generate_sql_from_question(question)
-            # sql = insert_date_range(sql, date_range)
+            sql = generate_sql_from_question(question, date_range)
             response_object = query_sql(sql)
         except Exception as e:
             count_retries += 1
@@ -183,11 +183,8 @@ def whole_chain(json_input: str, config: dict[str, any]):
     
     if response_object is None:
         raise Exception("All attempts failed to generate and query SQL.")
-    
-    final_output = format_output.chain.invoke({
-        "user_query": question,
-        "sql_query": sql,
-        "response_object": response_object,
-    })
+
+
+    final_output = format_output.format_answer(question, sql, response_object)
     
     return final_output

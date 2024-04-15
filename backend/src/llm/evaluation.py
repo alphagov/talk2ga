@@ -1,8 +1,15 @@
 from llm.knowledge_bases import get_schema_columns
 from sql_metadata import Parser
 from webapp.exceptions import InvalidSQLColumnsException
+from langfuse.decorators import observe
 
 
+# List of columns that are allowed to be used in the SQL query
+# The validation SQL compiler tends to pick up on keywords that aren't columns
+# Such as _TABLE_SUFFIX, which is a valid keyword in BigQuery
+WRONG_COLUMNS_ALLOW_LIST = [
+    "_TABLE_SUFFIX"
+]
 
 
 def extract_columns(sql_query: str) -> list[str]:
@@ -15,6 +22,10 @@ def validate_sql_columns(sql: str):
     schema_columns = get_schema_columns()
 
     wrong_columns = [col for col in columns if col not in schema_columns]
+
+    for wg in wrong_columns:
+        if wg in WRONG_COLUMNS_ALLOW_LIST:
+            wrong_columns.remove(wg)
 
     if len(wrong_columns) != 0:
         raise InvalidSQLColumnsException(columns, wrong_columns, sql)
@@ -30,8 +41,16 @@ def validate_does_not_contain_suffix(sql: str):
     return True
 
 
+# List of validators to run on the SQL query
+VALIDATORS = [
+    validate_sql_columns,
+    # validate_does_not_contain_suffix,
+]
+
+@observe()
 def is_valid_sql(sql: str):
-    validate_does_not_contain_suffix(sql)
-    validate_sql_columns(sql)
+    # The first validator to raise an exception will stop the execution
+    for validator in VALIDATORS:
+        validator(sql)
     
     return sql

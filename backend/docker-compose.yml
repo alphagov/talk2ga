@@ -29,7 +29,7 @@ services:
       - "127.0.0.1:5434:5432"
     command: --address 0.0.0.0 --port 5432 --auto-iam-authn --credentials-file /path/to/service-account-key.json data-insights-experimentation:europe-west2:chat-analytics-dev
 
-  langfuse-server:
+  langfuse:
     image: ghcr.io/langfuse/langfuse:latest
     depends_on:
       - db

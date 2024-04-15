@@ -5,7 +5,7 @@ from fastapi import FastAPI, Depends, Request
 
 from langserve import add_routes
 
-from llm.llm_chains.generate_sql import chain as generate_sql
+from llm.llm_chains.generate_sql import gen as generate_sql
 
 from llm import db
 from llm.whole_chain import whole_chain

@@ -2,6 +2,8 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from llm.llms import code_bison_6k
 from llm.prompts.sql_generation import sql_generation_prompt
+from langfuse.decorators import observe
+from langchain_core.runnables import chain
 
 
 def create_sql_generation_chain(custom_prompt=None):
@@ -12,4 +14,7 @@ def create_sql_generation_chain(custom_prompt=None):
     return chain
 
 
-chain = create_sql_generation_chain()
+@chain
+@observe()
+def gen(input):
+    return create_sql_generation_chain().invoke(input)
