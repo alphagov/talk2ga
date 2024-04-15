@@ -1,35 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import DateRangePicker from "./DateRangePicker";
+import { DateRange } from "rsuite/DateRangePicker";
 
 type InputData = {
   data: string;
   errors: string[];
 };
-
-export type DateRange = {
-  start_date: string;
-  end_date: string;
-};
-
-function generateDummyTimeRange(): DateRange {
-  /**
-   * Dummy function awaiting for proper implementation of a date picker
-   */
-  const today = new Date();
-
-  // Subtract 3 days
-  const threeDaysAgoDateTime = new Date(today.setDate(today.getDate() - 3));
-  const sixDaysAgoDateTime = new Date(today.setDate(today.getDate() - 6));
-
-  // Format to ISO date string (YYYY-MM-DD)
-  const threeDateStringISO = threeDaysAgoDateTime.toISOString().split("T")[0];
-  const sixDateStringISO = sixDaysAgoDateTime.toISOString().split("T")[0];
-
-  return {
-    start_date: sixDateStringISO,
-    end_date: threeDateStringISO,
-  };
-}
 
 type QuestionInputProps = {
   handleSubmitQuestion: (question: string, dateRange: DateRange) => void;
@@ -56,13 +32,16 @@ function QuestionInput({
     data: "",
     errors: [],
   });
+  const [selectedDateRange, setSelectedDateRange] = useState<DateRange | null>(
+    null
+  );
 
   const submitRef = useRef<(() => void) | null>(null);
   submitRef.current = () => {
     if (isStreaming) {
       handleStopStreaming && handleStopStreaming();
     } else {
-      handleSubmitQuestion(inputData.data, generateDummyTimeRange());
+      handleSubmitQuestion(inputData.data, selectedDateRange);
     }
   };
 
@@ -75,6 +54,10 @@ function QuestionInput({
     });
   }, []);
 
+  const handleDateChange = (date: DateRange | null) => {
+    setSelectedDateRange(date);
+  };
+
   return (
     <div className="govuk-form-group">
       <h1 className="govuk-label-wrapper">
@@ -85,7 +68,7 @@ function QuestionInput({
       <div id="more-detail-hint" className="govuk-hint">
         It is better to provide specific URLs or page titles
       </div>
-      <DateRangePicker />
+      <DateRangePicker handleDateChange={handleDateChange} />
       <textarea
         className="govuk-textarea"
         id="more-detail"

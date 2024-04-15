@@ -3,7 +3,8 @@ import { applyPatch, Operation } from "fast-json-patch";
 import { fetchEventSource } from "@microsoft/fetch-event-source";
 import { resolveApiUrl } from "./utils/url";
 import { StreamCallback } from "./types";
-import { DateRange } from "./components/QuestionInput";
+import { DateRange } from "rsuite/DateRangePicker";
+import { dateRangeFrontendToDateRangeBackend } from "./utils/dates";
 
 export interface LogEntry {
   // ID of the sub-run.
@@ -72,7 +73,10 @@ export function useStreamLog(callbacks: StreamCallback = {}) {
 
       let innerLatest: RunState | null = null;
 
-      const payload = JSON.stringify({ question, dateRange });
+      const payload = JSON.stringify({
+        question,
+        dateRange: dateRangeFrontendToDateRangeBackend(dateRange),
+      });
 
       await fetchEventSource(
         resolveApiUrl("/whole-chain/stream_log").toString(),
