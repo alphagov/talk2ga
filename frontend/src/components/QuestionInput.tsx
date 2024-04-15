@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import DateRangePicker from "./DateRangePicker";
 
 type InputData = {
   data: string;
@@ -84,6 +85,7 @@ function QuestionInput({
       <div id="more-detail-hint" className="govuk-hint">
         It is better to provide specific URLs or page titles
       </div>
+      <DateRangePicker />
       <textarea
         className="govuk-textarea"
         id="more-detail"
