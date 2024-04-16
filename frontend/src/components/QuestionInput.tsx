@@ -41,7 +41,8 @@ function QuestionInput({
     if (isStreaming) {
       handleStopStreaming && handleStopStreaming();
     } else {
-      handleSubmitQuestion(inputData.data, selectedDateRange);
+      selectedDateRange &&
+        handleSubmitQuestion(inputData.data, selectedDateRange);
     }
   };
 

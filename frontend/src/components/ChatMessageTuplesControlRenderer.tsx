@@ -69,7 +69,10 @@ export const ChatMessageTuplesControlRenderer = withJsonFormsControlProps(
 
       ai = getMessageContent(ai);
       if (typeof ai === "string") {
-        props.handleChange(props.path, [...data.slice(0, -1), [data[data.length - 1][0], ai]]);
+        props.handleChange(props.path, [
+          ...data.slice(0, -1),
+          [data[data.length - 1][0], ai],
+        ]);
       }
     });
 
@@ -80,7 +83,7 @@ export const ChatMessageTuplesControlRenderer = withJsonFormsControlProps(
 
       const inputPath = getNormalizedJsonPath(widget.input ?? "");
 
-      const human = traverseNaiveJsonPath(ctx.input, inputPath);
+      const human = traverseNaiveJsonPath(ctx.question, inputPath);
       if (typeof human === "string") {
         props.handleChange(props.path, [...data, [human, ""]]);
       }
