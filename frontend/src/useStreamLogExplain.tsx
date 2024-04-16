@@ -66,7 +66,7 @@ export function useStreamLogExplain(callbacks: StreamCallback = {}) {
       const input = JSON.stringify({ question, sql });
       const controller = new AbortController();
       setController(controller);
-      startRef.current?.({ input });
+      startRef.current?.({ question });
 
       let innerLatest: RunState | null = null;
       await fetchEventSource(resolveApiUrl("/explain/stream_log").toString(), {
@@ -84,7 +84,7 @@ export function useStreamLogExplain(callbacks: StreamCallback = {}) {
         openWhenHidden: true,
         onclose() {
           setController(null);
-          successRef.current?.({ input, output: innerLatest?.final_output });
+          successRef.current?.({ question, output: innerLatest?.final_output });
         },
         onerror(error) {
           setController(null);

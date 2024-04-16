@@ -72,8 +72,8 @@ function Playground() {
      */
     context.current.onStart["setDurationStart"] = () =>
       setDuration({ ...DEFAULT_DURATION_TRACK, startTime: new Date() });
-    context.current.onStart["setQuestion"] = ({ input }) =>
-      setQuestion(input as string);
+    context.current.onStart["setQuestion"] = ({ question }) =>
+      setQuestion(question);
     context.current.onStart["setQuestionId"] = ({ questionId }) =>
       questionId && setCurrentQuestionId(questionId);
     context.current.onStart["setIsStreaming"] = () => setIsStreaming(true);
