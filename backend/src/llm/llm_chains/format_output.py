@@ -15,8 +15,10 @@ def create_format_output_chain(custom_prompt=None):
 
 @_observe()
 def format_answer(question, sql, response_object):
-    return create_format_output_chain().invoke({
-        "user_query": question,
-        "sql_query": sql,
-        "response_object": response_object,
-    })
+    return create_format_output_chain().invoke(
+        {
+            "user_query": question,
+            "sql_query": sql,
+            "response_object": response_object,
+        }
+    )

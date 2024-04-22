@@ -1,5 +1,6 @@
 import json
 
+
 def get_text_knowledge_base():
     """
     Returns the content of the textfile knowledge base

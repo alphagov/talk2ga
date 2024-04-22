@@ -22,12 +22,16 @@ class QuestionBase(SQLModel):
 
 
 class Question(QuestionBase, table=True):
-    id: str = Field(primary_key=True, default_factory=lambda : str(uuid.uuid4()))
-    created_at: datetime = Field(sa_column=sa.Column(sa.DateTime(timezone=True)), default_factory=lambda : datetime.now(pytz.timezone('Europe/London')))
+    id: str = Field(primary_key=True, default_factory=lambda: str(uuid.uuid4()))
+    created_at: datetime = Field(
+        sa_column=sa.Column(sa.DateTime(timezone=True)),
+        default_factory=lambda: datetime.now(pytz.timezone("Europe/London")),
+    )
 
 
 class QuestionCreate(QuestionBase):
     pass
+
 
 class QuestionUpdate(SQLModel):
     succeeded: bool | None = None
@@ -42,6 +46,7 @@ class QuestionUpdate(SQLModel):
     feedback_text: str | None = None
     suggested_sql_correction: str | None = None
     explanations: str | None = None
+
 
 class QuestionRead(QuestionBase):
     id: str

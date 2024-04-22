@@ -2,11 +2,12 @@
 import json
 from llm.flags import _observe
 from langchain_core.runnables import chain
-from langchain_core.runnables import (
-    RunnableLambda,
-    RunnableParallel
+from langchain_core.runnables import RunnableLambda, RunnableParallel
+from llm.knowledge_bases import (
+    get_text_knowledge_base,
+    get_schema_description,
+    get_schema_columns,
 )
-from llm.knowledge_bases import get_text_knowledge_base, get_schema_description, get_schema_columns
 from llm.llm_chains import generate_sql, format_output, generate_sql_correction
 from llm import config
 from llm import evaluation
@@ -17,6 +18,7 @@ from llm.evaluation import InvalidSQLColumnsException
 from webapp import analytics_controller
 from webapp.exceptions import format_exception
 import random
+
 
 @_observe()
 def create_gen_sql_input(question):
@@ -46,7 +48,9 @@ def chain_with_retry(retries_nb):
                     output = func(input)
                 except Exception as e:
                     count_retries += 1
-                    print(f"\n{func.__name__}: Retrying {count_retries}/{max_tries}...\n")
+                    print(
+                        f"\n{func.__name__}: Retrying {count_retries}/{max_tries}...\n"
+                    )
                     latest_exception = e
 
             if output is None:
@@ -55,7 +59,7 @@ def chain_with_retry(retries_nb):
             return output
 
         return wrapper
-    
+
     return chain_with_retry_decorator
 
 
@@ -67,18 +71,18 @@ def gen_sql_chain(input, date_range):
     @_observe()
     def validation_chain(sql: str):
         try:
-          formatted_sql = formatting.remove_sql_quotes(sql)
-          formatted_sql = formatting.insert_correct_dates(formatted_sql, date_range)
-          validated_sql = evaluation.is_valid_sql(formatted_sql)
-          return validated_sql
+            formatted_sql = formatting.remove_sql_quotes(sql)
+            formatted_sql = formatting.insert_correct_dates(formatted_sql, date_range)
+            validated_sql = evaluation.is_valid_sql(formatted_sql)
+            return validated_sql
         except Exception as e:
             # LangChain does not support return exceptions in chains as they are not json serializable
-            # So we need to return a dictionary with the error information
+            # So we need to return a dictionary with the error information
             return {
                 "is_error": True,
                 "type": e.__class__.__name__,
                 "error": str(e),
-                "attrs": e.__dict__
+                "attrs": e.__dict__,
             }
 
     @_observe()
@@ -92,20 +96,19 @@ def gen_sql_chain(input, date_range):
         ).invoke(input)
 
         return outputs
-    
+
     outputs = parallel_sql_gen(input)
 
-    is_error = lambda x: type(x) is not str and  x.get("is_error", False)
+    is_error = lambda x: type(x) is not str and x.get("is_error", False)
 
     correct_outputs = [v for v in outputs.values() if not is_error(v)]
     if len(correct_outputs) > 0:
         return random.choice(correct_outputs)
 
-    
     for _, v in outputs.items():
         if is_error(v) and v["type"] == "InvalidSQLColumnsException":
             raise InvalidSQLColumnsException(**v["attrs"])
-    
+
     raise Exception("All attempts failed with unexpected errors: ", outputs.values())
 
 
@@ -126,7 +129,7 @@ def gen_sql_correction(payload: dict[str, list[str] | str]):
 
 
 @_observe()
-def generate_sql_from_question(question:str, date_range):
+def generate_sql_from_question(question: str, date_range):
     try:
         return gen_sql_chain(question, date_range)
     except InvalidSQLColumnsException as e:
@@ -139,7 +142,7 @@ def generate_sql_from_question(question:str, date_range):
         }
         corrected_sql = gen_sql_correction.invoke(input)
         return corrected_sql
-    
+
 
 def log_error_to_analytics(func):
     async def wrapper(question: str, config: dict[str, any]):
@@ -153,11 +156,8 @@ def log_error_to_analytics(func):
                 await analytics_controller.log_error(question_id, format_exception(e))
 
             raise e
-    
+
     return wrapper
-
-
-
 
 
 @chain
@@ -180,11 +180,10 @@ def whole_chain(json_input: str, config: dict[str, any]):
             count_retries += 1
             print(f"\nquery_sql failed. Retrying {count_retries}/{max_tries}...\n")
             print(e)
-    
+
     if response_object is None:
         raise Exception("All attempts failed to generate and query SQL.")
 
-
     final_output = format_output.format_answer(question, sql, response_object)
-    
+
     return final_output

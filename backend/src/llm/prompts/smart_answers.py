@@ -36,16 +36,17 @@ def smart_answers_prompt(question):
 
 from fuzzywuzzy import fuzz
 
+
 def normalize_input(input_string):
     """Normalize the input string by removing spaces and hyphens, and converting to lower case."""
     return input_string.replace(" ", "").replace("-", "").lower()
+
 
 def pertains_to_smart_answers(input_string):
     """Check if the input string pertains to the concept of 'smart answer', allowing for fuzzy matching."""
     target_concept = "smartanswer"
     normalized_input = normalize_input(input_string)
-    
-    match_score = fuzz.partial_ratio(normalized_input, target_concept)
-    
-    return match_score >= 90
 
+    match_score = fuzz.partial_ratio(normalized_input, target_concept)
+
+    return match_score >= 90

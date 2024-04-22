@@ -7,15 +7,14 @@ from llm.flags import _observe
 # List of columns that are allowed to be used in the SQL query
 # The validation SQL compiler tends to pick up on keywords that aren't columns
 # Such as _TABLE_SUFFIX, which is a valid keyword in BigQuery
-WRONG_COLUMNS_ALLOW_LIST = [
-    "_TABLE_SUFFIX"
-]
+WRONG_COLUMNS_ALLOW_LIST = ["_TABLE_SUFFIX"]
 
 
 def extract_columns(sql_query: str) -> list[str]:
-    columns = Parser(sql_query).columns 
+    columns = Parser(sql_query).columns
 
     return columns
+
 
 def validate_sql_columns(sql: str):
     columns = extract_columns(sql)
@@ -47,10 +46,11 @@ VALIDATORS = [
     # validate_does_not_contain_suffix,
 ]
 
+
 @_observe()
 def is_valid_sql(sql: str):
     # The first validator to raise an exception will stop the execution
     for validator in VALIDATORS:
         validator(sql)
-    
+
     return sql

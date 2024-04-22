@@ -33,6 +33,7 @@ langfuse = "^2.25.0"
 [tool.poetry.group.dev.dependencies]
 black = "^24.1.1"
 pretty-errors = "^1.2.25"
+pre-commit = "^3.7.0"
 
 [build-system]
 requires = ["poetry-core"]

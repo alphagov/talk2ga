@@ -11,19 +11,19 @@ from sqlmodel import SQLModel
 from alembic import context
 
 
-
 def get_url():
-    env_name = os.getenv('ENV')
-    if env_name == 'local':
-        return os.getenv('DB_URL_LOCAL')
-    elif env_name == 'development':
-        return os.getenv('DB_URL_DEV')
+    env_name = os.getenv("ENV")
+    if env_name == "local":
+        return os.getenv("DB_URL_LOCAL")
+    elif env_name == "development":
+        return os.getenv("DB_URL_DEV")
     else:
-        raise Exception(f'No DB URL for environment: {env_name}')
+        raise Exception(f"No DB URL for environment: {env_name}")
+
 
 # Use the URL to set the sqlalchemy.url in the Alembic configuration
 config = context.config
-config.set_main_option('sqlalchemy.url', get_url())
+config.set_main_option("sqlalchemy.url", get_url())
 
 
 # this is the Alembic Config object, which provides

@@ -1,6 +1,7 @@
 import re
 from llm.flags import _observe
 
+
 @_observe()
 def remove_sql_quotes(input: str) -> str:
     """
@@ -13,7 +14,6 @@ def remove_sql_quotes(input: str) -> str:
 
     if "```" in relevant_str:
         relevant_str = relevant_str.split("```")[0]
-    
 
     relevant_str = relevant_str.strip().replace("\n", " ")
 
@@ -34,12 +34,10 @@ def insert_correct_dates(sql, date_range):
     start_date_match = start_date_matches.group(1)
     end_date_match = end_date_matches.group(1)
 
-
-    new_start_date = date_range['start_date'].replace("-", "")
-    new_end_date = date_range['end_date'].replace("-", "")
+    new_start_date = date_range["start_date"].replace("-", "")
+    new_end_date = date_range["end_date"].replace("-", "")
 
     sql = sql.replace(start_date_match, new_start_date)
     sql = sql.replace(end_date_match, new_end_date)
 
     return sql
-
