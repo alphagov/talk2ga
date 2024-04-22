@@ -92,7 +92,7 @@ export function streamOutputToString(streamed: unknown[]) {
         if (memo == null) return chunk;
         return memo.concat(chunk);
       }, null);
-  
+
       const functionCall = concat?.additional_kwargs?.function_call;
       return (
         concat?.content ||
@@ -100,6 +100,6 @@ export function streamOutputToString(streamed: unknown[]) {
         "..."
       );
     }
-  
+
     return streamed.map(str).join("") || "...";
   }
