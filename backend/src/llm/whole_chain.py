@@ -1,6 +1,6 @@
 # type: ignore
 import json
-from langfuse.decorators import observe
+from llm.flags import _observe
 from langchain_core.runnables import chain
 from langchain_core.runnables import (
     RunnableLambda,
@@ -18,7 +18,7 @@ from webapp import analytics_controller
 from webapp.exceptions import format_exception
 import random
 
-@observe()
+@_observe()
 def create_gen_sql_input(question):
     if pertains_to_smart_answers(question):
         question = smart_answers_prompt(question)
@@ -59,12 +59,12 @@ def chain_with_retry(retries_nb):
     return chain_with_retry_decorator
 
 
-@observe()
+@_observe()
 def gen_sql_chain(input, date_range):
     input = create_gen_sql_input(input)
 
     @chain
-    @observe()
+    @_observe()
     def validation_chain(sql: str):
         try:
           formatted_sql = formatting.remove_sql_quotes(sql)
@@ -81,7 +81,7 @@ def gen_sql_chain(input, date_range):
                 "attrs": e.__dict__
             }
 
-    @observe()
+    @_observe()
     def parallel_sql_gen(input):
         outputs = (
             RunnableParallel(
@@ -110,7 +110,7 @@ def gen_sql_chain(input, date_range):
 
 
 @chain_with_retry(2)
-@observe()
+@_observe()
 def gen_sql_correction(payload: dict[str, list[str] | str]):
     input = {
         **payload,
@@ -125,7 +125,7 @@ def gen_sql_correction(payload: dict[str, list[str] | str]):
     ).invoke(input)
 
 
-@observe()
+@_observe()
 def generate_sql_from_question(question:str, date_range):
     try:
         return gen_sql_chain(question, date_range)
@@ -162,7 +162,7 @@ def log_error_to_analytics(func):
 
 @chain
 @log_error_to_analytics
-@observe()
+@_observe()
 def whole_chain(json_input: str, config: dict[str, any]):
     input = json.loads(json_input)
     question = input.get("question")

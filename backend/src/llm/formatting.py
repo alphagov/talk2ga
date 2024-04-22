@@ -1,7 +1,7 @@
 import re
-from langfuse.decorators import observe
+from llm.flags import _observe
 
-@observe()
+@_observe()
 def remove_sql_quotes(input: str) -> str:
     """
     Now extract the SQL language only from the prompt result
@@ -20,7 +20,7 @@ def remove_sql_quotes(input: str) -> str:
     return relevant_str
 
 
-@observe()
+@_observe()
 def insert_correct_dates(sql, date_range):
     pattern_start_date = r"BETWEEN\s'([0-9]{8})'\sAND\s'[0-9]{8}'"
     pattern_end_date = r"BETWEEN\s'[0-9]{8}'\sAND\s'([0-9]{8})'"
