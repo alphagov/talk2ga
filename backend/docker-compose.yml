@@ -6,6 +6,8 @@ services:
       POSTGRES_USER: local
       POSTGRES_PASSWORD: local
       POSTGRES_DB: local
+    volumes:
+      - ./exports:/tmp/exports
     ports:
       - "5433:5432"
 

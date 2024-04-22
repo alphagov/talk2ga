@@ -1,7 +1,7 @@
 from llm.knowledge_bases import get_schema_columns
 from sql_metadata import Parser
 from webapp.exceptions import InvalidSQLColumnsException
-from langfuse.decorators import observe
+from llm.flags import _observe
 
 
 # List of columns that are allowed to be used in the SQL query
@@ -47,7 +47,7 @@ VALIDATORS = [
     # validate_does_not_contain_suffix,
 ]
 
-@observe()
+@_observe()
 def is_valid_sql(sql: str):
     # The first validator to raise an exception will stop the execution
     for validator in VALIDATORS:

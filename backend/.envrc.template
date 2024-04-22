@@ -3,6 +3,8 @@ export ENV=local
 export DB_URL_LOCAL=postgresql+asyncpg://local:local@localhost:5433/local
 export DB_URL_DEV=123
 
+
+export LANGFUSE_ENABLED=true
 export LANGFUSE_SECRET_KEY=123
 export LANGFUSE_PUBLIC_KEY=123
 export LANGFUSE_HOST=123
