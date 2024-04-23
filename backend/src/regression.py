@@ -18,6 +18,7 @@ from llm.whole_chain import whole_chain
 class Q:
     question = ""
     decsription = ""
+    output = ""
     verbose = False
     callback_data: dict = {}
 
@@ -28,23 +29,11 @@ class Q:
             self.verbose = True
 
     def run(self):
-        raise Exception("Not implemented")
+        self.run_chain()
+        self.test()
 
-    def test_callback(self, data):
-        self.callback_data = data
-        if self.verbose:
-            print(json.dumps(self.callback_data, indent=4))
-
-
-class Q0(Q):
-    description = (
-        "Should return an object with 290k+ page_views, and not use correction"
-    )
-    question = """What is the most viewed page?"""
-
-    def run(self):
-
-        response_object = whole_chain.invoke(
+    def run_chain(self):
+        self.output = whole_chain.invoke(
             json.dumps(
                 {
                     "question": self.question,
@@ -57,10 +46,25 @@ class Q0(Q):
             test_callback=self.test_callback,
         )
 
-        response_object = self.callback_data["response_object"]
+    def test(self):
+        raise Exception("Not implemented")
 
+    def test_callback(self, data):
+        self.callback_data = data
+        self.response_object = self.callback_data["response_object"]
+        if self.verbose:
+            print(json.dumps(self.callback_data, indent=4))
+
+
+class Q0(Q):
+    description = (
+        "Should return an object with 290k+ page_views, and not use correction"
+    )
+    question = """What is the most viewed page?"""
+
+    def test(self):
         assert (
-            response_object[0]["page_views"] >= 290000
+            self.response_object[0]["page_views"] >= 290000
         ), f"""Error in test Q0:\nAssert: response_object[0]["page_views"] >= 300000\nResponse object: {response_object}"""
 
         assert not self.callback_data["was_corrected"]
