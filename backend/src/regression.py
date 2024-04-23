@@ -15,6 +15,9 @@ from llm.whole_chain import whole_chain
 """
 
 
+NB_RUNS = 3
+
+
 class Q:
     question = ""
     decsription = ""
@@ -55,22 +58,99 @@ class Q:
         if self.verbose:
             print(json.dumps(self.callback_data, indent=4))
 
+    def __str__(self):
+        return f"""
+\n\n\n
+##############
 
-class Q0(Q):
+Test {self.__class__.__name__}:
+{self.question}
+------------------------
+{self.description}
+
+##############
+              """
+
+
+class Q1(Q):
+    question = """What is the most viewed page?"""
     description = (
         "Should return an object with 290k+ page_views, and not use correction"
     )
-    question = """What is the most viewed page?"""
 
     def test(self):
         assert (
             self.response_object[0]["page_views"] >= 290000
-        ), f"""Error in test Q0:\nAssert: response_object[0]["page_views"] >= 300000\nResponse object: {response_object}"""
+        ), f"""Error in test Q0:\nAssert: response_object[0]["page_views"] >= 300000\nResponse object: {self.response_object}"""
 
         assert not self.callback_data["was_corrected"]
 
 
-TESTS = [Q0]
+class Q1a(Q):
+    question = """What is the most visited page?"""
+    description = (
+        "Should return an object with 290k+ page_views, and not use correction"
+    )
+
+    def test(self):
+        assert (
+            self.response_object[0]["page_views"] >= 290000
+        ), f"""Error in test Q0:\nAssert: response_object[0]["page_views"] >= 300000\nResponse object: {self.response_object}"""
+
+        assert not self.callback_data["was_corrected"]
+
+
+class Q2(Q):
+    question = """
+    Given the page of URL = https://www.gov.uk/guidance/send-an-income-tax-relief-claim-for-job-expenses-by-post-or-phone
+    How popular is it, based on unique page views?
+    """
+    description = "Should return an object with ### unique_page_views"  # TODO
+
+    def test(self):
+        assert self.response_object[0]["unique_page_views"] == 430  # TODO
+
+
+class Q3(Q):
+    question = """
+    Where do users come from the most, when landing on that page: https://www.gov.uk/guidance/send-an-income-tax-relief-claim-for-job-expenses-by-post-or-phone
+    """
+    description = "Should return an object with the most popular source of traffic, between XXX and XXX"  # TODO
+
+    def test(self):
+        key_name = [
+            x for x in list(self.response_object[0].keys()) if "views" in x.lower()
+        ][-1] or "unique_page_views"
+
+        assert (
+            self.response_object[0][key_name] > 280
+            and self.response_object[0][key_name] < 400  # TODO
+        ), "Error in test Q3: assert response_object[0][key_name] == 430"  # TODO
+
+
+class Q4(Q):
+    question = """
+    What are the most visited pages on the smart answer regarding VAT payment dates?
+    """
+    description = (
+        'Should return an object of length 11, with "deadline" in the page title"'
+    )
+
+    def test(self):
+        assert (
+            len(self.response_object) == 11
+        ), "Error in test Q3: len(self.response_object) == 11"
+
+        assert "deadline" in self.response_object[0]["page_title"].lower()
+
+
+TESTS = [Q1, Q2, Q3, Q4]
+
+
+def format_test_passed(name, passed):
+    s = f"{name}: "
+    s += "..... Passed ✅" if passed else "..... Failed ❌"
+    return s
 
 
 def run_test_suite(options: dict = {}):
@@ -78,42 +158,33 @@ def run_test_suite(options: dict = {}):
     test_results = {}
 
     for Test in TESTS:
-        print(
-            f"""
-\n\n\n
-##############
+        testable = Test(options)
+        print(testable)
+        test_name = Test.__name__
+        results = []
 
-Test {Test.__name__}:
-{Test.question}
-------------------------
-{Test.description}
+        for _ in range(NB_RUNS):
+            try:
+                testable.run()
+                results.append({"passed": True})
+            except Exception as e:
+                results.append({"passed": False, "error": e})
+                errors.append(e)
 
-##############
-              """
-        )
-        try:
-            testable = Test(options)
-            test_results[Test.__name__] = {
-                "question": Test.question,
-            }
-            testable.run()
-            test_results[Test.__name__]["status"] = "PASSED"
-        except Exception as e:
-            test_results[Test.__name__]["status"] = "FAILED"
-            print("\n\nERROR in test: ", Test.__name__)
-            print("Question: ", testable.question)
-            print(e)
-            print("\n")
-            raise e
+        passed = True if all([x["passed"] for x in results]) else False
+
+        test_results[test_name] = {
+            "passed": passed,
+            "question": Test.question,
+            "class": Test,
+            "results": results,
+        }
+
+        print(format_test_passed(test_name, passed))
 
     print("\n\n\n")
-    text_output = []
     for test_name, result in test_results.items():
-        res = f"{test_name}: "
-        res += "..... Passed ✅" if result["status"] == "PASSED" else "..... Failed ❌"
-        text_output.append(res)
-
-    print("\n".join(text_output))
+        print(format_test_passed(test_name, result["passed"]))
 
     return errors
 
