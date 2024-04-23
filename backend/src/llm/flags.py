@@ -3,6 +3,7 @@ from langfuse.decorators import observe
 from webapp import config
 from functools import wraps
 
+
 def _observe():
     # This is a wrapper arround LangFuse's @_observe() decorator
     # It is used to apply the observe decorator only if the flag is true
@@ -13,9 +14,12 @@ def _observe():
             return observe()(func)
         else:
             print("Langfuse decorator disabled")
+
             # Return the original function if the flag is false
             @wraps(func)
             def wrapper(*args, **kwargs):
                 return func(*args, **kwargs)
+
             return wrapper
+
     return decorator

@@ -133,7 +133,7 @@ class Q3:
 
 class Q4:
     question = """
-    
+
     """
 
     def run(self):
@@ -173,7 +173,7 @@ def run_test_suite():
 Test {Test.__name__}:
 {Test.question}
 
-##############  
+##############
               """
         )
         try:

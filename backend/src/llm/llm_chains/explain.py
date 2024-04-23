@@ -8,6 +8,7 @@ from llm.prompts.smart_answers import pertains_to_smart_answers, smart_answers_p
 from llm import config
 from llm.knowledge_bases import get_text_knowledge_base, get_schema_description
 
+
 def create_generate_explanation_sql_chain(custom_prompt=None):
     output_parser = StrOutputParser()
     prompt = ChatPromptTemplate.from_template(custom_prompt or explain_prompt)
@@ -21,7 +22,6 @@ def create_explain_sql_input(payload_json):
     payload = json.loads(payload_json)
     question = payload["question"]
     sql_query = payload["sql"]
-
 
     if pertains_to_smart_answers(question):
         print("IS SMART ANSWER")

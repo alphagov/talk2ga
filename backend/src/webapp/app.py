@@ -35,20 +35,21 @@ app.add_middleware(
 )
 
 
-
 def add_uid_to_response(response, question_id):
     response.headers["X-Question-UID"] = question_id
     return response
+
 
 def add_uid_to_request_state(request: Request, question_id):
     request.state.question_id = question_id
     return request
 
+
 @app.middleware("http")
 async def test(request: Request, call_next):
     if request.url.path == "/whole-chain/stream_log":
         body = await request.json()
-        question = Question(**{"text": body['input']})
+        question = Question(**{"text": body["input"]})
         question = await create_question(question)
         request = add_uid_to_request_state(request, question.id)
 
@@ -60,14 +61,15 @@ async def test(request: Request, call_next):
     return response
 
 
-def pass_question_id_to_chain(config: Dict[str, Any], request: Request) -> Dict[str, Any]:
+def pass_question_id_to_chain(
+    config: Dict[str, Any], request: Request
+) -> Dict[str, Any]:
     if qid := request.state.question_id:
         config["question_id"] = qid
     else:
         raise HTTPException(401, "No question ID provided")
 
     return config
-
 
 
 add_routes(
@@ -102,9 +104,10 @@ from webapp.db import get_session, init_db
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 
-
 @app.post("/question", response_model=QuestionRead)
-async def create_question_handler(question: QuestionCreate, session: AsyncSession = Depends(get_session)):
+async def create_question_handler(
+    question: QuestionCreate, session: AsyncSession = Depends(get_session)
+):
     db_question = Question.model_validate(question)
     session.add(db_question)
     await session.commit()
@@ -115,7 +118,11 @@ async def create_question_handler(question: QuestionCreate, session: AsyncSessio
 # returns 404 if not found
 # update existing row, not create new one
 @app.put("/question/{question_id}", response_model=QuestionRead)
-async def update_question_handler(question_id: str, question: QuestionUpdate, session: AsyncSession = Depends(get_session)):
+async def update_question_handler(
+    question_id: str,
+    question: QuestionUpdate,
+    session: AsyncSession = Depends(get_session),
+):
     db_question = await session.get(Question, question_id)
     if not db_question:
         raise HTTPException(status_code=404, detail="Question not found")
@@ -128,29 +135,35 @@ async def update_question_handler(question_id: str, question: QuestionUpdate, se
 
 
 @app.get("/question/{question_id}", response_model=QuestionRead)
-async def read_question_handler(question_id: str, session: AsyncSession = Depends(get_session)):
+async def read_question_handler(
+    question_id: str, session: AsyncSession = Depends(get_session)
+):
     db_question = await session.get(Question, question_id)
     if not db_question:
         raise HTTPException(status_code=404, detail="Question not found")
     return db_question
-        
 
 
-app.mount("/static", StaticFiles(directory=os.path.join("webapp","static")), name="static")
+app.mount(
+    "/static", StaticFiles(directory=os.path.join("webapp", "static")), name="static"
+)
+
 
 @app.get("/")
 def hello_world():
-    return HTMLResponse(content=open("webapp/static/index.html").read(), status_code=200)
-
+    return HTMLResponse(
+        content=open("webapp/static/index.html").read(), status_code=200
+    )
 
 
 @app.on_event("startup")
 async def on_startup():
     await init_db()
 
+
 def run_server():
     import uvicorn
-    
+
     print("Running server...")
     uvicorn.run("webapp.app:app", host="0.0.0.0", port=80, reload=True)
     print("Server running :check:")

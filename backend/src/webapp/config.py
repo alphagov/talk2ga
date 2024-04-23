@@ -3,13 +3,15 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
 def get_db_url(env: str):
-    if env == 'local':
-        return os.getenv('DB_URL_LOCAL')
-    elif env == 'development':
-        return os.getenv('DB_URL_DEV')
+    if env == "local":
+        return os.getenv("DB_URL_LOCAL")
+    elif env == "development":
+        return os.getenv("DB_URL_DEV")
     else:
-        raise Exception(f'No DB URL for environment: {env}')
+        raise Exception(f"No DB URL for environment: {env}")
+
 
 environment = os.getenv("ENV", "local")
 print("Environment:", environment)
@@ -30,7 +32,7 @@ print(
     f"LANGFUSE_ENABLED: {os.getenv('LANGFUSE_ENABLED')}",
     f"LANGFUSE_SECRET_KEY: {os.getenv('LANGFUSE_SECRET_KEY')}",
     f"LANGFUSE_PUBLIC_KEY: {os.getenv('LANGFUSE_PUBLIC_KEY')}",
-    f"LANGFUSE_HOST: {os.getenv('LANGFUSE_HOST')}"
+    f"LANGFUSE_HOST: {os.getenv('LANGFUSE_HOST')}",
 )
 
 
