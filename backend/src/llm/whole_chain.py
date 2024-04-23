@@ -130,9 +130,9 @@ def gen_sql_correction(payload: dict[str, list[str] | str]):
 
 
 @_observe()
-def generate_sql_from_question(question: str, date_range):
+def generate_sql_from_question(question: str, date_range) -> [str, bool]:
     try:
-        return gen_sql_chain(question, date_range)
+        return gen_sql_chain(question, date_range), False
     except InvalidSQLColumnsException as e:
         input = {
             "schema_columns": get_schema_columns(),
@@ -142,7 +142,7 @@ def generate_sql_from_question(question: str, date_range):
             "question": question,
         }
         corrected_sql = gen_sql_correction.invoke(input)
-        return corrected_sql
+        return corrected_sql, True
 
 
 def log_error_to_analytics(func):
@@ -179,7 +179,7 @@ def whole_chain(json_input: str, config: dict[str, any], test_callback=None):
 
     while response_object is None and count_retries < max_tries:
         try:
-            sql = generate_sql_from_question(question, date_range)
+            sql, was_corrected = generate_sql_from_question(question, date_range)
             response_object = query_sql(sql)
         except Exception as e:
             count_retries += 1
@@ -198,6 +198,8 @@ def whole_chain(json_input: str, config: dict[str, any], test_callback=None):
                 "sql": sql,
                 "response_object": response_object,
                 "final_output": final_output,
+                "count_retries": count_retries,
+                "was_corrected": was_corrected,
             }
         )
 

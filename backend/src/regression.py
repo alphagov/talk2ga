@@ -17,6 +17,7 @@ from llm.whole_chain import whole_chain
 
 class Q:
     question = ""
+    decsription = ""
     verbose = False
     callback_data: dict = {}
 
@@ -36,6 +37,9 @@ class Q:
 
 
 class Q0(Q):
+    description = (
+        "Should return an object with 290k+ page_views, and not use correction"
+    )
     question = """What is the most viewed page?"""
 
     def run(self):
@@ -46,7 +50,7 @@ class Q0(Q):
                     "question": self.question,
                     "dateRange": {
                         "start_date": "2024-04-09",
-                        "end_date": "2024-04-11",
+                        "end_date": "2024-04-09",
                     },
                 }
             ),
@@ -58,6 +62,8 @@ class Q0(Q):
         assert (
             response_object[0]["page_views"] >= 290000
         ), f"""Error in test Q0:\nAssert: response_object[0]["page_views"] >= 300000\nResponse object: {response_object}"""
+
+        assert not self.callback_data["was_corrected"]
 
 
 TESTS = [Q0]
@@ -75,6 +81,8 @@ def run_test_suite(options: dict = {}):
 
 Test {Test.__name__}:
 {Test.question}
+------------------------
+{Test.description}
 
 ##############
               """
