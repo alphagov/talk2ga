@@ -1,4 +1,5 @@
 # type: ignore
+import asyncio
 import json
 from llm.flags import _observe
 from langchain_core.runnables import chain
@@ -145,16 +146,20 @@ def generate_sql_from_question(question: str, date_range):
 
 
 def log_error_to_analytics(func):
-    async def wrapper(question: str, config: dict[str, any]):
+    def wrapper(question: str, config: dict[str, any], *args, **kwargs):
         try:
-            return func(question, config)
+            return func(question, config, *args, **kwargs)
         except Exception as e:
             print(f"\n{func.__name__} failed\n")
 
             # Log error to analytics
             if question_id := config.get("question_id"):
-                await analytics_controller.log_error(question_id, format_exception(e))
+                asyncio.create_task(
+                    analytics_controller.log_error(question_id, format_exception(e))
+                )
 
+            print("ERROR:::::")
+            print(e)
             raise e
 
     return wrapper
@@ -163,7 +168,7 @@ def log_error_to_analytics(func):
 @chain
 @log_error_to_analytics
 @_observe()
-def whole_chain(json_input: str, config: dict[str, any]):
+def whole_chain(json_input: str, config: dict[str, any], test_callback=None):
     input = json.loads(json_input)
     question = input.get("question")
     date_range = input.get("dateRange")
@@ -185,5 +190,15 @@ def whole_chain(json_input: str, config: dict[str, any]):
         raise Exception("All attempts failed to generate and query SQL.")
 
     final_output = format_output.format_answer(question, sql, response_object)
+
+    if test_callback:
+        test_callback(
+            {
+                "question": question,
+                "sql": sql,
+                "response_object": response_object,
+                "final_output": final_output,
+            }
+        )
 
     return final_output

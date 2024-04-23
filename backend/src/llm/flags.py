@@ -10,10 +10,8 @@ def _observe():
     # Otherwise, the original function is returned and this decorator is just a pass-through
     def decorator(func):
         if config.langfuse_enabled:
-            print("Langfuse decorator enabled")
             return observe()(func)
         else:
-            print("Langfuse decorator disabled")
 
             # Return the original function if the flag is false
             @wraps(func)
