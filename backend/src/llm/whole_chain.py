@@ -200,6 +200,7 @@ def whole_chain(json_input: str, config: dict[str, any], test_callback=None):
                 "final_output": final_output,
                 "count_retries": count_retries,
                 "was_corrected": was_corrected,
+                "retried": count_retries > 0,
             }
         )
 
