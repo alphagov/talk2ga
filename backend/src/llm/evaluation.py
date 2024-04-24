@@ -7,7 +7,7 @@ from llm.flags import _observe
 # List of columns that are allowed to be used in the SQL query
 # The validation SQL compiler tends to pick up on keywords that aren't columns
 # Such as _TABLE_SUFFIX, which is a valid keyword in BigQuery
-WRONG_COLUMNS_ALLOW_LIST = ["_TABLE_SUFFIX"]
+COLUMNS_DENY_LIST = ["_TABLE_SUFFIX", lambda x: "/" in x]
 
 
 def extract_columns(sql_query: str) -> list[str]:
@@ -22,9 +22,18 @@ def validate_sql_columns(sql: str):
 
     wrong_columns = [col for col in columns if col not in schema_columns]
 
+    if len(wrong_columns) > 1:
+        print("dfdshjldse")
+
     for wg in wrong_columns:
-        if wg in WRONG_COLUMNS_ALLOW_LIST:
-            wrong_columns.remove(wg)
+        for wc in COLUMNS_DENY_LIST:
+            if callable(wc):
+                if wc(wg):
+                    wrong_columns.remove(wg)
+                    break
+            elif wc == wg:
+                wrong_columns.remove(wg)
+                break
 
     if len(wrong_columns) != 0:
         raise InvalidSQLColumnsException(columns, wrong_columns, sql)

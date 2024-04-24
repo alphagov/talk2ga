@@ -84,6 +84,7 @@ class Q1(Q):
         ), f"""Error in test Q0:\nAssert: response_object[0]["page_views"] >= 300000\nResponse object: {self.response_object}"""
 
         assert not self.callback_data["was_corrected"]
+        assert not self.callback_data["retried"]
 
 
 class Q1a(Q):
