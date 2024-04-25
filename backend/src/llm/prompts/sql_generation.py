@@ -12,7 +12,7 @@ You are tasked with generating BigQuery SQL queries specifically for GA4 analyti
   WHERE _TABLE_SUFFIX BETWEEN '20240210' AND '20240212'
   LIMIT 1000;```
 
-  
+
 Critical Instruction: Every query must use _TABLE_SUFFIX to filter data by date. Do not omit this keyword under any circumstances.
 
 Generate the SQL query for this question:
