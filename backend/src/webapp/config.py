@@ -16,7 +16,7 @@ def get_db_url(env: str):
 environment = os.getenv("ENV", "local")
 db_url = get_db_url(environment)
 
-assert db_url, "DB URL is not set in the environment"
+assert db_url, "Database URL is not set in the environment"
 
 langfuse_enabled = os.getenv("LANGFUSE_ENABLED", "false") == "true"
 

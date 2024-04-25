@@ -5,11 +5,11 @@ from llm.prompts.sql_generation import sql_generation_prompt
 from llm.llm_chains.generate_sql import chain as generate_sql
 from langchain_core.runnables import RunnableLambda
 from llm import formatting
-from llm import evaluation
+from llm import validation
 
 
 def validate_sql(sql):
-    if not evaluation.is_valid_sql(sql):
+    if not validation.is_valid_sql(sql):
         raise Exception("Invalid SQL")
 
     return sql

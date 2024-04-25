@@ -11,11 +11,11 @@ from llm.knowledge_bases import (
 )
 from llm.llm_chains import generate_sql, format_output, generate_sql_correction
 from llm import config
-from llm import evaluation
+from llm import validation
 from llm import formatting
 from llm.prompts.smart_answers import pertains_to_smart_answers, smart_answers_prompt
 from llm.db import query_sql
-from llm.evaluation import InvalidSQLColumnsException
+from llm.validation import InvalidSQLColumnsException
 from webapp import analytics_controller
 from webapp.exceptions import format_exception
 import random
@@ -74,7 +74,7 @@ def gen_sql_chain(input, date_range):
         try:
             formatted_sql = formatting.remove_sql_quotes(sql)
             formatted_sql = formatting.insert_correct_dates(formatted_sql, date_range)
-            validated_sql = evaluation.is_valid_sql(formatted_sql)
+            validated_sql = validation.is_valid_sql(formatted_sql)
             return validated_sql
         except Exception as e:
             # LangChain does not support return exceptions in chains as they are not json serializable
@@ -125,7 +125,7 @@ def gen_sql_correction(payload: dict[str, list[str] | str]):
     return (
         generate_sql_correction.chain
         | RunnableLambda(formatting.remove_sql_quotes)
-        | RunnableLambda(evaluation.is_valid_sql)
+        | RunnableLambda(validation.is_valid_sql)
     ).invoke(input)
 
 

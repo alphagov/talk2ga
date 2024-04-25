@@ -1,5 +1,5 @@
 from llm.knowledge_bases import get_schema_columns
-from sql_metadata import Parser
+from sqlglot import parse_one, exp
 from webapp.exceptions import InvalidSQLColumnsException
 from llm.flags import _observe
 
@@ -7,13 +7,22 @@ from llm.flags import _observe
 # List of columns that are allowed to be used in the SQL query
 # The validation SQL compiler tends to pick up on keywords that aren't columns
 # Such as _TABLE_SUFFIX, which is a valid keyword in BigQuery
-COLUMNS_DENY_LIST = ["_TABLE_SUFFIX", lambda x: "/" in x]
+COLUMNS_DENY_LIST = ["_TABLE_SUFFIX", "_table_suffix"]
 
 
 def extract_columns(sql_query: str) -> list[str]:
-    columns = Parser(sql_query).columns
+    sql = sql_query.replace("`", '"')  # SqlGlot doesn't support backticks
+    cols = [
+        column.alias_or_name
+        for column in parse_one(sql).find_all(exp.Column)
+        if column.this.quoted == False
+    ]
+    aliases = [column.alias_or_name for column in parse_one(sql).find_all(exp.Alias)]
+    cols = [c for c in cols if c not in aliases]
+    cols = [c for c in cols if c not in COLUMNS_DENY_LIST]
+    cols = list(set(cols))
 
-    return columns
+    return cols
 
 
 def validate_sql_columns(sql: str):
@@ -21,9 +30,6 @@ def validate_sql_columns(sql: str):
     schema_columns = get_schema_columns()
 
     wrong_columns = [col for col in columns if col not in schema_columns]
-
-    if len(wrong_columns) > 1:
-        print("dfdshjldse")
 
     for wg in wrong_columns:
         for wc in COLUMNS_DENY_LIST:
@@ -41,18 +47,9 @@ def validate_sql_columns(sql: str):
     return True
 
 
-def validate_does_not_contain_suffix(sql: str):
-    """
-    * should not contain instance of "_TABLE_SUFFIX", because queries tend to break with that
-    """
-    assert "_TABLE_SUFFIX" not in sql, "INVALID SQL OUTPUT: contains _TABLE_SUFFIX"
-    return True
-
-
 # List of validators to run on the SQL query
 VALIDATORS = [
     validate_sql_columns,
-    # validate_does_not_contain_suffix,
 ]
 
 
