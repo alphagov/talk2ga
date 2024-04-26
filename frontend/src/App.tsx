@@ -137,15 +137,12 @@ function Playground() {
       recordFeedbackNotSatisfiedDetails(currentQuestionId, args);
   };
 
-  const getSqlFromLogs = () => {
-    console.log({ latest });
-    return (
-      latest &&
+  const getSqlFromLogs = () =>
+    (latest &&
       latest.logs &&
       (latest.logs.selected_sql_passthrough?.final_output as { output: string })
-        ?.output
-    );
-  };
+        ?.output) ||
+    "Error getting the SQL";
 
   const isLoading = isStreaming && !hasCompleted;
 
@@ -193,7 +190,7 @@ function Playground() {
           <div className="govuk-grid-column-one-half">
             <SQLViewer
               question={question}
-              sql={hasCompleted ? getSqlFromLogs() : undefined}
+              sql={hasCompleted ? getSqlFromLogs() : "Error getting the SQL"}
             />
           </div>
         )}
