@@ -1,4 +1,5 @@
 import re
+import sqlparse
 from llm.flags import _observe
 
 
@@ -41,3 +42,25 @@ def insert_correct_dates(sql, date_range):
     sql = sql.replace(end_date_match, new_end_date)
 
     return sql
+
+
+@_observe()
+def remove_comments(sql):
+    sql = re.sub(r"^(?:[\t\s]+)?--.*$", "", sql, flags=re.MULTILINE)
+    sql = re.sub(r"/\*.*?\*/", "", sql, flags=re.DOTALL)
+    sql = "\n".join(
+        line for line in sql.split("\n") if not line.strip().startswith("--")
+    )
+    sql = "\n".join(line for line in sql.split("\n") if line.strip())
+
+    return sql
+
+
+@_observe()
+def format_sql(sql):
+    sanitised_one_line_comment = re.sub(r"^\s*--[\w\s]+\s*(SELECT\s)", r"\1", sql)
+    prettified_sql = sqlparse.format(
+        sanitised_one_line_comment, reindent=True, keyword_case="upper"
+    )
+
+    return prettified_sql
