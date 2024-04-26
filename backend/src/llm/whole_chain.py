@@ -168,6 +168,12 @@ def log_error_to_analytics(func):
 
 
 @chain
+def selected_sql_passthrough(sql):
+    # just to get the sql from the stream log in the frontend
+    return sql
+
+
+@chain
 @log_error_to_analytics
 @_observe()
 def whole_chain(json_input: str, config: dict[str, any], test_callback=None):
@@ -182,6 +188,9 @@ def whole_chain(json_input: str, config: dict[str, any], test_callback=None):
     while response_object is None and count_retries < max_tries:
         try:
             sql, was_corrected = generate_sql_from_question(question, date_range)
+            # Running the SQL though a passthrough just to get the sql from the stream log in the frontend
+            # TODO: create API endpoints to record / get the SQL by question ID instead of using the stream log
+            sql = selected_sql_passthrough.invoke(sql)
             response_object = query_sql(sql)
         except Exception as e:
             count_retries += 1

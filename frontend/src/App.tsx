@@ -137,12 +137,15 @@ function Playground() {
       recordFeedbackNotSatisfiedDetails(currentQuestionId, args);
   };
 
-  const getSqlFromLogs = () =>
-    latest &&
-    latest.logs &&
-    (Object.values(latest.logs) as any[]).find(
-      (l) => l.name === "remove_sql_quotes"
-    )?.final_output?.output;
+  const getSqlFromLogs = () => {
+    console.log({ latest });
+    return (
+      latest &&
+      latest.logs &&
+      (latest.logs.selected_sql_passthrough?.final_output as { output: string })
+        ?.output
+    );
+  };
 
   const isLoading = isStreaming && !hasCompleted;
 

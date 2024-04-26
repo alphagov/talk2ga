@@ -1,6 +1,7 @@
 from google.cloud import bigquery
 from langchain.sql_database import SQLDatabase
 from llm.config import SQLALCHEMY_URL, GCP_PROJECT
+from llm.flags import _observe
 
 
 _cache = {}
@@ -26,6 +27,7 @@ def get_connection(fresh: bool = False):
 client = bigquery.Client(project=GCP_PROJECT)
 
 
+@_observe()
 def query_sql(sql):
     """
     Execute a SQL query against a BQ dataset and return the result as a list of dictionaries
