@@ -10,3 +10,33 @@ Only use full URLs with domain in it with column "page_location". e.g `page_loca
 
 If the question is likely to return a list of results rather than a single result, the query should order by amount of page views by default, unless explicitly told otherwise in the question.
 In terms of user journey and previous pages visited, we make the distinction between two main concepts: internal sources and external ones. Internal sources come from www.gov.uk domain. External sources, others, such as google, bing, or any. Internal sources are reflected in the "page_referrer" column, which contains the URL of the previous page the user visited, if internal. External sources are reflected in the "session_source" column, which contains the URL of the previous page the user visited, if external.
+
+# Knowledge Base for LLM - SQL Query Generation for Google Analytics Data
+
+## Schema Mapping
+- "clicks": Mapped to `event_name` where `event_name` = 'click'
+- "most clicked link": Mapped to `page_location` with context of `page_referrer`
+- "user activity": Mapped to `event_name` and relevant sub-categories (e.g., 'click', 'view')
+
+## Contextual Rules
+- For traffic source analysis, use `page_referrer` to identify the origin of the navigation within the same domain.
+- Use `page_location` to identify the target of user interactions such as clicks.
+- Date filtering should always use `_TABLE_SUFFIX` to specify the range, facilitating efficient data retrieval.
+
+## Sample Queries and SQL Translations
+- **Query**: "What's the most clicked link on 'http://www.gov.uk'?"
+  **SQL**:
+  ```sql
+  SELECT
+    page_location, COUNT(*) as link_clicks
+  FROM
+    `ga4-analytics-352613.flattened_dataset.flattened_daily_ga_data_*`
+  WHERE
+    _TABLE_SUFFIX BETWEEN '20240402' AND '20240404'
+    AND (page_referrer = 'https://www.gov.uk/' OR page_referrer = 'https://www.gov.uk')
+  GROUP BY
+    page_location
+  ORDER BY
+    link_clicks DESC
+  LIMIT
+    1;
