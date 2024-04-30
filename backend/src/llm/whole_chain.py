@@ -73,9 +73,10 @@ def gen_sql_chain(input, date_range):
     def validation_chain(sql: str):
         try:
             formatted_sql = formatting.remove_sql_quotes(sql)
-            formatted_sql = formatting.format_sql(formatted_sql)
             formatted_sql = formatting.remove_comments(formatted_sql)
+            formatted_sql = formatting.insert_correct_dataset(formatted_sql)
             formatted_sql = formatting.insert_correct_dates(formatted_sql, date_range)
+            formatted_sql = formatting.format_sql(formatted_sql)
             validated_sql = validation.is_valid_sql(formatted_sql)
             return validated_sql
         except Exception as e:
