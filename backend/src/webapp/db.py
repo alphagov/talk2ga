@@ -2,10 +2,10 @@ from sqlmodel import SQLModel
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.orm import sessionmaker
-from webapp import config
+import appconfig
 
 
-engine = create_async_engine(config.db_url, echo=True)
+engine = create_async_engine(appconfig.DB_URL, echo=True)
 async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 

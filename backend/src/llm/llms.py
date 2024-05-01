@@ -1,5 +1,5 @@
 from langchain_google_vertexai import VertexAI
-from llm.config import GCP_PROJECT
+from appconfig import GCP_PROJECT
 
 text_bison = VertexAI(
     model_name="text-bison@002", project=GCP_PROJECT, max_output_tokens=2048

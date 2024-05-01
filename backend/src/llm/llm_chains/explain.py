@@ -5,7 +5,7 @@ from langchain_core.output_parsers import StrOutputParser
 from llm.llms import text_bison
 from llm.prompts.explain import explain_prompt
 from llm.prompts.smart_answers import pertains_to_smart_answers, smart_answers_prompt
-from llm import config
+import appconfig
 from llm.knowledge_bases import get_text_knowledge_base, get_schema_description
 
 
@@ -31,7 +31,7 @@ def create_explain_sql_input(payload_json):
     obj = {
         "user_query": question,
         "sql_query": sql_query,
-        "DATASET": config.DATASET,
+        "DATASET": appconfig.DATASET,
         "schema_description": get_schema_description(),
         "knowledge_base": get_text_knowledge_base(),
     }
