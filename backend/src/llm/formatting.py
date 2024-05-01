@@ -24,8 +24,8 @@ def remove_sql_quotes(input: str) -> str:
 
 @_observe()
 def insert_correct_dates(sql, date_range):
-    pattern_start_date = r"BETWEEN\s'([0-9]{8})'\sAND\s'[0-9]{8}'"
-    pattern_end_date = r"BETWEEN\s'[0-9]{8}'\sAND\s'([0-9]{8})'"
+    pattern_start_date = r"BETWEEN[\s\t\n]+'([0-9a-zA-Z_\-]{8,12})'[\s\t\n]+AND[\s\t\n]+'[0-9a-zA-Z_\-]{8,12}'"
+    pattern_end_date = r"BETWEEN[\s\t\n]+'[0-9a-zA-Z_\-]{8,12}'[\s\t\n]+AND[\s\t\n]+'([0-9a-zA-Z_\-]{8,12})'"
 
     start_date_matches = re.search(pattern_start_date, sql)
     end_date_matches = re.search(pattern_end_date, sql)
