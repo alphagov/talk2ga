@@ -91,13 +91,11 @@ def gen_sql_chain(input, date_range):
 
     @_observe()
     def parallel_sql_gen(input):
-        outputs = (
-            RunnableParallel(
-                gen1=generate_sql.gen | validation_chain,
-                gen2=generate_sql.gen | validation_chain,
-                gen3=generate_sql.gen | validation_chain,
-            )
-        ).invoke(input)
+        amount = appconfig.NB_PARALLEL_SQL_GEN
+        runnable_parallel = RunnableParallel(
+            {f"gen{i+1}": (generate_sql.gen | validation_chain) for i in range(amount)}
+        )
+        outputs = runnable_parallel.invoke(input)
 
         return outputs
 
