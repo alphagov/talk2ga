@@ -1,6 +1,6 @@
 # Feature flags
 from langfuse.decorators import observe
-from webapp import config
+import appconfig
 from functools import wraps
 
 
@@ -9,7 +9,7 @@ def _observe():
     # It is used to apply the observe decorator only if the flag is true
     # Otherwise, the original function is returned and this decorator is just a pass-through
     def decorator(func):
-        if config.langfuse_enabled:
+        if appconfig.LANGFUSE_ENABLED:
             return observe()(func)
         else:
 

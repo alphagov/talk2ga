@@ -1,6 +1,6 @@
 from google.cloud import bigquery
 from langchain.sql_database import SQLDatabase
-from llm.config import SQLALCHEMY_URL, GCP_PROJECT
+from appconfig import SQLALCHEMY_URL, GCP_PROJECT
 from llm.flags import _observe
 
 

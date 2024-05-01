@@ -10,7 +10,7 @@ from llm.knowledge_bases import (
     get_schema_columns,
 )
 from llm.llm_chains import generate_sql, format_output, generate_sql_correction
-from llm import config
+import appconfig
 from llm import validation
 from llm import formatting
 from llm.prompts.smart_answers import pertains_to_smart_answers, smart_answers_prompt
@@ -26,7 +26,7 @@ def create_gen_sql_input(question):
     if pertains_to_smart_answers(question):
         question = smart_answers_prompt(question)
     obj = {
-        "DATASET": config.DATASET,
+        "DATASET": appconfig.DATASET,
         "schema_description": get_schema_description(),
         "knowledge_base": get_text_knowledge_base(),
         "user_query": question,
@@ -91,13 +91,11 @@ def gen_sql_chain(input, date_range):
 
     @_observe()
     def parallel_sql_gen(input):
-        outputs = (
-            RunnableParallel(
-                gen1=generate_sql.gen | validation_chain,
-                gen2=generate_sql.gen | validation_chain,
-                gen3=generate_sql.gen | validation_chain,
-            )
-        ).invoke(input)
+        amount = appconfig.NB_PARALLEL_SQL_GEN
+        runnable_parallel = RunnableParallel(
+            {f"gen{i+1}": (generate_sql.gen | validation_chain) for i in range(amount)}
+        )
+        outputs = runnable_parallel.invoke(input)
 
         return outputs
 
@@ -123,7 +121,7 @@ def gen_sql_correction(payload: dict[str, list[str] | str]):
         **payload,
         "schema_description": get_schema_description(),
         "knowledge_base": get_text_knowledge_base(),
-        "table_name": config.DATASET,
+        "table_name": appconfig.DATASET,
     }
     return (
         generate_sql_correction.chain
@@ -181,7 +179,6 @@ def whole_chain(json_input: str, config: dict[str, any], test_callback=None):
     input = json.loads(json_input)
     question = input.get("question")
     date_range = input.get("dateRange")
-    question_id = config.get("question_id")
     max_tries = 2
     count_retries = 0
     response_object = None
