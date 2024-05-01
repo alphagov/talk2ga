@@ -1,6 +1,7 @@
 # type: ignore
 import asyncio
 import json
+import re
 from llm.flags import _observe
 from langchain_core.runnables import chain
 from langchain_core.runnables import RunnableLambda, RunnableParallel
@@ -9,8 +10,13 @@ from llm.knowledge_bases import (
     get_schema_description,
     get_schema_columns,
 )
-from llm.llm_chains import generate_sql, format_output, generate_sql_correction
 import appconfig
+from llm.llm_chains import (
+    generate_sql,
+    format_output,
+    generate_sql_correction,
+    correction_add_date_range,
+)
 from llm import validation
 from llm import formatting
 from llm.prompts.smart_answers import pertains_to_smart_answers, smart_answers_prompt
@@ -64,9 +70,28 @@ def chain_with_retry(retries_nb):
     return chain_with_retry_decorator
 
 
+_observe()
+
+
+def contains_date_range(sql: str) -> bool:
+    pattern = re.compile(
+        "(where)[\s\n\t]+_TABLE_SUFFIX[\s\n\t]+between[\s\n\t]+'[a-zA-Z0-9]+'[\s\n\t]+and[\s\n\t]+'[a-zA-Z0-9]+'"
+    )
+    return bool(pattern.search(sql))
+
+
 @_observe()
 def gen_sql_chain(input, date_range):
     input = create_gen_sql_input(input)
+
+    @chain
+    @_observe()
+    def sql_enhancement(sql: str):
+        if contains_date_range(sql):
+            return sql
+
+        new_sql = correction_add_date_range.chain.invoke({"sql_query": sql})
+        return new_sql
 
     @chain
     @_observe()
@@ -93,7 +118,10 @@ def gen_sql_chain(input, date_range):
     def parallel_sql_gen(input):
         amount = appconfig.NB_PARALLEL_SQL_GEN
         runnable_parallel = RunnableParallel(
-            {f"gen{i+1}": (generate_sql.gen | validation_chain) for i in range(amount)}
+            {
+                f"gen{i+1}": (generate_sql.gen | sql_enhancement | validation_chain)
+                for i in range(amount)
+            }
         )
         outputs = runnable_parallel.invoke(input)
 
