@@ -9,9 +9,9 @@ from langchain_core.runnables import chain
 def create_sql_generation_chain(custom_prompt=None):
     output_parser = StrOutputParser()
     prompt = ChatPromptTemplate.from_template(custom_prompt or sql_generation_prompt)
-    chain = prompt | code_bison_6k | output_parser
+    _chain = prompt | code_bison_6k | output_parser
 
-    return chain
+    return _chain
 
 
 @chain

@@ -70,16 +70,6 @@ def chain_with_retry(retries_nb):
     return chain_with_retry_decorator
 
 
-_observe()
-
-
-def contains_date_range(sql: str) -> bool:
-    pattern = re.compile(
-        "(where)[\s\n\t]+_TABLE_SUFFIX[\s\n\t]+between[\s\n\t]+'[a-zA-Z0-9]+'[\s\n\t]+and[\s\n\t]+'[a-zA-Z0-9]+'"
-    )
-    return bool(pattern.search(sql))
-
-
 @_observe()
 def gen_sql_chain(input, date_range):
     input = create_gen_sql_input(input)
@@ -87,10 +77,12 @@ def gen_sql_chain(input, date_range):
     @chain
     @_observe()
     def sql_enhancement(sql: str):
-        if contains_date_range(sql):
+        if formatting.contains_date_range(sql):
             return sql
 
-        new_sql = correction_add_date_range.chain.invoke({"sql_query": sql})
+        new_sql = correction_add_date_range.correct_missing_date_range_chain.invoke(
+            {"sql_query": sql}
+        )
         return new_sql
 
     @chain
