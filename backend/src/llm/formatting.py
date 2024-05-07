@@ -1,6 +1,7 @@
 import re
 import sqlparse
-from sqlglot import parse_one
+from sqlglot import parse_one, exp
+from sqlglot.expressions import Subquery
 from llm.flags import _observe
 
 
@@ -24,8 +25,8 @@ def remove_sql_quotes(input: str) -> str:
 
 @_observe()
 def insert_correct_dates(sql, date_range):
-    pattern_start_date = r"BETWEEN\s'([0-9]{8})'\sAND\s'[0-9]{8}'"
-    pattern_end_date = r"BETWEEN\s'[0-9]{8}'\sAND\s'([0-9]{8})'"
+    pattern_start_date = r"BETWEEN[\s\t\n]+'([0-9a-zA-Z_\-]{8,12})'[\s\t\n]+AND[\s\t\n]+'[0-9a-zA-Z_\-]{8,12}'"
+    pattern_end_date = r"BETWEEN[\s\t\n]+'[0-9a-zA-Z_\-]{8,12}'[\s\t\n]+AND[\s\t\n]+'([0-9a-zA-Z_\-]{8,12})'"
 
     start_date_matches = re.search(pattern_start_date, sql)
     end_date_matches = re.search(pattern_end_date, sql)
@@ -45,6 +46,27 @@ def insert_correct_dates(sql, date_range):
     return sql
 
 
+def replace_dataset_in_sql_ast(parsed_sql, new_dataset):
+    """
+    This function replaces the dataset in the SQL AST
+    Compatible with nested SQL queries
+    """
+
+    from_clause = parsed_sql.find(exp.From).this
+
+    if type(from_clause) == Subquery:
+        within_brackets = lambda x: f"({x.strip()})"
+        parsed_sql = parsed_sql.from_(
+            within_brackets(
+                replace_dataset_in_sql_ast(from_clause.this, new_dataset).sql()
+            )
+        )
+    else:
+        return parsed_sql.from_(new_dataset)
+
+    return parsed_sql
+
+
 @_observe()
 def insert_correct_dataset(sql):
     clean_sql = sql.replace("`", '"')
@@ -53,11 +75,15 @@ def insert_correct_dataset(sql):
     if dataset_is_correct:
         return sql
 
-    sql = parse_one(clean_sql).from_(f"'{DATASET}'").sql()
-    sql = sql.replace(f"'{DATASET}'", f"`{DATASET}`")
-    sql = sql.replace(f'"{DATASET}"', f"`{DATASET}`")
+    parsed_sql = parse_one(clean_sql)
 
-    return sql
+    new_parsed_sql = replace_dataset_in_sql_ast(parsed_sql, f"'{DATASET}'")
+    new_sql = new_parsed_sql.sql()
+
+    new_sql = new_sql.replace(f"'{DATASET}'", f"`{DATASET}`")
+    new_sql = new_sql.replace(f'"{DATASET}"', f"`{DATASET}`")
+
+    return new_sql
 
 
 @_observe()
@@ -86,3 +112,12 @@ def format_sql(sql):
         prettified_sql += ";"
 
     return prettified_sql
+
+
+@_observe()
+def contains_date_range(sql: str) -> bool:
+    pattern = re.compile(
+        "(where)[\s\n\t]+_TABLE_SUFFIX[\s\n\t]+between[\s\n\t]+'[a-zA-Z0-9]+'[\s\n\t]+and[\s\n\t]+'[a-zA-Z0-9]+'",
+        re.IGNORECASE,
+    )
+    return bool(pattern.search(sql))
