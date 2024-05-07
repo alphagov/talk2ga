@@ -83,6 +83,13 @@ def insert_correct_dataset(sql):
     new_sql = new_sql.replace(f"'{DATASET}'", f"`{DATASET}`")
     new_sql = new_sql.replace(f'"{DATASET}"', f"`{DATASET}`")
 
+    # Now, just in case, manually replace any instances of the wrong dataset
+    # This is a dataset that is often hallucinated by the model
+    wrong_dataset = "flattened_dataset.flattened_daily_ga_data_*"
+    new_sql = new_sql.replace(f"'{wrong_dataset}'", f"`{DATASET}`")
+    new_sql = new_sql.replace(f"`{wrong_dataset}`", f"`{DATASET}`")
+    new_sql = new_sql.replace(f'"{wrong_dataset}"', f"`{DATASET}`")
+
     return new_sql
 
 
