@@ -52,6 +52,12 @@ def replace_dataset_in_sql_ast(parsed_sql, new_dataset):
     Compatible with nested SQL queries
     """
 
+    # First, list the variables with WITH keyword, if any
+    variable_alias = None
+    with_clause = parsed_sql.find(exp.With)
+    if with_clause:
+        variable_alias = str(with_clause.find(exp.TableAlias))
+
     from_clause = parsed_sql.find(exp.From).this
 
     if type(from_clause) == Subquery:
@@ -62,6 +68,11 @@ def replace_dataset_in_sql_ast(parsed_sql, new_dataset):
             )
         )
     else:
+        from_table = str(parsed_sql.find(exp.From).this)
+        if from_table == variable_alias:
+            # Do not replace the dataset when it refers to a WITH variable
+            # Just return the original one
+            return parsed_sql
         return parsed_sql.from_(new_dataset)
 
     return parsed_sql
