@@ -31,6 +31,7 @@ GA4_PROJECT = "ga4-analytics-352613"
 DATASET = "flattened_dataset"
 SQLALCHEMY_URL = f"bigquery://{GA4_PROJECT}/{DATASET}"
 TABLE_NAME = "flattened_daily_ga_data_"
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 
 if __name__ == "__main__":
