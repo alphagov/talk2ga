@@ -143,11 +143,13 @@ def gen_sql_correction(payload: dict[str, list[str] | str]):
         "knowledge_base": get_text_knowledge_base(),
         "table_name": appconfig.DATASET,
     }
-    return (
+    valid_sql = (
         generate_sql_correction.chain
         | RunnableLambda(formatting.remove_sql_quotes)
         | RunnableLambda(validation.is_valid_sql)
     ).invoke(input)
+
+    return formatting.format_sql(valid_sql)
 
 
 @_observe()
