@@ -1,7 +1,6 @@
 # type: ignore
 import asyncio
 import json
-import re
 from llm.flags import _observe
 from langchain_core.runnables import chain
 from langchain_core.runnables import RunnableLambda, RunnableParallel
@@ -71,7 +70,7 @@ def chain_with_retry(retries_nb):
 
 
 @_observe()
-def gen_sql_chain(input, date_range):
+def gen_sql_chain(input, date_range, question_id):
     input = create_gen_sql_input(input)
 
     @chain
@@ -121,6 +120,13 @@ def gen_sql_chain(input, date_range):
 
     outputs = parallel_sql_gen(input)
 
+    # Side effect, failsafe
+    asyncio.create_task(
+        analytics_controller.add_generated_queries_to_question(
+            question_id, [v for v in outputs.values() if type(v) is str]
+        )
+    )
+
     is_error = lambda x: type(x) is not str and x.get("is_error", False)
 
     correct_outputs = [v for v in outputs.values() if not is_error(v)]
@@ -153,9 +159,11 @@ def gen_sql_correction(payload: dict[str, list[str] | str]):
 
 
 @_observe()
-def generate_sql_from_question(question: str, date_range) -> [str, bool]:
+def generate_sql_from_question(
+    question: str, date_range, question_id: int
+) -> [str, bool]:
     try:
-        return gen_sql_chain(question, date_range), False
+        return gen_sql_chain(question, date_range, question_id), False
     except InvalidSQLColumnsException as e:
         input = {
             "schema_columns": get_schema_columns(),
@@ -175,7 +183,7 @@ def log_error_to_analytics(func):
         except Exception as e:
             print(f"\n{func.__name__} failed\n")
 
-            # Log error to analytics
+            # Log error to analytics, side effect, failsafe
             if question_id := config.get("question_id"):
                 asyncio.create_task(
                     analytics_controller.log_error(question_id, format_exception(e))
@@ -200,6 +208,7 @@ def selected_sql_passthrough(sql):
 def whole_chain(json_input: str, config: dict[str, any], test_callback=None):
     input = json.loads(json_input)
     question = input.get("question")
+    question_id = config.get("question_id")
     date_range = input.get("dateRange")
     max_tries = 2
     count_retries = 0
@@ -207,7 +216,9 @@ def whole_chain(json_input: str, config: dict[str, any], test_callback=None):
 
     while response_object is None and count_retries < max_tries:
         try:
-            sql, was_corrected = generate_sql_from_question(question, date_range)
+            sql, was_corrected = generate_sql_from_question(
+                question, date_range, question_id
+            )
             # Running the SQL though a passthrough just to get the sql from the stream log in the frontend
             # TODO: create API endpoints to record / get the SQL by question ID instead of using the stream log
             sql = selected_sql_passthrough.invoke(sql)
