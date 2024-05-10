@@ -24,6 +24,8 @@ from llm.validation import InvalidSQLColumnsException
 from webapp import analytics_controller
 from webapp.exceptions import format_exception
 import random
+import asyncio
+from utils.side_effects import run_async_side_effect
 
 
 @_observe()
@@ -120,12 +122,20 @@ def gen_sql_chain(input, date_range, question_id):
 
     outputs = parallel_sql_gen(input)
 
-    # Side effect, failsafe
-    asyncio.create_task(
-        analytics_controller.add_generated_queries_to_question(
-            question_id, [v for v in outputs.values() if type(v) is str]
-        )
-    )
+    async def log_task():
+        """
+        Log the generated queries to the database for analytics purposes.
+        Side effect, failsafe.
+        """
+        try:
+            await analytics_controller.add_generated_queries_to_question(
+                question_id, [v for v in outputs.values() if isinstance(v, str)], True
+            )
+        except Exception as e:
+            print(e)
+            pass  # Ignore any error.
+
+    run_async_side_effect(log_task)
 
     is_error = lambda x: type(x) is not str and x.get("is_error", False)
 
