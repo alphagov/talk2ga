@@ -9,10 +9,10 @@ def run_async_in_new_loop(coroutine):
     new_loop.close()
 
 
-def run_async_side_effect(fn: callable):
+def run_async_side_effect(fn: callable, *args, **kwargs):
     """
     Run an async function in a new event loop, in a new thread
     This can be useful when you want to run an async function as a side effect from withing a langchain chain
     """
     with ThreadPoolExecutor(max_workers=1) as executor:
-        executor.submit(run_async_in_new_loop, fn())
+        executor.submit(run_async_in_new_loop, fn(*args, **kwargs))

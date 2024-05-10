@@ -122,20 +122,22 @@ def gen_sql_chain(input, date_range, question_id):
 
     outputs = parallel_sql_gen(input)
 
-    async def log_task():
+    async def log_generated_queries():
         """
         Log the generated queries to the database for analytics purposes.
-        Side effect, failsafe.
         """
+        generated_queries = [v for v in outputs.values() if isinstance(v, str)]
         try:
             await analytics_controller.add_generated_queries_to_question(
-                question_id, [v for v in outputs.values() if isinstance(v, str)], True
+                question_id,
+                generated_queries,
+                fresh_session=True,
             )
         except Exception as e:
             print(e)
             pass  # Ignore any error.
 
-    run_async_side_effect(log_task)
+    run_async_side_effect(log_generated_queries)
 
     is_error = lambda x: type(x) is not str and x.get("is_error", False)
 
@@ -224,6 +226,18 @@ def whole_chain(json_input: str, config: dict[str, any], test_callback=None):
     count_retries = 0
     response_object = None
 
+    async def log_executed_query(sql: str):
+        """
+        Log the generated queries to the database for analytics purposes.
+        """
+        try:
+            await analytics_controller.add_executed_query_to_question(
+                question_id, sql, fresh_session=True
+            )
+        except Exception as e:
+            print(e)
+            pass  # Ignore any error.
+
     while response_object is None and count_retries < max_tries:
         try:
             sql, was_corrected = generate_sql_from_question(
@@ -232,6 +246,7 @@ def whole_chain(json_input: str, config: dict[str, any], test_callback=None):
             # Running the SQL though a passthrough just to get the sql from the stream log in the frontend
             # TODO: create API endpoints to record / get the SQL by question ID instead of using the stream log
             sql = selected_sql_passthrough.invoke(sql)
+            run_async_side_effect(log_executed_query, sql=sql)
             response_object = query_sql(sql)
         except Exception as e:
             count_retries += 1

@@ -59,3 +59,26 @@ async def add_generated_queries_to_question(
     else:
         async with async_session() as session:
             return await write_logic(session)
+
+
+async def add_executed_query_to_question(
+    question_id: int, executed_query: str, fresh_session: bool = False
+):
+    async def write_logic(session: AsyncSession):
+        question = await session.get(Question, question_id)
+        question.sqlmodel_update({"executed_sql_query": executed_query})
+        session.add(question)
+        await session.commit()
+        await session.refresh(question)
+        return question
+
+    if fresh_session:
+        engine = create_async_engine(appconfig.DB_URL, echo=True)
+        async_session_single_time = sessionmaker(
+            engine, class_=AsyncSession, expire_on_commit=False
+        )
+        async with async_session_single_time() as session:
+            return await write_logic(session)
+    else:
+        async with async_session() as session:
+            return await write_logic(session)
