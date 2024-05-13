@@ -58,6 +58,18 @@ function Playground() {
     [name: string]: LogEntry;
   } | null>(null);
 
+  const preventEdits = (fn: CallableFunction, msg?: string) => {
+    return (...args: any[]) => {
+      if (!!urlQuestionId) {
+        toast.error(
+          msg || "You cannot ask a question when a question is already loaded"
+        );
+      } else {
+        fn(...args);
+      }
+    };
+  };
+
   const {
     recordQuestionCompletion,
     recordFeedbackSatisfied,
@@ -167,20 +179,24 @@ function Playground() {
     };
   }, [latest, latest?.logs, latest?.final_output, currentQuestionId]);
 
-  const onSatisfiedFeedback = () => {
+  const onSatisfiedFeedback = preventEdits((callback: CallableFunction) => {
     currentQuestionId && recordFeedbackSatisfied(currentQuestionId);
-  };
+    callback();
+  }, "You cannot provide feedback when a question is already loaded");
 
-  const onNotSatisfiedFeedback = () => {
+  const onNotSatisfiedFeedback = preventEdits((callback: CallableFunction) => {
     currentQuestionId && recordFeedbackNotSatisfied(currentQuestionId);
-  };
+    callback();
+  }, "You cannot provide feedback when a question is already loaded");
 
-  const onNotSatisfiedFeedbackDetailsSubmit = (
-    args: NotSatisfiedDetailsPayload
-  ) => {
-    currentQuestionId &&
-      recordFeedbackNotSatisfiedDetails(currentQuestionId, args);
-  };
+  const onNotSatisfiedFeedbackDetailsSubmit = preventEdits(
+    (args: NotSatisfiedDetailsPayload, callback: CallableFunction) => {
+      currentQuestionId &&
+        recordFeedbackNotSatisfiedDetails(currentQuestionId, args);
+      callback();
+    },
+    "You cannot provide feedback when a question is already loaded"
+  );
 
   const getSqlFromLogs = () =>
     (latest &&
@@ -201,15 +217,7 @@ function Playground() {
     setMainAnswer(streamOutputToString(latest.streamed_output));
   }
 
-  const handleSubmit = (...args: any[]) => {
-    if (urlQuestionId) {
-      toast.error(
-        "You cannot ask a question when a question is already loaded"
-      );
-    } else {
-      startStream(...args);
-    }
-  };
+  const handleSubmit = preventEdits(startStream);
 
   return (
     <>

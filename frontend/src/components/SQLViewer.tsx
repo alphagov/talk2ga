@@ -7,7 +7,7 @@ import "prismjs/themes/prism-coy.css";
 import { useStreamLogExplain } from "../useStreamLogExplain";
 import { useAppStreamCallbacks } from "../useStreamCallback";
 import { streamOutputToString } from "../utils/streamToString";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 
 type SQLViewerProps = {
   sql: string;
