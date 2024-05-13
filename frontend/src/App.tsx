@@ -47,12 +47,10 @@ function Playground() {
     null
   );
   const [mainAnswer, setMainAnswer] = useState<string | null>(null);
-
   const [hasCompleted, setHasCompleted] = useState<boolean>(false);
-
   const { context, callbacks } = useAppStreamCallbacks();
-
   const { startStream, stopStream, latest } = useStreamLog(callbacks);
+  const [fetchedSQL, setFetchedSQL] = useState<string | null>(null);
 
   const {
     recordQuestionCompletion,
@@ -74,9 +72,7 @@ function Playground() {
       fetch(`/question/${urlQuestionId}`)
         .then((res) => res.json())
         .then((data) => {
-          console.log({ questionData: data });
           const { question, dateRange } = JSON.parse(data.text);
-          console.log({ question, dateRange });
           setQuestion(question);
           setSelectedDateRange([
             dateRange["start_date"],
@@ -85,6 +81,8 @@ function Playground() {
           setIsStreaming(false);
           setHasCompleted(true);
           setMainAnswer(data.final_output);
+          setFetchedSQL(data.executed_sql_query);
+          console.log({ data });
         })
         .catch((error) =>
           console.error("Error fetching question data:", error)
@@ -234,7 +232,10 @@ function Playground() {
           <div className="govuk-grid-column-one-half">
             <SQLViewer
               question={question}
-              sql={hasCompleted ? getSqlFromLogs() : "Error getting the SQL"}
+              sql={
+                fetchedSQL ||
+                (hasCompleted ? getSqlFromLogs() : "Error getting the SQL")
+              }
             />
           </div>
         )}
