@@ -37,7 +37,7 @@ type DurationTrack = {
 const DEFAULT_DURATION_TRACK: DurationTrack = {};
 
 function Playground() {
-  const { questionId: urlQuestionId } = useParams();
+  let { questionId: urlQuestionId } = useParams();
   const [isStreaming, setIsStreaming] = useState(false);
   const [showLogs, setShowLogs] = useState(false);
   const [showSQLBtnActive, setShowSQLBtnActive] = useState(false);
@@ -57,6 +57,10 @@ function Playground() {
   const [fetchedLogs, setFetchedLogs] = useState<{
     [name: string]: LogEntry;
   } | null>(null);
+
+  if (urlQuestionId?.includes("static")) {
+    urlQuestionId = undefined;
+  }
 
   const preventEdits = (fn: CallableFunction, msg?: string) => {
     return (...args: any[]) => {
@@ -87,6 +91,7 @@ function Playground() {
   useEffect(() => {
     // Fetch question data if an ID is provided
     if (urlQuestionId) {
+      console.log({ urlQuestionId2: urlQuestionId });
       fetch(`/question/${urlQuestionId}`)
         .then((res) => res.json())
         .then((data) => {
