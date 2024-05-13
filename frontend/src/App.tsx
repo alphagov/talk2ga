@@ -28,6 +28,7 @@ import { DateRange } from "rsuite/esm/DateRangePicker";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { defaultDateRange } from "./components/DateRangePicker";
+import { getQuestionData } from "./apiService";
 
 type DurationTrack = {
   startTime?: Date;
@@ -92,23 +93,15 @@ function Playground() {
   useEffect(() => {
     // Fetch question data if an ID is provided
     if (urlQuestionId) {
-      console.log({ urlQuestionId2: urlQuestionId });
-      fetch(`/question/${urlQuestionId}`)
-        .then((res) => res.json())
-        .then((data) => {
-          console.log({ questionData: data }); // KEEP, useful for debugging and feedback analysis
-          const { question, dateRange } = JSON.parse(data.text);
-          const logsJson = JSON.parse(data.logs_json);
+      getQuestionData(urlQuestionId)
+        .then(({ question, dateRange, mainAnswer, executedSql, logs }) => {
           setQuestion(question);
-          setSelectedDateRange([
-            dateRange["start_date"],
-            dateRange["end_date"],
-          ]);
+          setSelectedDateRange(dateRange as unknown as DateRange);
+          setMainAnswer(mainAnswer);
+          setFetchedSQL(executedSql);
+          setFetchedLogs(logs);
           setIsStreaming(false);
           setHasCompleted(true);
-          setMainAnswer(data.final_output);
-          setFetchedSQL(data.executed_sql_query);
-          setFetchedLogs(logsJson);
         })
         .catch((error) =>
           console.error("Error fetching question data:", error)
@@ -173,6 +166,12 @@ function Playground() {
           final_output: output as string,
         });
     };
+    context.current.onSuccess["fetchExecutedSQL"] = ({ output, logs }) => {
+      currentQuestionId &&
+        getQuestionData(currentQuestionId).then(({ executedSql }) => {
+          setFetchedSQL(executedSql);
+        });
+    };
 
     /**
      * OnError
@@ -204,6 +203,10 @@ function Playground() {
   );
 
   const getSqlFromLogs = () =>
+    /**
+     * DEPRECATED: This is a fallback method to get the SQL from the logs
+     * We should be using the `executedSql` field from the getQuestionData() api call instead
+     */
     (latest &&
       latest.logs &&
       (latest.logs.selected_sql_passthrough?.final_output as { output: string })
@@ -259,14 +262,11 @@ function Playground() {
             />
           )}
         </div>
-        {showSql && question && (
+        {showSql && question && fetchedSQL && (
           <div className="govuk-grid-column-one-half">
             <SQLViewer
               question={question}
-              sql={
-                fetchedSQL ||
-                (hasCompleted ? getSqlFromLogs() : "Error getting the SQL")
-              }
+              sql={fetchedSQL}
               isLoadedQuestion={!!urlQuestionId}
             />
           </div>
