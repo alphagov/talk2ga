@@ -25,6 +25,9 @@ import Logs from "./components/Logs";
 import { getUsername } from "./localstorage";
 import { DateRange } from "rsuite/esm/DateRangePicker";
 
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 type DurationTrack = {
   startTime?: Date;
   endTime?: Date;
@@ -198,6 +201,16 @@ function Playground() {
     setMainAnswer(streamOutputToString(latest.streamed_output));
   }
 
+  const handleSubmit = (...args: any[]) => {
+    if (urlQuestionId) {
+      toast.error(
+        "You cannot ask a question when a question is already loaded"
+      );
+    } else {
+      startStream(...args);
+    }
+  };
+
   return (
     <>
       <h1 className="govuk-heading-xl">Chat Analytics</h1>
@@ -208,7 +221,7 @@ function Playground() {
           }
         >
           <QuestionInput
-            handleSubmitQuestion={startStream}
+            handleSubmitQuestion={handleSubmit}
             handleStopStreaming={stopStream}
             isStreaming={isStreaming}
             toggleShowLogs={showLogsRef.current}
@@ -241,6 +254,7 @@ function Playground() {
                 fetchedSQL ||
                 (hasCompleted ? getSqlFromLogs() : "Error getting the SQL")
               }
+              isLoadedQuestion={!!urlQuestionId}
             />
           </div>
         )}
@@ -257,13 +271,16 @@ function Playground() {
 
 export function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/:questionId" element={<Playground />} />
-        <Route path="/static/:questionId" element={<Playground />} />
-        <Route path="/" element={<Playground />} />
-      </Routes>
-    </Router>
+    <>
+      <Router>
+        <Routes>
+          <Route path="/:questionId" element={<Playground />} />
+          <Route path="/static/:questionId" element={<Playground />} />
+          <Route path="/" element={<Playground />} />
+        </Routes>
+      </Router>
+      <ToastContainer />
+    </>
   );
 }
 
