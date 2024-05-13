@@ -72,6 +72,8 @@ async def add_executed_query_to_question(
         await session.refresh(question)
         return question
 
+    print("add_executed_query_to_question with fresh session: ", fresh_session)
+
     if fresh_session:
         engine = create_async_engine(appconfig.DB_URL, echo=True)
         async_session_single_time = sessionmaker(
