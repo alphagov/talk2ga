@@ -166,6 +166,12 @@ function Playground() {
           final_output: output as string,
         });
     };
+    context.current.onSuccess["fetchExecutedSQL"] = ({ output, logs }) => {
+      currentQuestionId &&
+        getQuestionData(currentQuestionId).then(({ executedSql }) => {
+          setFetchedSQL(executedSql);
+        });
+    };
 
     /**
      * OnError
@@ -197,6 +203,10 @@ function Playground() {
   );
 
   const getSqlFromLogs = () =>
+    /**
+     * DEPRECATED: This is a fallback method to get the SQL from the logs
+     * We should be using the `executedSql` field from the getQuestionData() api call instead
+     */
     (latest &&
       latest.logs &&
       (latest.logs.selected_sql_passthrough?.final_output as { output: string })
@@ -252,14 +262,11 @@ function Playground() {
             />
           )}
         </div>
-        {showSql && question && (
+        {showSql && question && fetchedSQL && (
           <div className="govuk-grid-column-one-half">
             <SQLViewer
               question={question}
-              sql={
-                fetchedSQL ||
-                (hasCompleted ? getSqlFromLogs() : "Error getting the SQL")
-              }
+              sql={fetchedSQL}
               isLoadedQuestion={!!urlQuestionId}
             />
           </div>
