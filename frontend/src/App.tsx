@@ -1,6 +1,12 @@
 import "./App.css";
 
 import { useEffect, useRef, useState } from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useParams,
+} from "react-router-dom";
 import { useStreamLog } from "./useStreamLog";
 import { useAppStreamCallbacks } from "./useStreamCallback";
 import { streamOutputToString } from "./utils/streamToString";
@@ -17,6 +23,7 @@ import QuestionInput from "./components/QuestionInput";
 import TypeWriterLoading from "./components/TypeWriterLoading";
 import Logs from "./components/Logs";
 import { getUsername } from "./localstorage";
+import { DateRange } from "rsuite/esm/DateRangePicker";
 
 type DurationTrack = {
   startTime?: Date;
@@ -27,6 +34,7 @@ type DurationTrack = {
 const DEFAULT_DURATION_TRACK: DurationTrack = {};
 
 function Playground() {
+  const { questionId: urlQuestionId } = useParams();
   const [isStreaming, setIsStreaming] = useState(false);
   const [showLogs, setShowLogs] = useState(false);
   const [showSQLBtnActive, setShowSQLBtnActive] = useState(false);
@@ -35,6 +43,10 @@ function Playground() {
     DEFAULT_DURATION_TRACK
   );
   const [isError, setIsError] = useState(false);
+  const [selectedDateRange, setSelectedDateRange] = useState<DateRange | null>(
+    null
+  );
+  const [mainAnswer, setMainAnswer] = useState<string | null>(null);
 
   const [hasCompleted, setHasCompleted] = useState<boolean>(false);
 
@@ -55,6 +67,33 @@ function Playground() {
   showLogsRef.current = () => {
     setShowLogs(() => !showLogs);
   };
+
+  useEffect(() => {
+    // Fetch question data if an ID is provided
+    if (urlQuestionId) {
+      fetch(`/question/${urlQuestionId}`)
+        .then((res) => res.json())
+        .then((data) => {
+          console.log({ questionData: data });
+          const { question, dateRange } = JSON.parse(data.text);
+          console.log({ question, dateRange });
+          setQuestion(question);
+          setSelectedDateRange([
+            dateRange["start_date"],
+            dateRange["end_date"],
+          ]);
+          setIsStreaming(false);
+          setHasCompleted(true);
+          setMainAnswer(data.final_output);
+        })
+        .catch((error) =>
+          console.error("Error fetching question data:", error)
+        );
+    } else {
+      console.log("else?");
+      // setIsLoaded(true);
+    }
+  }, [urlQuestionId]);
 
   useEffect(() => {
     window.addEventListener("keydown", (e) => {
@@ -152,6 +191,10 @@ function Playground() {
   const showSql = hasCompleted && showSQLBtnActive;
   const successful = hasCompleted && !isError;
 
+  if (successful && latest) {
+    setMainAnswer(streamOutputToString(latest.streamed_output));
+  }
+
   return (
     <>
       <h1 className="govuk-heading-xl">Chat Analytics</h1>
@@ -170,11 +213,12 @@ function Playground() {
             showLogs={showLogs}
             showSQLBtnActive={showSQLBtnActive}
             hasCompleted={hasCompleted}
+            selectedDateRange={selectedDateRange}
+            setSelectedDateRange={setSelectedDateRange}
+            forcedValue={question}
           />
           {isLoading && <TypeWriterLoading />}
-          {successful && latest && (
-            <MainAnswer text={streamOutputToString(latest.streamed_output)} />
-          )}
+          {mainAnswer && <MainAnswer text={mainAnswer} />}
           {isError && <ErrorAnswer />}
           {hasCompleted && (
             <Feedback
@@ -203,7 +247,15 @@ function Playground() {
 }
 
 export function App() {
-  return <Playground />;
+  return (
+    <Router>
+      <Routes>
+        <Route path="/:questionId" element={<Playground />} />
+        <Route path="/static/:questionId" element={<Playground />} />
+        <Route path="/" element={<Playground />} />
+      </Routes>
+    </Router>
+  );
 }
 
 export default App;

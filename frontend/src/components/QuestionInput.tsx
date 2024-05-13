@@ -16,6 +16,10 @@ type QuestionInputProps = {
   showLogs: boolean;
   showSQLBtnActive: boolean;
   hasCompleted: boolean;
+  selectedDateRange: DateRange | null;
+  setSelectedDateRange: (date: DateRange | null) => void;
+  forcedValue?: string | null;
+  forcedDateRange?: DateRange | null;
 };
 
 function QuestionInput({
@@ -27,15 +31,14 @@ function QuestionInput({
   showLogs,
   showSQLBtnActive,
   hasCompleted,
+  selectedDateRange,
+  setSelectedDateRange,
+  forcedValue,
 }: QuestionInputProps) {
   const [inputData, setInputData] = useState<InputData>({
     data: "",
     errors: [],
   });
-  const [selectedDateRange, setSelectedDateRange] = useState<DateRange | null>(
-    null
-  );
-
   const submitRef = useRef<(() => void) | null>(null);
   submitRef.current = () => {
     if (isStreaming) {
@@ -70,7 +73,12 @@ function QuestionInput({
         <div id="more-detail-hint" className="govuk-hint">
           It is better to provide specific URLs or page titles
         </div>
-        <DateRangePicker handleDateChange={handleDateChange} />
+        <DateRangePicker
+          handleDateChange={handleDateChange}
+          value={selectedDateRange?.map(
+            ((dateString) => new Date(dateString)) as DateRange
+          )}
+        />
       </div>
       <textarea
         className="govuk-textarea"
@@ -78,7 +86,7 @@ function QuestionInput({
         name="moreDetail"
         rows={1}
         aria-describedby="more-detail-hint"
-        value={inputData.data}
+        value={forcedValue || inputData.data}
         onChange={(e) => {
           const target = e.target as HTMLTextAreaElement;
           setInputData({ data: target.value, errors: [] });

@@ -1,4 +1,4 @@
-import Picker from "rsuite/DateRangePicker";
+import Picker, { DateRange } from "rsuite/DateRangePicker";
 import "rsuite/DateRangePicker/styles/index.css";
 
 const { combine, allowedMaxDays, after } = Picker;
@@ -8,10 +8,12 @@ yesterday.setDate(yesterday.getDate() - 1);
 
 type DateRangePickerProps = {
   handleDateChange: React.ComponentProps<typeof Picker>["onChange"];
+  value?: DateRange | null;
 };
 
 export default function DateRangePicker({
   handleDateChange,
+  value,
 }: DateRangePickerProps) {
   return (
     <Picker
@@ -20,6 +22,7 @@ export default function DateRangePicker({
       shouldDisableDate={combine(allowedMaxDays(3), after(yesterday))}
       onChange={handleDateChange}
       defaultValue={[yesterday, yesterday]}
+      value={value}
       block
       showOneCalendar
     />
