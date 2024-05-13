@@ -27,6 +27,7 @@ import { DateRange } from "rsuite/esm/DateRangePicker";
 
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { defaultDateRange } from "./components/DateRangePicker";
 
 type DurationTrack = {
   startTime?: Date;
@@ -47,7 +48,7 @@ function Playground() {
   );
   const [isError, setIsError] = useState(false);
   const [selectedDateRange, setSelectedDateRange] = useState<DateRange | null>(
-    null
+    defaultDateRange
   );
   const [mainAnswer, setMainAnswer] = useState<string | null>(null);
   const [hasCompleted, setHasCompleted] = useState<boolean>(false);
@@ -113,7 +114,6 @@ function Playground() {
           console.error("Error fetching question data:", error)
         );
     } else {
-      console.log("else?");
       // setIsLoaded(true);
     }
   }, [urlQuestionId]);
@@ -219,7 +219,7 @@ function Playground() {
   const successful = hasCompleted && !isError;
 
   if (successful && latest) {
-    setMainAnswer(streamOutputToString(latest.streamed_output));
+    !mainAnswer && setMainAnswer(streamOutputToString(latest.streamed_output));
   }
 
   const handleSubmit = preventEdits(startStream);
