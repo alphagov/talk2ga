@@ -7,7 +7,7 @@ import {
   Route,
   useParams,
 } from "react-router-dom";
-import { useStreamLog } from "./useStreamLog";
+import { LogEntry, useStreamLog } from "./useStreamLog";
 import { useAppStreamCallbacks } from "./useStreamCallback";
 import { streamOutputToString } from "./utils/streamToString";
 import { MainAnswer } from "./components/MainAnswer";
@@ -51,6 +51,9 @@ function Playground() {
   const { context, callbacks } = useAppStreamCallbacks();
   const { startStream, stopStream, latest } = useStreamLog(callbacks);
   const [fetchedSQL, setFetchedSQL] = useState<string | null>(null);
+  const [fetchedLogs, setFetchedLogs] = useState<{
+    [name: string]: LogEntry;
+  } | null>(null);
 
   const {
     recordQuestionCompletion,
@@ -72,7 +75,9 @@ function Playground() {
       fetch(`/question/${urlQuestionId}`)
         .then((res) => res.json())
         .then((data) => {
+          console.log({ questionData: data }); // KEEP, useful for debugging and feedback analysis
           const { question, dateRange } = JSON.parse(data.text);
+          const logsJson = JSON.parse(data.logs_json);
           setQuestion(question);
           setSelectedDateRange([
             dateRange["start_date"],
@@ -82,7 +87,7 @@ function Playground() {
           setHasCompleted(true);
           setMainAnswer(data.final_output);
           setFetchedSQL(data.executed_sql_query);
-          console.log({ data });
+          setFetchedLogs(logsJson);
         })
         .catch((error) =>
           console.error("Error fetching question data:", error)
@@ -241,7 +246,10 @@ function Playground() {
         )}
       </div>
       <div className="govuk-grid-row">
-        {showLogs && latest && latest.logs && <Logs logs={latest.logs} />}
+        {fetchedLogs && <Logs logs={fetchedLogs} />}
+        {!fetchedLogs && showLogs && latest && latest.logs && (
+          <Logs logs={latest.logs} />
+        )}
       </div>
     </>
   );
