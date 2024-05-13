@@ -2,6 +2,8 @@ from google.cloud import bigquery
 from langchain.sql_database import SQLDatabase
 from appconfig import SQLALCHEMY_URL, GCP_PROJECT
 from llm.flags import _observe
+from utils.side_effects import run_async_side_effect
+from webapp import analytics_controller
 
 
 _cache = {}
@@ -28,10 +30,16 @@ client = bigquery.Client(project=GCP_PROJECT)
 
 
 @_observe()
-def query_sql(sql):
+def query_sql(sql, question_id):
     """
     Execute a SQL query against a BQ dataset and return the result as a list of dictionaries
     """
+    run_async_side_effect(
+        analytics_controller.add_executed_query_to_question,
+        question_id,
+        sql,
+        fresh_session=True,
+    )
     query_job = client.query(sql)
     rows = query_job.result()  # Waits for query to finish
     return [dict(row.items()) for row in rows]
