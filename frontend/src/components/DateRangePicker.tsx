@@ -19,6 +19,7 @@ export default function DateRangePicker({
       placeholder="Select date range for your question. 3 days max."
       shouldDisableDate={combine(allowedMaxDays(3), after(yesterday))}
       onChange={handleDateChange}
+      defaultValue={[yesterday, yesterday]}
       block
       showOneCalendar
     />
