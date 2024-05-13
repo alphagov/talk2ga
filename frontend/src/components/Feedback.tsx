@@ -300,10 +300,11 @@ const FormSentFeedback = () => (
 );
 
 export type FeedbackProps = {
-  handleSatisfiedFeedback: () => void;
-  handleNotSatisfiedFeedback: () => void;
+  handleSatisfiedFeedback: (callback: CallableFunction) => void;
+  handleNotSatisfiedFeedback: (callback: CallableFunction) => void;
   handleNotSatisfiedFeedbackFormSubmit: (
-    args: NotSatisfiedDetailsPayload
+    args: NotSatisfiedDetailsPayload,
+    callback: CallableFunction
   ) => void;
 };
 
@@ -315,19 +316,18 @@ export default function Feedback({
   const [state, setState] = useState<FeedbackState>(FeedbackState.Default);
 
   const onSatisfiedClick = () => {
-    setState(FeedbackState.Satisfied);
-    handleSatisfiedFeedback();
+    handleSatisfiedFeedback(() => setState(FeedbackState.Satisfied));
   };
   const onNotSatisfiedClick = () => {
-    setState(FeedbackState.Form);
-    handleNotSatisfiedFeedback();
+    handleNotSatisfiedFeedback(() => setState(FeedbackState.Form));
   };
 
   let feedbackComponent;
 
   const onSubmitFeedbackForm = (args: NotSatisfiedDetailsPayload) => {
-    handleNotSatisfiedFeedbackFormSubmit(args);
-    setState(FeedbackState.FormSent);
+    handleNotSatisfiedFeedbackFormSubmit(args, () =>
+      setState(FeedbackState.FormSent)
+    );
   };
 
   if (state === FeedbackState.Default) {

@@ -7,13 +7,15 @@ import "prismjs/themes/prism-coy.css";
 import { useStreamLogExplain } from "../useStreamLogExplain";
 import { useAppStreamCallbacks } from "../useStreamCallback";
 import { streamOutputToString } from "../utils/streamToString";
+import { toast } from "react-toastify";
 
 type SQLViewerProps = {
   sql: string;
   question: string;
+  isLoadedQuestion?: boolean;
 };
 
-const SQLViewer = ({ sql, question }: SQLViewerProps) => {
+const SQLViewer = ({ sql, question, isLoadedQuestion }: SQLViewerProps) => {
   const { context, callbacks } = useAppStreamCallbacks();
   const { startStream, latest } = useStreamLogExplain(callbacks);
   const [isStreaming, setIsStreaming] = useState(false);
@@ -51,7 +53,13 @@ const SQLViewer = ({ sql, question }: SQLViewerProps) => {
   }, []);
 
   const handleExplainSQLClick = () => {
-    question && startStream(question, sql);
+    if (isLoadedQuestion) {
+      toast.error(
+        "You cannot run an explain on a loaded question. Please ask a new question."
+      );
+    } else {
+      question && startStream(question, sql);
+    }
   };
 
   const copySqlToClipboard = () => navigator.clipboard.writeText(formattedSql);

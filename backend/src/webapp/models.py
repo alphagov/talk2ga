@@ -19,6 +19,9 @@ class QuestionBase(SQLModel):
     feedback_text: str | None = None
     suggested_sql_correction: str | None = None
     explanations: str | None = None
+    executed_sql_query: str | None = None
+    # This list is stored as a JSON string for simplicity
+    generated_sql_queries: str | None = None
 
 
 class Question(QuestionBase, table=True):

@@ -1,7 +1,13 @@
 import "./App.css";
 
 import { useEffect, useRef, useState } from "react";
-import { useStreamLog } from "./useStreamLog";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useParams,
+} from "react-router-dom";
+import { LogEntry, useStreamLog } from "./useStreamLog";
 import { useAppStreamCallbacks } from "./useStreamCallback";
 import { streamOutputToString } from "./utils/streamToString";
 import { MainAnswer } from "./components/MainAnswer";
@@ -17,6 +23,11 @@ import QuestionInput from "./components/QuestionInput";
 import TypeWriterLoading from "./components/TypeWriterLoading";
 import Logs from "./components/Logs";
 import { getUsername } from "./localstorage";
+import { DateRange } from "rsuite/esm/DateRangePicker";
+
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { defaultDateRange } from "./components/DateRangePicker";
 
 type DurationTrack = {
   startTime?: Date;
@@ -27,6 +38,7 @@ type DurationTrack = {
 const DEFAULT_DURATION_TRACK: DurationTrack = {};
 
 function Playground() {
+  let { questionId: urlQuestionId } = useParams();
   const [isStreaming, setIsStreaming] = useState(false);
   const [showLogs, setShowLogs] = useState(false);
   const [showSQLBtnActive, setShowSQLBtnActive] = useState(false);
@@ -35,12 +47,33 @@ function Playground() {
     DEFAULT_DURATION_TRACK
   );
   const [isError, setIsError] = useState(false);
-
+  const [selectedDateRange, setSelectedDateRange] = useState<DateRange | null>(
+    defaultDateRange
+  );
+  const [mainAnswer, setMainAnswer] = useState<string | null>(null);
   const [hasCompleted, setHasCompleted] = useState<boolean>(false);
-
   const { context, callbacks } = useAppStreamCallbacks();
-
   const { startStream, stopStream, latest } = useStreamLog(callbacks);
+  const [fetchedSQL, setFetchedSQL] = useState<string | null>(null);
+  const [fetchedLogs, setFetchedLogs] = useState<{
+    [name: string]: LogEntry;
+  } | null>(null);
+
+  if (urlQuestionId?.includes("static")) {
+    urlQuestionId = undefined;
+  }
+
+  const preventEdits = (fn: CallableFunction, msg?: string) => {
+    return (...args: any[]) => {
+      if (!!urlQuestionId) {
+        toast.error(
+          msg || "You cannot ask a question when a question is already loaded"
+        );
+      } else {
+        fn(...args);
+      }
+    };
+  };
 
   const {
     recordQuestionCompletion,
@@ -55,6 +88,35 @@ function Playground() {
   showLogsRef.current = () => {
     setShowLogs(() => !showLogs);
   };
+
+  useEffect(() => {
+    // Fetch question data if an ID is provided
+    if (urlQuestionId) {
+      console.log({ urlQuestionId2: urlQuestionId });
+      fetch(`/question/${urlQuestionId}`)
+        .then((res) => res.json())
+        .then((data) => {
+          console.log({ questionData: data }); // KEEP, useful for debugging and feedback analysis
+          const { question, dateRange } = JSON.parse(data.text);
+          const logsJson = JSON.parse(data.logs_json);
+          setQuestion(question);
+          setSelectedDateRange([
+            dateRange["start_date"],
+            dateRange["end_date"],
+          ]);
+          setIsStreaming(false);
+          setHasCompleted(true);
+          setMainAnswer(data.final_output);
+          setFetchedSQL(data.executed_sql_query);
+          setFetchedLogs(logsJson);
+        })
+        .catch((error) =>
+          console.error("Error fetching question data:", error)
+        );
+    } else {
+      // setIsLoaded(true);
+    }
+  }, [urlQuestionId]);
 
   useEffect(() => {
     window.addEventListener("keydown", (e) => {
@@ -122,20 +184,24 @@ function Playground() {
     };
   }, [latest, latest?.logs, latest?.final_output, currentQuestionId]);
 
-  const onSatisfiedFeedback = () => {
+  const onSatisfiedFeedback = preventEdits((callback: CallableFunction) => {
     currentQuestionId && recordFeedbackSatisfied(currentQuestionId);
-  };
+    callback();
+  }, "You cannot provide feedback when a question is already loaded");
 
-  const onNotSatisfiedFeedback = () => {
+  const onNotSatisfiedFeedback = preventEdits((callback: CallableFunction) => {
     currentQuestionId && recordFeedbackNotSatisfied(currentQuestionId);
-  };
+    callback();
+  }, "You cannot provide feedback when a question is already loaded");
 
-  const onNotSatisfiedFeedbackDetailsSubmit = (
-    args: NotSatisfiedDetailsPayload
-  ) => {
-    currentQuestionId &&
-      recordFeedbackNotSatisfiedDetails(currentQuestionId, args);
-  };
+  const onNotSatisfiedFeedbackDetailsSubmit = preventEdits(
+    (args: NotSatisfiedDetailsPayload, callback: CallableFunction) => {
+      currentQuestionId &&
+        recordFeedbackNotSatisfiedDetails(currentQuestionId, args);
+      callback();
+    },
+    "You cannot provide feedback when a question is already loaded"
+  );
 
   const getSqlFromLogs = () =>
     (latest &&
@@ -152,6 +218,12 @@ function Playground() {
   const showSql = hasCompleted && showSQLBtnActive;
   const successful = hasCompleted && !isError;
 
+  if (successful && latest) {
+    !mainAnswer && setMainAnswer(streamOutputToString(latest.streamed_output));
+  }
+
+  const handleSubmit = preventEdits(startStream);
+
   return (
     <>
       <h1 className="govuk-heading-xl">Chat Analytics</h1>
@@ -162,7 +234,7 @@ function Playground() {
           }
         >
           <QuestionInput
-            handleSubmitQuestion={startStream}
+            handleSubmitQuestion={handleSubmit}
             handleStopStreaming={stopStream}
             isStreaming={isStreaming}
             toggleShowLogs={showLogsRef.current}
@@ -170,11 +242,12 @@ function Playground() {
             showLogs={showLogs}
             showSQLBtnActive={showSQLBtnActive}
             hasCompleted={hasCompleted}
+            selectedDateRange={selectedDateRange}
+            setSelectedDateRange={setSelectedDateRange}
+            forcedValue={question}
           />
           {isLoading && <TypeWriterLoading />}
-          {successful && latest && (
-            <MainAnswer text={streamOutputToString(latest.streamed_output)} />
-          )}
+          {mainAnswer && <MainAnswer text={mainAnswer} />}
           {isError && <ErrorAnswer />}
           {hasCompleted && (
             <Feedback
@@ -190,20 +263,38 @@ function Playground() {
           <div className="govuk-grid-column-one-half">
             <SQLViewer
               question={question}
-              sql={hasCompleted ? getSqlFromLogs() : "Error getting the SQL"}
+              sql={
+                fetchedSQL ||
+                (hasCompleted ? getSqlFromLogs() : "Error getting the SQL")
+              }
+              isLoadedQuestion={!!urlQuestionId}
             />
           </div>
         )}
       </div>
       <div className="govuk-grid-row">
-        {showLogs && latest && latest.logs && <Logs logs={latest.logs} />}
+        {fetchedLogs && <Logs logs={fetchedLogs} />}
+        {!fetchedLogs && showLogs && latest && latest.logs && (
+          <Logs logs={latest.logs} />
+        )}
       </div>
     </>
   );
 }
 
 export function App() {
-  return <Playground />;
+  return (
+    <>
+      <Router>
+        <Routes>
+          <Route path="/:questionId" element={<Playground />} />
+          <Route path="/static/:questionId" element={<Playground />} />
+          <Route path="/" element={<Playground />} />
+        </Routes>
+      </Router>
+      <ToastContainer />
+    </>
+  );
 }
 
 export default App;

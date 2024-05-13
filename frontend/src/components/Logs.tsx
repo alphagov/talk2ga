@@ -18,7 +18,7 @@ const Logs = ({ logs }: { logs: { [name: string]: LogEntry } }) => {
         toFormat = JSON.stringify(JSON.parse(toFormat), null, 4);
 
         return (
-          <details className="govuk-details" key={log.name}>
+          <details className="govuk-details" key={`${log.id}`}>
             <summary className="govuk-details__summary">
               <span className="govuk-details__summary-text">{log.name}</span>
             </summary>

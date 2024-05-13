@@ -46,7 +46,7 @@ def add_uid_to_request_state(request: Request, question_id):
 
 
 @app.middleware("http")
-async def test(request: Request, call_next):
+async def create_question_and_add_id_to_res_and_req(request: Request, call_next):
     if request.url.path == "/whole-chain/stream_log":
         body = await request.json()
         question = Question(**{"text": body["input"]})
