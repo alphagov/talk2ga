@@ -8,6 +8,7 @@ from llm.knowledge_bases import (
     get_text_knowledge_base,
     get_schema_description,
     get_schema_columns,
+    get_example_queries,
 )
 import appconfig
 from llm.llm_chains import (
@@ -40,6 +41,7 @@ def create_gen_sql_input(question):
         ),
         "knowledge_base": get_text_knowledge_base(),
         "user_query": question,
+        "example_queries": get_example_queries(),
     }
     return obj
 
