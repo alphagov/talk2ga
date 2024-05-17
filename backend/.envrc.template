@@ -9,6 +9,7 @@ export DB_URL_DEV=123
 ################
 export FF_LANGFUSE_ENABLED=true
 export FF_PROMPT_REFINEMENT_ENABLED=true
+export FF_PROMPT_EXAMPLE_ROWS=true
 
 
 ###########

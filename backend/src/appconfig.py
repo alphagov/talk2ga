@@ -28,6 +28,7 @@ FF_LANGFUSE_ENABLED = os.getenv("FF_LANGFUSE_ENABLED", "false") == "true"
 FF_PROMPT_REFINEMENT_ENABLED = (
     os.getenv("FF_PROMPT_REFINEMENT_ENABLED", "false") == "true"
 )
+FF_PROMPT_EXAMPLE_ROWS = os.getenv("FF_PROMPT_EXAMPLE_ROWS") == "true"
 NB_PARALLEL_SQL_GEN = int(os.getenv("NB_PARALLEL_SQL_GEN", 3))
 GCP_PROJECT = "data-insights-experimentation"
 GA4_PROJECT = "ga4-analytics-352613"
