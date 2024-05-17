@@ -26,3 +26,4 @@ export LANGFUSE_HOST=123
 export NB_PARALLEL_SQL_GEN=2
 export OPENAI_API_KEY="123"
 export DATASET_DESCRIPTION_FORMAT="SQL | TXT | JSON"
+export MAX_RESULTS=20 # If returning a long list of results from the db, truncate them to this length

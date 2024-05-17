@@ -4,6 +4,7 @@ from appconfig import SQLALCHEMY_URL, GCP_PROJECT
 from llm.flags import _observe
 from utils.side_effects import run_async_side_effect
 from webapp import analytics_controller
+import appconfig
 
 
 _cache = {}
@@ -42,4 +43,7 @@ def query_sql(sql, question_id):
     )
     query_job = client.query(sql)
     rows = query_job.result()  # Waits for query to finish
-    return [dict(row.items()) for row in rows]
+    results = [dict(row.items()) for row in rows]
+    truncated_results = results[: appconfig.MAX_RESULTS]
+
+    return truncated_results
