@@ -35,7 +35,9 @@ def create_gen_sql_input(question):
         question = smart_answers_prompt(question)
     obj = {
         "DATASET": appconfig.DATASET,
-        "schema_description": get_schema_description(),
+        "schema_description": get_schema_description(
+            appconfig.DATASET_DESCRIPTION_FORMAT
+        ),
         "knowledge_base": get_text_knowledge_base(),
         "user_query": question,
     }
@@ -220,7 +222,7 @@ def whole_chain(json_input: str, config: dict[str, any], test_callback=None):
 
     # sql, was_corrected = generate_sql_from_question(question, date_range, question_id)
 
-    if appconfig.PROMPT_REFINEMENT_ENABLED:
+    if appconfig.FF_PROMPT_REFINEMENT_ENABLED:
         question = refine_question(original_question)
     else:
         question = original_question
