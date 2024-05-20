@@ -8,7 +8,9 @@ fragment_1 = """You are tasked with generating BigQuery SQL queries specifically
 - Additional Information: `{knowledge_base}`
 - Data Source: 'ga4-analytics-352613.flattened_dataset.flattened_daily_ga_data_*'"""
 
-fragment_2 = """- Example of how to use `_TABLE_SUFFIX`:
+fragment_2 = """
+{example_queries}
+- Example of how to use `_TABLE_SUFFIX`:
   ```sql
   SELECT event_name
   FROM `ga4-analytics-352613.flattened_dataset.flattened_daily_ga_data_*`
