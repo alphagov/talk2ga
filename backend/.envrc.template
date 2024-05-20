@@ -4,7 +4,23 @@ export DB_URL_LOCAL=postgresql+asyncpg://local:local@localhost:5433/local
 export DB_URL_DEV=123
 
 
+################
+# FEATURE FLAGS
+################
 export LANGFUSE_ENABLED=true
+export PROMPT_REFINEMENT_ENABLED=true
+
+
+###########
+# LANGFUSE
+###########
 export LANGFUSE_SECRET_KEY=123
 export LANGFUSE_PUBLIC_KEY=123
 export LANGFUSE_HOST=123
+
+
+###################
+# LLM chain config
+###################
+export NB_PARALLEL_SQL_GEN=2
+export OPENAI_API_KEY="123"

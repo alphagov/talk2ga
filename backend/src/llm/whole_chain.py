@@ -26,6 +26,7 @@ from webapp.exceptions import format_exception
 import random
 import asyncio
 from utils.side_effects import run_async_side_effect
+from llm.refine_question import refine_question
 
 
 @_observe()
@@ -210,12 +211,19 @@ def selected_sql_passthrough(sql):
 @_observe()
 def whole_chain(json_input: str, config: dict[str, any], test_callback=None):
     input = json.loads(json_input)
-    question = input.get("question")
+    original_question = input.get("question")
     question_id = config.get("question_id")
     date_range = input.get("dateRange")
     max_tries = 2
     count_retries = 0
     response_object = None
+
+    # sql, was_corrected = generate_sql_from_question(question, date_range, question_id)
+
+    if appconfig.PROMPT_REFINEMENT_ENABLED:
+        question = refine_question(original_question)
+    else:
+        question = original_question
 
     while response_object is None and count_retries < max_tries:
         try:
@@ -234,7 +242,7 @@ def whole_chain(json_input: str, config: dict[str, any], test_callback=None):
     if response_object is None:
         raise Exception("All attempts failed to generate and query SQL.")
 
-    final_output = format_output.format_answer(question, sql, response_object)
+    final_output = format_output.format_answer(original_question, sql, response_object)
 
     if test_callback:
         test_callback(
