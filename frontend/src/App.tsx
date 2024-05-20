@@ -1,34 +1,34 @@
-import "./App.css";
+import './App.css';
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from 'react';
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   useParams,
-} from "react-router-dom";
-import { LogEntry, useStreamLog } from "./useStreamLog";
-import { useAppStreamCallbacks } from "./useStreamCallback";
-import { streamOutputToString } from "./utils/streamToString";
-import { MainAnswer } from "./components/MainAnswer";
-import ErrorAnswer from "./components/ErrorAnswer";
+} from 'react-router-dom';
+import { LogEntry, useStreamLog } from './useStreamLog';
+import { useAppStreamCallbacks } from './useStreamCallback';
+import { streamOutputToString } from './utils/streamToString';
+import { MainAnswer } from './components/MainAnswer';
+import ErrorAnswer from './components/ErrorAnswer';
 import {
   NotSatisfiedDetailsPayload,
   useQuestions,
-} from "./useQuestionAnalytics";
-import Feedback from "./components/Feedback";
-import SQLViewer from "./components/SQLViewer";
+} from './useQuestionAnalytics';
+import Feedback from './components/Feedback';
+import SQLViewer from './components/SQLViewer';
 
-import QuestionInput from "./components/QuestionInput";
-import TypeWriterLoading from "./components/TypeWriterLoading";
-import Logs from "./components/Logs";
-import { getUsername } from "./localstorage";
-import { DateRange } from "rsuite/esm/DateRangePicker";
+import QuestionInput from './components/QuestionInput';
+import TypeWriterLoading from './components/TypeWriterLoading';
+import Logs from './components/Logs';
+import { getUsername } from './localstorage';
+import { DateRange } from 'rsuite/esm/DateRangePicker';
 
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { defaultDateRange } from "./components/DateRangePicker";
-import { getQuestionData } from "./apiService";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { defaultDateRange } from './components/DateRangePicker';
+import { getQuestionData } from './apiService';
 
 type DurationTrack = {
   startTime?: Date;
@@ -45,11 +45,11 @@ function Playground() {
   const [showSQLBtnActive, setShowSQLBtnActive] = useState(false);
   const [question, setQuestion] = useState<string | null>(null);
   const [duration, setDuration] = useState<DurationTrack>(
-    DEFAULT_DURATION_TRACK
+    DEFAULT_DURATION_TRACK,
   );
   const [isError, setIsError] = useState(false);
   const [selectedDateRange, setSelectedDateRange] = useState<DateRange | null>(
-    defaultDateRange
+    defaultDateRange,
   );
   const [mainAnswer, setMainAnswer] = useState<string | null>(null);
   const [hasCompleted, setHasCompleted] = useState<boolean>(false);
@@ -60,7 +60,7 @@ function Playground() {
     [name: string]: LogEntry;
   } | null>(null);
 
-  if (urlQuestionId?.includes("static")) {
+  if (urlQuestionId?.includes('static')) {
     urlQuestionId = undefined;
   }
 
@@ -68,7 +68,7 @@ function Playground() {
     return (...args: any[]) => {
       if (!!urlQuestionId) {
         toast.error(
-          msg || "You cannot ask a question when a question is already loaded"
+          msg || 'You cannot ask a question when a question is already loaded',
         );
       } else {
         fn(...args);
@@ -104,7 +104,7 @@ function Playground() {
           setHasCompleted(true);
         })
         .catch((error) =>
-          console.error("Error fetching question data:", error)
+          console.error('Error fetching question data:', error),
         );
     } else {
       // setIsLoaded(true);
@@ -112,8 +112,8 @@ function Playground() {
   }, [urlQuestionId]);
 
   useEffect(() => {
-    window.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
         showLogsRef.current?.();
       }
@@ -125,20 +125,20 @@ function Playground() {
     /**
      * OnStart
      */
-    context.current.onStart["setDurationStart"] = () =>
+    context.current.onStart['setDurationStart'] = () =>
       setDuration({ ...DEFAULT_DURATION_TRACK, startTime: new Date() });
-    context.current.onStart["setQuestion"] = ({ question }) =>
+    context.current.onStart['setQuestion'] = ({ question }) =>
       setQuestion(question);
-    context.current.onStart["setQuestionId"] = ({ questionId }) =>
+    context.current.onStart['setQuestionId'] = ({ questionId }) =>
       questionId && setCurrentQuestionId(questionId);
-    context.current.onStart["setIsStreaming"] = () => setIsStreaming(true);
-    context.current.onStart["setHasCompletedFalse"] = () =>
+    context.current.onStart['setIsStreaming'] = () => setIsStreaming(true);
+    context.current.onStart['setHasCompletedFalse'] = () =>
       setHasCompleted(false);
 
     /**
      * OnComplete
      */
-    context.current.onComplete["recordCompletion"] = () => {
+    context.current.onComplete['recordCompletion'] = () => {
       const endTime = new Date();
       const durationMs =
         duration.startTime && endTime.getTime() - duration.startTime.getTime();
@@ -150,15 +150,15 @@ function Playground() {
         });
       setDuration({ ...duration, endTime, durationMs });
     };
-    context.current.onComplete["setIsNotStreaming"] = () =>
+    context.current.onComplete['setIsNotStreaming'] = () =>
       setIsStreaming(false);
-    context.current.onComplete["setHasCompletedTrue"] = () =>
+    context.current.onComplete['setHasCompletedTrue'] = () =>
       setHasCompleted(true);
 
     /**
      * OnSuccess
      */
-    context.current.onSuccess["recordSuccess"] = ({ output, logs }) => {
+    context.current.onSuccess['recordSuccess'] = ({ output, logs }) => {
       currentQuestionId &&
         recordQuestionCompletion(currentQuestionId, {
           logs_json: logs,
@@ -166,7 +166,7 @@ function Playground() {
           final_output: output as string,
         });
     };
-    context.current.onSuccess["fetchExecutedSQL"] = () => {
+    context.current.onSuccess['fetchExecutedSQL'] = () => {
       currentQuestionId &&
         getQuestionData(currentQuestionId).then(({ executedSql }) => {
           setFetchedSQL(executedSql);
@@ -176,8 +176,8 @@ function Playground() {
     /**
      * OnError
      */
-    context.current.onError["setIsErrorTrue"] = () => setIsError(true);
-    context.current.onError["recordFailure"] = () => {
+    context.current.onError['setIsErrorTrue'] = () => setIsError(true);
+    context.current.onError['recordFailure'] = () => {
       currentQuestionId &&
         recordQuestionCompletion(currentQuestionId, { succeeded: false });
     };
@@ -186,12 +186,12 @@ function Playground() {
   const onSatisfiedFeedback = preventEdits((callback: CallableFunction) => {
     currentQuestionId && recordFeedbackSatisfied(currentQuestionId);
     callback();
-  }, "You cannot provide feedback when a question is already loaded");
+  }, 'You cannot provide feedback when a question is already loaded');
 
   const onNotSatisfiedFeedback = preventEdits((callback: CallableFunction) => {
     currentQuestionId && recordFeedbackNotSatisfied(currentQuestionId);
     callback();
-  }, "You cannot provide feedback when a question is already loaded");
+  }, 'You cannot provide feedback when a question is already loaded');
 
   const onNotSatisfiedFeedbackDetailsSubmit = preventEdits(
     (args: NotSatisfiedDetailsPayload, callback: CallableFunction) => {
@@ -199,7 +199,7 @@ function Playground() {
         recordFeedbackNotSatisfiedDetails(currentQuestionId, args);
       callback();
     },
-    "You cannot provide feedback when a question is already loaded"
+    'You cannot provide feedback when a question is already loaded',
   );
 
   /**
@@ -233,7 +233,7 @@ function Playground() {
       <div className="govuk-grid-row">
         <div
           className={
-            showSql ? "govuk-grid-column-one-half" : "govuk-grid-column-full"
+            showSql ? 'govuk-grid-column-one-half' : 'govuk-grid-column-full'
           }
         >
           <QuestionInput

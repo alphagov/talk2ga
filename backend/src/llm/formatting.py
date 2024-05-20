@@ -62,11 +62,7 @@ def replace_dataset_in_sql_ast(parsed_sql, new_dataset):
 
     if type(from_clause) == Subquery:
         within_brackets = lambda x: f"({x.strip()})"
-        parsed_sql = parsed_sql.from_(
-            within_brackets(
-                replace_dataset_in_sql_ast(from_clause.this, new_dataset).sql()
-            )
-        )
+        parsed_sql = parsed_sql.from_(within_brackets(replace_dataset_in_sql_ast(from_clause.this, new_dataset).sql()))
     else:
         from_table = str(parsed_sql.find(exp.From).this)
         if from_table == variable_alias:
@@ -108,9 +104,7 @@ def insert_correct_dataset(sql):
 def remove_comments(sql):
     sql = re.sub(r"^(?:[\t\s]+)?--.*$", "", sql, flags=re.MULTILINE)
     sql = re.sub(r"/\*.*?\*/", "", sql, flags=re.DOTALL)
-    sql = "\n".join(
-        line for line in sql.split("\n") if not line.strip().startswith("--")
-    )
+    sql = "\n".join(line for line in sql.split("\n") if not line.strip().startswith("--"))
     sql = "\n".join(line for line in sql.split("\n") if line.strip())
 
     return sql
@@ -122,9 +116,7 @@ def format_sql(sql):
     if striped_sql[-1] == ";":
         striped_sql = striped_sql[:-1]
     sanitised_one_line_comment = re.sub(r"^\s*--[\w\s]+\s*(SELECT\s)", r"\1", sql)
-    prettified_sql = sqlparse.format(
-        sanitised_one_line_comment, reindent=True, keyword_case="upper"
-    )
+    prettified_sql = sqlparse.format(sanitised_one_line_comment, reindent=True, keyword_case="upper")
 
     if prettified_sql[-1] != ";":
         prettified_sql += ";"

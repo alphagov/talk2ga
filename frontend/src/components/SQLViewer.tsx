@@ -1,13 +1,13 @@
-import { useEffect, useState } from "react";
-import { format } from "sql-formatter";
+import { useEffect, useState } from 'react';
+import { format } from 'sql-formatter';
 // @ts-ignore
-import Prism from "prismjs";
-import "prismjs/components/prism-sql";
-import "prismjs/themes/prism-coy.css";
-import { useStreamLogExplain } from "../useStreamLogExplain";
-import { useAppStreamCallbacks } from "../useStreamCallback";
-import { streamOutputToString } from "../utils/streamToString";
-import { toast } from "react-toastify";
+import Prism from 'prismjs';
+import 'prismjs/components/prism-sql';
+import 'prismjs/themes/prism-coy.css';
+import { useStreamLogExplain } from '../useStreamLogExplain';
+import { useAppStreamCallbacks } from '../useStreamCallback';
+import { streamOutputToString } from '../utils/streamToString';
+import { toast } from 'react-toastify';
 
 type SQLViewerProps = {
   sql: string;
@@ -24,8 +24,8 @@ const SQLViewer = ({ sql, question, isLoadedQuestion }: SQLViewerProps) => {
   /* Callbacks for EXPLAIN SQL */
   useEffect(() => {
     // OnStart callbacks
-    context.current.onStart["setIsStreaming"] = () => setIsStreaming(true);
-    context.current.onStart["setHasCompletedFalse"] = () =>
+    context.current.onStart['setIsStreaming'] = () => setIsStreaming(true);
+    context.current.onStart['setHasCompletedFalse'] = () =>
       setHasCompleted(false);
 
     // OnSuccess callbacks
@@ -36,9 +36,9 @@ const SQLViewer = ({ sql, question, isLoadedQuestion }: SQLViewerProps) => {
     //     logs_json: latest && JSON.stringify(latest.logs),
     //     final_output: latest && streamOutputToString(latest.streamed_output),
     //   });
-    context.current.onSuccess["setIsNotStreaming"] = () =>
+    context.current.onSuccess['setIsNotStreaming'] = () =>
       setIsStreaming(false);
-    context.current.onSuccess["setHasCompletedTrue"] = () =>
+    context.current.onSuccess['setHasCompletedTrue'] = () =>
       setHasCompleted(true);
 
     // OnError callbacks
@@ -55,7 +55,7 @@ const SQLViewer = ({ sql, question, isLoadedQuestion }: SQLViewerProps) => {
   const handleExplainSQLClick = () => {
     if (isLoadedQuestion) {
       toast.error(
-        "You cannot run an explain on a loaded question. Please ask a new question."
+        'You cannot run an explain on a loaded question. Please ask a new question.',
       );
     } else {
       question && startStream(question, sql);

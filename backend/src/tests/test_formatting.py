@@ -1,3 +1,5 @@
+# flake8: noqa: W503
+
 from llm.formatting import (
     remove_comments,
     format_sql,
@@ -97,9 +99,7 @@ LIMIT 1;"""
         )
     )
 
-    assert format_sql(insert_correct_dataset(GOOD_DATASET_SQL)) == format_sql(
-        GOOD_DATASET_SQL
-    )
+    assert format_sql(insert_correct_dataset(GOOD_DATASET_SQL)) == format_sql(GOOD_DATASET_SQL)
 
     BAD_NESTED_SQL = """SELECT
   page_location,
@@ -125,9 +125,7 @@ LIMIT 1;"""
         "ga4-analytics-352613.flattened_dataset.flattened_daily_ga_data_*",
     )
 
-    assert format_sql(insert_correct_dataset(BAD_NESTED_SQL)) == format_sql(
-        GOOD_NESTED_SQL
-    )
+    assert format_sql(insert_correct_dataset(BAD_NESTED_SQL)) == format_sql(GOOD_NESTED_SQL)
 
 
 def test_insert_correct_dates():
@@ -172,21 +170,13 @@ LIMIT 1;"""
 
     SQL_4 = """SELECT page_location, COUNT(*) AS page_views FROM `ga4-analytics-352613.flattened_dataset.flattened_daily_ga_data_*` WHERE _TABLE_SUFFIX BETWEEN 'START_DATE' AND 'END_DATE' AND event_name = 'page_view' GROUP BY page_location ORDER BY page_views DESC LIMIT 1"""
 
-    assert insert_correct_dates(
-        SQL_1, {"start_date": "11111111", "end_date": "22222222"}
-    ) == SQL_1.replace("20240403", "11111111").replace("20240404", "22222222")
+    assert insert_correct_dates(SQL_1, {"start_date": "11111111", "end_date": "22222222"}) == SQL_1.replace("20240403", "11111111").replace("20240404", "22222222")
 
-    assert insert_correct_dates(
-        SQL_2, {"start_date": "11111111", "end_date": "22222222"}
-    ) == SQL_2.replace("20240403", "11111111").replace("20240404", "22222222")
+    assert insert_correct_dates(SQL_2, {"start_date": "11111111", "end_date": "22222222"}) == SQL_2.replace("20240403", "11111111").replace("20240404", "22222222")
 
-    assert insert_correct_dates(
-        SQL_3, {"start_date": "11111111", "end_date": "22222222"}
-    ) == SQL_3.replace("20240403", "11111111").replace("20240404", "22222222")
+    assert insert_correct_dates(SQL_3, {"start_date": "11111111", "end_date": "22222222"}) == SQL_3.replace("20240403", "11111111").replace("20240404", "22222222")
 
-    assert insert_correct_dates(
-        SQL_4, {"start_date": "11111111", "end_date": "22222222"}
-    ) == SQL_4.replace("START_DATE", "11111111").replace("END_DATE", "22222222")
+    assert insert_correct_dates(SQL_4, {"start_date": "11111111", "end_date": "22222222"}) == SQL_4.replace("START_DATE", "11111111").replace("END_DATE", "22222222")
 
 
 def test_contains_date_range():

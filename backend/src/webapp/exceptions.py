@@ -12,12 +12,6 @@ class InvalidSQLColumnsException(CustomException):
         self.columns = columns
         self.wrong_columns = wrong_columns
         self.sql = sql
-        exc_type, exc_value, exc_traceback = sys.exc_info()
-        traceback_details = traceback.format_exception(
-            exc_type, exc_value, exc_traceback
-        )
-        # self.traceback = traceback_details
-        # self.traceback = traceback.format_exc()
         super().__init__(f"INVALID SQL OUTPUT: contains wrong columns: {wrong_columns}")
 
     def __str__(self):

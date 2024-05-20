@@ -2,7 +2,6 @@
 /* CUSTOM STYLES */
 /* --------------------------------------------------------------- */
 
-
 .feedback-form-container {
   padding: 20px;
   margin-top: 30px;
@@ -18,13 +17,13 @@
 }
 
 .sql-viewer-container {
-  position: relative
+  position: relative;
 }
 
 .copy-clipboard-button {
   position: absolute;
   top: 0;
-  right:0;
+  right: 0;
   /* height: 40px; */
   padding: 5px;
   width: 40px;
@@ -45,17 +44,15 @@
 }
 
 .answer-banner {
-  max-width: 100% !important
+  max-width: 100% !important;
 }
-
 
 .legend-container {
   display: flex;
   justify-content: space-between;
   margin-top: 20px;
-  margin-bottom: 10px;;
+  margin-bottom: 10px;
 }
-
 
 /**
 *  Date Picker

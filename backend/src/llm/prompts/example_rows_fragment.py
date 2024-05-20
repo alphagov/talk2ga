@@ -1,3 +1,6 @@
+# flake8: noqa: E501, F401
+
+
 example_rows = """
 /*
 3 example rows:

@@ -36,9 +36,7 @@ def create_gen_sql_input(question):
         question = smart_answers_prompt(question)
     obj = {
         "DATASET": appconfig.DATASET,
-        "schema_description": get_schema_description(
-            appconfig.DATASET_DESCRIPTION_FORMAT
-        ),
+        "schema_description": get_schema_description(appconfig.DATASET_DESCRIPTION_FORMAT),
         "knowledge_base": get_text_knowledge_base(),
         "user_query": question,
         "example_queries": get_example_queries(),
@@ -61,9 +59,7 @@ def chain_with_retry(retries_nb):
                     output = func(input)
                 except Exception as e:
                     count_retries += 1
-                    print(
-                        f"\n{func.__name__}: Retrying {count_retries}/{max_tries}...\n"
-                    )
+                    print(f"\n{func.__name__}: Retrying {count_retries}/{max_tries}...\n")
                     latest_exception = e
 
             if output is None:
@@ -86,9 +82,7 @@ def gen_sql_chain(input, date_range, question_id):
         if formatting.contains_date_range(sql):
             return sql
 
-        new_sql = correction_add_date_range.correct_missing_date_range_chain.invoke(
-            {"sql_query": sql}
-        )
+        new_sql = correction_add_date_range.correct_missing_date_range_chain.invoke({"sql_query": sql})
         return new_sql
 
     @chain
@@ -115,12 +109,7 @@ def gen_sql_chain(input, date_range, question_id):
     @_observe()
     def parallel_sql_gen(input):
         amount = appconfig.NB_PARALLEL_SQL_GEN
-        runnable_parallel = RunnableParallel(
-            {
-                f"gen{i+1}": (generate_sql.gen | sql_enhancement | validation_chain)
-                for i in range(amount)
-            }
-        )
+        runnable_parallel = RunnableParallel({f"gen{i+1}": (generate_sql.gen | sql_enhancement | validation_chain) for i in range(amount)})
         outputs = runnable_parallel.invoke(input)
 
         return outputs
@@ -157,19 +146,13 @@ def gen_sql_correction(payload: dict[str, list[str] | str]):
         "knowledge_base": get_text_knowledge_base(),
         "table_name": appconfig.DATASET,
     }
-    valid_sql = (
-        generate_sql_correction.chain
-        | RunnableLambda(formatting.remove_sql_quotes)
-        | RunnableLambda(validation.is_valid_sql)
-    ).invoke(input)
+    valid_sql = (generate_sql_correction.chain | RunnableLambda(formatting.remove_sql_quotes) | RunnableLambda(validation.is_valid_sql)).invoke(input)
 
     return formatting.format_sql(valid_sql)
 
 
 @_observe()
-def generate_sql_from_question(
-    question: str, date_range, question_id: int
-) -> [str, bool]:
+def generate_sql_from_question(question: str, date_range, question_id: int) -> [str, bool]:
     try:
         return gen_sql_chain(question, date_range, question_id), False
     except InvalidSQLColumnsException as e:
@@ -193,9 +176,7 @@ def log_error_to_analytics(func):
 
             # Log error to analytics, side effect, failsafe
             if question_id := config.get("question_id"):
-                asyncio.create_task(
-                    analytics_controller.log_error(question_id, format_exception(e))
-                )
+                asyncio.create_task(analytics_controller.log_error(question_id, format_exception(e)))
 
             print("ERROR:::::")
             print(e)
@@ -231,9 +212,7 @@ def whole_chain(json_input: str, config: dict[str, any], test_callback=None):
 
     while response_object is None and count_retries < max_tries:
         try:
-            sql, was_corrected = generate_sql_from_question(
-                question, date_range, question_id
-            )
+            sql, was_corrected = generate_sql_from_question(question, date_range, question_id)
             # Running the SQL though a passthrough just to get the sql from the stream log in the frontend
             # TODO: create API endpoints to record / get the SQL by question ID instead of using the stream log
             sql = selected_sql_passthrough.invoke(sql)

@@ -12,7 +12,6 @@ def _observe():
         if appconfig.FF_LANGFUSE_ENABLED:
             return observe()(func)
         else:
-
             # Return the original function if the flag is false
             @wraps(func)
             def wrapper(*args, **kwargs):

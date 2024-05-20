@@ -1,5 +1,5 @@
-import Picker, { DateRange } from "rsuite/DateRangePicker";
-import "rsuite/DateRangePicker/styles/index.css";
+import Picker, { DateRange } from 'rsuite/DateRangePicker';
+import 'rsuite/DateRangePicker/styles/index.css';
 
 const { combine, allowedMaxDays, after } = Picker;
 
@@ -8,11 +8,11 @@ yesterday.setDate(yesterday.getDate() - 1);
 
 export const defaultDateRange: DateRange = [yesterday, yesterday];
 export const defaultDateRangeStr = defaultDateRange.map((d) =>
-  d.toISOString().slice(0, 10)
+  d.toISOString().slice(0, 10),
 );
 
 type DateRangePickerProps = {
-  handleDateChange: React.ComponentProps<typeof Picker>["onChange"];
+  handleDateChange: React.ComponentProps<typeof Picker>['onChange'];
   value?: DateRange | null;
 };
 
