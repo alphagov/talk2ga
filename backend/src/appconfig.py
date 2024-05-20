@@ -24,8 +24,10 @@ assert DB_URL, "Database URL is not set in the environment"
 # *         LLM CONFIG          *
 # *                             *
 # *******************************
-LANGFUSE_ENABLED = os.getenv("LANGFUSE_ENABLED", "false") == "true"
-PROMPT_REFINEMENT_ENABLED = os.getenv("PROMPT_REFINEMENT_ENABLED", "false") == "true"
+FF_LANGFUSE_ENABLED = os.getenv("FF_LANGFUSE_ENABLED", "false") == "true"
+FF_PROMPT_REFINEMENT_ENABLED = (
+    os.getenv("FF_PROMPT_REFINEMENT_ENABLED", "false") == "true"
+)
 NB_PARALLEL_SQL_GEN = int(os.getenv("NB_PARALLEL_SQL_GEN", 3))
 GCP_PROJECT = "data-insights-experimentation"
 GA4_PROJECT = "ga4-analytics-352613"
@@ -33,6 +35,7 @@ DATASET = "flattened_dataset"
 SQLALCHEMY_URL = f"bigquery://{GA4_PROJECT}/{DATASET}"
 TABLE_NAME = "flattened_daily_ga_data_"
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+DATASET_DESCRIPTION_FORMAT = os.getenv("DATASET_DESCRIPTION_FORMAT")
 
 
 if __name__ == "__main__":

@@ -25,7 +25,13 @@ def get_schema_description(type="json"):
     This knowledge base contains JSON schema description of the BigQuery dataset
     """
 
-    file = f"llm/static/schema-description.{'json' if type == 'json' else 'txt'}"
+    assert type.lower() in [
+        "json",
+        "txt",
+        "sql",
+    ], "Invalid schema description type. Must be json, txt or sql."
+
+    file = f"llm/static/schema-description.{type.lower()}"
     with open(file, "r") as f:
         return f.read()
 

@@ -7,8 +7,8 @@ export DB_URL_DEV=123
 ################
 # FEATURE FLAGS
 ################
-export LANGFUSE_ENABLED=true
-export PROMPT_REFINEMENT_ENABLED=true
+export FF_LANGFUSE_ENABLED=true
+export FF_PROMPT_REFINEMENT_ENABLED=true
 
 
 ###########
@@ -24,3 +24,4 @@ export LANGFUSE_HOST=123
 ###################
 export NB_PARALLEL_SQL_GEN=2
 export OPENAI_API_KEY="123"
+export DATASET_DESCRIPTION_FORMAT="SQL | TXT | JSON"

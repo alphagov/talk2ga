@@ -9,7 +9,7 @@ def _observe():
     # It is used to apply the observe decorator only if the flag is true
     # Otherwise, the original function is returned and this decorator is just a pass-through
     def decorator(func):
-        if appconfig.LANGFUSE_ENABLED:
+        if appconfig.FF_LANGFUSE_ENABLED:
             return observe()(func)
         else:
 
