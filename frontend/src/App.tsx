@@ -166,7 +166,7 @@ function Playground() {
           final_output: output as string,
         });
     };
-    context.current.onSuccess["fetchExecutedSQL"] = ({ output, logs }) => {
+    context.current.onSuccess["fetchExecutedSQL"] = () => {
       currentQuestionId &&
         getQuestionData(currentQuestionId).then(({ executedSql }) => {
           setFetchedSQL(executedSql);
@@ -202,16 +202,16 @@ function Playground() {
     "You cannot provide feedback when a question is already loaded"
   );
 
-  const getSqlFromLogs = () =>
-    /**
-     * DEPRECATED: This is a fallback method to get the SQL from the logs
-     * We should be using the `executedSql` field from the getQuestionData() api call instead
-     */
-    (latest &&
-      latest.logs &&
-      (latest.logs.selected_sql_passthrough?.final_output as { output: string })
-        ?.output) ||
-    "Error getting the SQL";
+  /**
+   * DEPRECATED: This is a fallback method to get the SQL from the logs
+   * We should be using the `executedSql` field from the getQuestionData() api call instead
+   */
+  // const getSqlFromLogs = () =>
+  //   (latest &&
+  //     latest.logs &&
+  //     (latest.logs.selected_sql_passthrough?.final_output as { output: string })
+  //       ?.output) ||
+  //   "Error getting the SQL";
 
   const isLoading = isStreaming && !hasCompleted;
 
