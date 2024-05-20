@@ -1,6 +1,6 @@
-import type { Operation } from "fast-json-patch";
-import type { RunState } from "./useStreamLog";
-import { DateRange } from "rsuite/esm/DateRangePicker";
+import type { Operation } from 'fast-json-patch';
+import type { RunState } from './useStreamLog';
+import { DateRange } from 'rsuite/esm/DateRangePicker';
 
 export interface StreamCallback {
   onSuccess?: (ctx: {
@@ -11,7 +11,7 @@ export interface StreamCallback {
   }) => void;
   onChunk?: (
     chunk: { ops?: Operation[] },
-    aggregatedState: RunState | null
+    aggregatedState: RunState | null,
   ) => void;
   onError?: (error: unknown) => void;
   onStart?: (ctx: {

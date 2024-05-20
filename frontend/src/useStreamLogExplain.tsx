@@ -1,8 +1,8 @@
-import { useCallback, useRef, useState } from "react";
-import { applyPatch, Operation } from "fast-json-patch";
-import { fetchEventSource } from "@microsoft/fetch-event-source";
-import { resolveApiUrl } from "./utils/url";
-import { StreamCallback } from "./types";
+import { useCallback, useRef, useState } from 'react';
+import { applyPatch, Operation } from 'fast-json-patch';
+import { fetchEventSource } from '@microsoft/fetch-event-source';
+import { resolveApiUrl } from './utils/url';
+import { StreamCallback } from './types';
 
 export interface LogEntry {
   // ID of the sub-run.
@@ -69,13 +69,13 @@ export function useStreamLogExplain(callbacks: StreamCallback = {}) {
       startRef.current?.({ question });
 
       let innerLatest: RunState | null = null;
-      await fetchEventSource(resolveApiUrl("/explain/stream_log").toString(), {
+      await fetchEventSource(resolveApiUrl('/explain/stream_log').toString(), {
         signal: controller.signal,
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ input, config }),
         onmessage(msg) {
-          if (msg.event === "data") {
+          if (msg.event === 'data') {
             innerLatest = reducer(innerLatest, JSON.parse(msg.data)?.ops);
             setLatest(innerLatest);
             chunkRef.current?.(JSON.parse(msg.data), innerLatest);
@@ -93,7 +93,7 @@ export function useStreamLogExplain(callbacks: StreamCallback = {}) {
         },
       });
     },
-    []
+    [],
   );
 
   const stopStream = useCallback(() => {

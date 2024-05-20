@@ -6,7 +6,7 @@ export const getQuestionData = async (questionId: string) => {
 
   return {
     question,
-    dateRange: [dateRange["start_date"], dateRange["end_date"]],
+    dateRange: [dateRange['start_date'], dateRange['end_date']],
     logs: JSON.parse(data.logs_json),
     mainAnswer: data.final_output,
     executedSql: data.executed_sql_query,

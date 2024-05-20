@@ -1,5 +1,5 @@
-import { resolveApiUrl } from "./utils/url";
-import { useState } from "react";
+import { resolveApiUrl } from './utils/url';
+import { useState } from 'react';
 
 type QuestionCompletionPayload = {
   logs_json?: string | null;
@@ -17,15 +17,15 @@ export type NotSatisfiedDetailsPayload = {
 
 export function useQuestions() {
   const [currentQuestionId, setCurrentQuestionId] = useState<string | null>(
-    null
+    null,
   );
 
   const recordQuestion = async (question: string) => {
     const response = await fetch(resolveApiUrl(`/question`), {
-      method: "POST",
+      method: 'POST',
       body: JSON.stringify({ text: question }),
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
     });
     if (!response.ok) throw new Error(await response.text());
@@ -39,13 +39,13 @@ export function useQuestions() {
 
   const recordQuestionCompletion = async (
     questionId: string,
-    payload: QuestionCompletionPayload
+    payload: QuestionCompletionPayload,
   ) => {
     const response = await fetch(resolveApiUrl(`/question/${questionId}`), {
-      method: "PUT",
+      method: 'PUT',
       body: JSON.stringify(payload),
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
     });
 
@@ -58,10 +58,10 @@ export function useQuestions() {
 
   const recordFeedbackSatisfied = async (questionId: string) => {
     const response = await fetch(resolveApiUrl(`/question/${questionId}`), {
-      method: "PUT",
+      method: 'PUT',
       body: JSON.stringify({ has_feedback: true, is_feedback_positive: true }),
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
     });
 
@@ -74,10 +74,10 @@ export function useQuestions() {
 
   const recordFeedbackNotSatisfied = async (questionId: string) => {
     const response = await fetch(resolveApiUrl(`/question/${questionId}`), {
-      method: "PUT",
+      method: 'PUT',
       body: JSON.stringify({ has_feedback: true, is_feedback_positive: false }),
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
     });
 
@@ -90,7 +90,7 @@ export function useQuestions() {
 
   const recordFeedbackNotSatisfiedDetails = async (
     questionId: string,
-    payload: NotSatisfiedDetailsPayload
+    payload: NotSatisfiedDetailsPayload,
   ) => {
     const finalPayload = {
       has_feedback: true,
@@ -100,10 +100,10 @@ export function useQuestions() {
       username: payload.username,
     };
     const response = await fetch(resolveApiUrl(`/question/${questionId}`), {
-      method: "PUT",
+      method: 'PUT',
       body: JSON.stringify(finalPayload),
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
     });
 

@@ -1,4 +1,4 @@
-import { str } from "./str";
+import { str } from './str';
 
 // inlined from langchain/schema
 interface BaseMessageFields {
@@ -17,7 +17,7 @@ class AIMessageChunk {
   name?: string;
 
   /** Additional keyword arguments */
-  additional_kwargs: NonNullable<BaseMessageFields["additional_kwargs"]>;
+  additional_kwargs: NonNullable<BaseMessageFields['additional_kwargs']>;
 
   constructor(fields: BaseMessageFields) {
     // Make sure the default value for additional_kwargs is passed into super() for serialization
@@ -32,30 +32,30 @@ class AIMessageChunk {
   }
 
   static _mergeAdditionalKwargs(
-    left: NonNullable<BaseMessageFields["additional_kwargs"]>,
-    right: NonNullable<BaseMessageFields["additional_kwargs"]>
-  ): NonNullable<BaseMessageFields["additional_kwargs"]> {
+    left: NonNullable<BaseMessageFields['additional_kwargs']>,
+    right: NonNullable<BaseMessageFields['additional_kwargs']>,
+  ): NonNullable<BaseMessageFields['additional_kwargs']> {
     const merged = { ...left };
     for (const [key, value] of Object.entries(right)) {
       if (merged[key] === undefined) {
         merged[key] = value;
       } else if (typeof merged[key] !== typeof value) {
         throw new Error(
-          `additional_kwargs[${key}] already exists in the message chunk, but with a different type.`
+          `additional_kwargs[${key}] already exists in the message chunk, but with a different type.`,
         );
-      } else if (typeof merged[key] === "string") {
+      } else if (typeof merged[key] === 'string') {
         merged[key] = (merged[key] as string) + value;
       } else if (
         !Array.isArray(merged[key]) &&
-        typeof merged[key] === "object"
+        typeof merged[key] === 'object'
       ) {
         merged[key] = this._mergeAdditionalKwargs(
-          merged[key] as NonNullable<BaseMessageFields["additional_kwargs"]>,
-          value as NonNullable<BaseMessageFields["additional_kwargs"]>
+          merged[key] as NonNullable<BaseMessageFields['additional_kwargs']>,
+          value as NonNullable<BaseMessageFields['additional_kwargs']>,
         );
       } else {
         throw new Error(
-          `additional_kwargs[${key}] already exists in this message chunk.`
+          `additional_kwargs[${key}] already exists in this message chunk.`,
         );
       }
     }
@@ -67,39 +67,39 @@ class AIMessageChunk {
       content: this.content + chunk.content,
       additional_kwargs: AIMessageChunk._mergeAdditionalKwargs(
         this.additional_kwargs,
-        chunk.additional_kwargs
+        chunk.additional_kwargs,
       ),
     });
   }
 }
 
 function isAiMessageChunkFields(value: unknown): value is BaseMessageFields {
-    if (typeof value !== "object" || value == null) return false;
-    return "content" in value && typeof value["content"] === "string";
-  }
+  if (typeof value !== 'object' || value == null) return false;
+  return 'content' in value && typeof value['content'] === 'string';
+}
 
 function isAiMessageChunkFieldsList(
-    value: unknown[]
-  ): value is BaseMessageFields[] {
-    return value.length > 0 && value.every((x) => isAiMessageChunkFields(x));
-  }
+  value: unknown[],
+): value is BaseMessageFields[] {
+  return value.length > 0 && value.every((x) => isAiMessageChunkFields(x));
+}
 
 export function streamOutputToString(streamed: unknown[]) {
-    // check if we're streaming AIMessageChunk
-    if (isAiMessageChunkFieldsList(streamed)) {
-      const concat = streamed.reduce<AIMessageChunk | null>((memo, field) => {
-        const chunk = new AIMessageChunk(field);
-        if (memo == null) return chunk;
-        return memo.concat(chunk);
-      }, null);
+  // check if we're streaming AIMessageChunk
+  if (isAiMessageChunkFieldsList(streamed)) {
+    const concat = streamed.reduce<AIMessageChunk | null>((memo, field) => {
+      const chunk = new AIMessageChunk(field);
+      if (memo == null) return chunk;
+      return memo.concat(chunk);
+    }, null);
 
-      const functionCall = concat?.additional_kwargs?.function_call;
-      return (
-        concat?.content ||
-        (!!functionCall && JSON.stringify(functionCall, null, 2)) ||
-        "..."
-      );
-    }
-
-    return streamed.map(str).join("") || "...";
+    const functionCall = concat?.additional_kwargs?.function_call;
+    return (
+      concat?.content ||
+      (!!functionCall && JSON.stringify(functionCall, null, 2)) ||
+      '...'
+    );
   }
+
+  return streamed.map(str).join('') || '...';
+}

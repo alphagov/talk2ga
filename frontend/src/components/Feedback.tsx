@@ -1,7 +1,7 @@
-import { useState } from "react";
-import "./feedback.css";
-import { NotSatisfiedDetailsPayload } from "../useQuestionAnalytics";
-import { setUsername } from "../localstorage";
+import { useState } from 'react';
+import './feedback.css';
+import { NotSatisfiedDetailsPayload } from '../useQuestionAnalytics';
+import { setUsername } from '../localstorage';
 
 enum FeedbackState {
   Default,
@@ -44,18 +44,18 @@ const DefaultFeedback = ({
                 href="/contact/govuk"
               >
                 Maybe
-              </a>{" "}
+              </a>{' '}
             </li>
             <li className="gem-c-feedback__option-list-item">
               <button
                 className="govuk-button gem-c-feedback__prompt-link js-page-is-useful"
                 onClick={handleSatisfiedClick}
               >
-                Yes{" "}
+                Yes{' '}
                 <span className="govuk-visually-hidden">
                   this page is useful
                 </span>
-              </button>{" "}
+              </button>{' '}
             </li>
             <li className="gem-c-feedback__option-list-item">
               <button
@@ -64,11 +64,11 @@ const DefaultFeedback = ({
                 aria-expanded="false"
                 onClick={handleNotSatisfiedClick}
               >
-                No{" "}
+                No{' '}
                 <span className="govuk-visually-hidden">
                   this page is not useful
                 </span>
-              </button>{" "}
+              </button>{' '}
             </li>
           </ul>
         </div>
@@ -106,7 +106,7 @@ const validateForm = (detailData: TextInputData, sqlData: TextInputData) => {
     (detailData?.data?.length ?? 0) > 2100
   ) {
     errors.detailData.push(
-      "Please provide a description that is between 20 and 2100 characters long."
+      'Please provide a description that is between 20 and 2100 characters long.',
     );
   }
 
@@ -115,7 +115,7 @@ const validateForm = (detailData: TextInputData, sqlData: TextInputData) => {
     (sqlData?.data?.length && sqlData.data.length > 10000)
   ) {
     errors.sqlData.push(
-      "Please provide a SQL query that is between 20 and 2100 characters long."
+      'Please provide a SQL query that is between 20 and 2100 characters long.',
     );
   }
 
@@ -135,23 +135,23 @@ const FormFeedback = ({
     const errors = validateForm(detailData, sqlData);
 
     if (errors.detailData.length > 0 || errors.sqlData.length > 0) {
-      console.log("Errors", errors);
+      console.log('Errors', errors);
       setDetailData({
-        data: detailData?.data || "",
+        data: detailData?.data || '',
         errors: errors.detailData,
       });
-      setSqlData({ data: sqlData?.data || "", errors: errors.sqlData });
+      setSqlData({ data: sqlData?.data || '', errors: errors.sqlData });
       return;
     }
 
-    console.log("submitting", detailData?.data, sqlData?.data);
+    console.log('submitting', detailData?.data, sqlData?.data);
     onSubmit({
-      feedbackText: detailData?.data || "",
+      feedbackText: detailData?.data || '',
       feedbackSql: sqlData?.data,
       username: usernameData?.data,
     });
     // Also cache the username
-    setUsername(usernameData?.data || "");
+    setUsername(usernameData?.data || '');
   };
 
   return (
@@ -167,7 +167,7 @@ const FormFeedback = ({
         </legend>
         <div
           className={`govuk-form-group ${
-            detailData?.errors.length ? "govuk-form-group--error" : ""
+            detailData?.errors.length ? 'govuk-form-group--error' : ''
           }`}
         >
           <label className="govuk-label" htmlFor="feedbackDetails">
@@ -181,16 +181,16 @@ const FormFeedback = ({
                   </span>
                 </p>
               ))
-            : ""}
+            : ''}
           <textarea
             id="feedback-detail-textarea"
             name="feedbackDetails"
             className={`govuk-textarea ${
-              detailData?.errors.length ? "govuk-input--error" : ""
+              detailData?.errors.length ? 'govuk-input--error' : ''
             }`}
             rows={5}
             aria-describedby="feedback-detail"
-            value={detailData?.data || ""}
+            value={detailData?.data || ''}
             onChange={(e) => {
               const target = e.target as HTMLTextAreaElement;
               setDetailData({ data: target.value, errors: [] });
@@ -199,7 +199,7 @@ const FormFeedback = ({
         </div>
         <div
           className={`govuk-form-group ${
-            sqlData?.errors.length ? "govuk-form-group--error" : ""
+            sqlData?.errors.length ? 'govuk-form-group--error' : ''
           }`}
         >
           <label className="govuk-label" htmlFor="feedbackSql">
@@ -214,16 +214,16 @@ const FormFeedback = ({
                   </span>
                 </p>
               ))
-            : ""}
+            : ''}
           <textarea
             id="feedback-sql"
             name="feedbackSql"
             className={`govuk-textarea ${
-              detailData?.errors.length ? "govuk-input--error" : ""
+              detailData?.errors.length ? 'govuk-input--error' : ''
             }`}
             rows={2}
             aria-describedby="feedback-sql"
-            value={sqlData?.data || ""}
+            value={sqlData?.data || ''}
             onChange={(e) => {
               const target = e.target as HTMLTextAreaElement;
               setSqlData({ data: target.value, errors: [] });
@@ -232,11 +232,11 @@ const FormFeedback = ({
         </div>
         <div
           className={`govuk-form-group ${
-            usernameData?.errors.length ? "govuk-form-group--error" : ""
+            usernameData?.errors.length ? 'govuk-form-group--error' : ''
           }`}
         >
           <label className="govuk-label" htmlFor="feedbackDetails">
-            What is your name? (Optional){" "}
+            What is your name? (Optional){' '}
             <span style={{ fontSize: 16 }}>
               <br />
               <i>
@@ -256,16 +256,16 @@ const FormFeedback = ({
                   </span>
                 </p>
               ))
-            : ""}
+            : ''}
           <textarea
             id="feedback-detail-textarea"
             name="feedbackDetails"
             className={`govuk-textarea ${
-              usernameData?.errors.length ? "govuk-input--error" : ""
+              usernameData?.errors.length ? 'govuk-input--error' : ''
             }`}
             rows={1}
             aria-describedby="feedback-detail"
-            value={usernameData?.data || ""}
+            value={usernameData?.data || ''}
             onChange={(e) => {
               const target = e.target as HTMLTextAreaElement;
               setUsernameData({ data: target.value, errors: [] });
@@ -304,7 +304,7 @@ export type FeedbackProps = {
   handleNotSatisfiedFeedback: (callback: CallableFunction) => void;
   handleNotSatisfiedFeedbackFormSubmit: (
     args: NotSatisfiedDetailsPayload,
-    callback: CallableFunction
+    callback: CallableFunction,
   ) => void;
 };
 
@@ -326,7 +326,7 @@ export default function Feedback({
 
   const onSubmitFeedbackForm = (args: NotSatisfiedDetailsPayload) => {
     handleNotSatisfiedFeedbackFormSubmit(args, () =>
-      setState(FeedbackState.FormSent)
+      setState(FeedbackState.FormSent),
     );
   };
 

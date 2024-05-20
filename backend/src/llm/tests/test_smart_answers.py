@@ -14,13 +14,9 @@ def assert_smart_answers(
     non_smart_answers = [answer.strip() for answer in non_smart_answers]
 
     for answer in smart_answers:
-        assert pertains_to_smart_answers(
-            answer
-        ), f"Assertion failed: {answer} is not a smart answer"
+        assert pertains_to_smart_answers(answer), f"Assertion failed: {answer} is not a smart answer"
 
     for answer in non_smart_answers:
-        assert not pertains_to_smart_answers(
-            answer
-        ), f"Assertion failed: {answer} is a smart answer"
+        assert not pertains_to_smart_answers(answer), f"Assertion failed: {answer} is a smart answer"
 
     print("All smart answers assertions passed successfully!")

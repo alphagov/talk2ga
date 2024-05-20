@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from "react";
-import DateRangePicker from "./DateRangePicker";
-import { DateRange } from "rsuite/DateRangePicker";
+import { useEffect, useRef, useState } from 'react';
+import DateRangePicker from './DateRangePicker';
+import { DateRange } from 'rsuite/DateRangePicker';
 
 type InputData = {
   data: string;
@@ -36,7 +36,7 @@ function QuestionInput({
   forcedValue,
 }: QuestionInputProps) {
   const [inputData, setInputData] = useState<InputData>({
-    data: "",
+    data: '',
     errors: [],
   });
   const submitRef = useRef<(() => void) | null>(null);
@@ -50,8 +50,8 @@ function QuestionInput({
   };
 
   useEffect(() => {
-    window.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
         submitRef.current?.();
       }
@@ -98,7 +98,7 @@ function QuestionInput({
           className="govuk-button"
           data-module="govuk-button"
         >
-          {isStreaming ? "Abort" : "Submit"}
+          {isStreaming ? 'Abort' : 'Submit'}
         </button>
         {hasCompleted && (
           <button
@@ -107,7 +107,7 @@ function QuestionInput({
             className="govuk-button govuk-button--secondary"
             data-module="govuk-button"
           >
-            {showLogs ? "Hide Logs" : "Show Logs"}
+            {showLogs ? 'Hide Logs' : 'Show Logs'}
           </button>
         )}
         {hasCompleted && (
@@ -117,7 +117,7 @@ function QuestionInput({
             className="govuk-button govuk-button--secondary"
             data-module="govuk-button"
           >
-            {showSQLBtnActive ? "Hide SQL" : "Show SQL"}
+            {showSQLBtnActive ? 'Hide SQL' : 'Show SQL'}
           </button>
         )}
       </div>

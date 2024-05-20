@@ -1,20 +1,20 @@
-import { decompressFromEncodedURIComponent } from "lz-string";
+import { decompressFromEncodedURIComponent } from 'lz-string';
 
 export function getStateFromUrl(path: string) {
   let configFromUrl = null;
   let basePath = path;
-  if (basePath.endsWith("/")) {
+  if (basePath.endsWith('/')) {
     basePath = basePath.slice(0, -1);
   }
 
-  if (basePath.endsWith("/playground")) {
-    basePath = basePath.slice(0, -"/playground".length);
+  if (basePath.endsWith('/playground')) {
+    basePath = basePath.slice(0, -'/playground'.length);
   }
 
   // check if we can omit the last segment
-  const [configHash, c, ...rest] = basePath.split("/").reverse();
-  if (c === "c") {
-    basePath = rest.reverse().join("/");
+  const [configHash, c, ...rest] = basePath.split('/').reverse();
+  if (c === 'c') {
+    basePath = rest.reverse().join('/');
     try {
       configFromUrl = JSON.parse(decompressFromEncodedURIComponent(configHash));
     } catch (error) {
@@ -27,7 +27,7 @@ export function getStateFromUrl(path: string) {
 export function resolveApiUrl(path: string) {
   const { basePath } = getStateFromUrl(window.location.href);
   let prefix = new URL(basePath).pathname;
-  if (prefix.endsWith("/")) prefix = prefix.slice(0, -1);
+  if (prefix.endsWith('/')) prefix = prefix.slice(0, -1);
 
   return new URL(prefix + path, basePath);
 }

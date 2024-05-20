@@ -12,11 +12,7 @@ COLUMNS_DENY_LIST = ["_TABLE_SUFFIX", "_table_suffix"]
 
 def extract_columns(sql_query: str) -> list[str]:
     sql = sql_query.replace("`", '"')  # SqlGlot doesn't support backticks
-    cols = [
-        column.alias_or_name
-        for column in parse_one(sql).find_all(exp.Column)
-        if column.this.quoted == False
-    ]
+    cols = [column.alias_or_name for column in parse_one(sql).find_all(exp.Column) if column.this.quoted == False]
     aliases = [column.alias_or_name for column in parse_one(sql).find_all(exp.Alias)]
     cols = [c for c in cols if c not in aliases]
     cols = [c for c in cols if c not in COLUMNS_DENY_LIST]

@@ -74,14 +74,10 @@ Test {self.__class__.__name__}:
 
 class Q1(Q):
     question = """What is the most viewed page?"""
-    description = (
-        "Should return an object with 290k+ page_views, and not use correction"
-    )
+    description = "Should return an object with 290k+ page_views, and not use correction"
 
     def test(self):
-        assert (
-            self.response_object[0]["page_views"] >= 290000
-        ), f"""Error in test Q0:\nAssert: response_object[0]["page_views"] >= 300000\nResponse object: {self.response_object}"""
+        assert self.response_object[0]["page_views"] >= 290000, f"""Error in test Q0:\nAssert: response_object[0]["page_views"] >= 300000\nResponse object: {self.response_object}"""
 
         assert not self.callback_data["was_corrected"]
         assert not self.callback_data["retried"]
@@ -89,14 +85,10 @@ class Q1(Q):
 
 class Q1a(Q):
     question = """What is the most visited page?"""
-    description = (
-        "Should return an object with 290k+ page_views, and not use correction"
-    )
+    description = "Should return an object with 290k+ page_views, and not use correction"
 
     def test(self):
-        assert (
-            self.response_object[0]["page_views"] >= 290000
-        ), f"""Error in test Q0:\nAssert: response_object[0]["page_views"] >= 300000\nResponse object: {self.response_object}"""
+        assert self.response_object[0]["page_views"] >= 290000, f"""Error in test Q0:\nAssert: response_object[0]["page_views"] >= 300000\nResponse object: {self.response_object}"""
 
         assert not self.callback_data["was_corrected"]
 
@@ -119,28 +111,19 @@ class Q3(Q):
     description = "Should return an object with the most popular source of traffic, between XXX and XXX"  # TODO
 
     def test(self):
-        key_name = [
-            x for x in list(self.response_object[0].keys()) if "views" in x.lower()
-        ][-1] or "unique_page_views"
+        key_name = [x for x in list(self.response_object[0].keys()) if "views" in x.lower()][-1] or "unique_page_views"
 
-        assert (
-            self.response_object[0][key_name] > 280
-            and self.response_object[0][key_name] < 400  # TODO
-        ), "Error in test Q3: assert response_object[0][key_name] == 430"  # TODO
+        assert self.response_object[0][key_name] > 280 and self.response_object[0][key_name] < 400, "Error in test Q3: assert response_object[0][key_name] == 430"  # TODO  # TODO
 
 
 class Q4(Q):
     question = """
     What are the most visited pages on the smart answer regarding VAT payment dates?
     """
-    description = (
-        'Should return an object of length 11, with "deadline" in the page title"'
-    )
+    description = 'Should return an object of length 11, with "deadline" in the page title"'
 
     def test(self):
-        assert (
-            len(self.response_object) == 11
-        ), "Error in test Q3: len(self.response_object) == 11"
+        assert len(self.response_object) == 11, "Error in test Q3: len(self.response_object) == 11"
 
         assert "deadline" in self.response_object[0]["page_title"].lower()
 
@@ -192,9 +175,7 @@ def run_test_suite(options: dict = {}):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "-v", "--verbose", action="store_true", help="Enable verbose mode"
-    )
+    parser.add_argument("-v", "--verbose", action="store_true", help="Enable verbose mode")
     args = parser.parse_args()
 
     options = {}

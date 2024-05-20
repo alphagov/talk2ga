@@ -8,9 +8,7 @@ from llm.prompts.correction_add_date_range import correct_missing_date_range_pro
 
 def _correct_missing_date_range_chain(custom_prompt=None):
     output_parser = StrOutputParser()
-    prompt = ChatPromptTemplate.from_template(
-        custom_prompt or correct_missing_date_range_prompt
-    )
+    prompt = ChatPromptTemplate.from_template(custom_prompt or correct_missing_date_range_prompt)
     _chain = prompt | code_bison_6k | output_parser
 
     return _chain

@@ -1,10 +1,10 @@
-import { useCallback, useRef, useState } from "react";
-import { applyPatch, Operation } from "fast-json-patch";
-import { fetchEventSource } from "@microsoft/fetch-event-source";
-import { resolveApiUrl } from "./utils/url";
-import { StreamCallback } from "./types";
-import { DateRange } from "rsuite/DateRangePicker";
-import { dateRangeFrontendToDateRangeBackend } from "./utils/dates";
+import { useCallback, useRef, useState } from 'react';
+import { applyPatch, Operation } from 'fast-json-patch';
+import { fetchEventSource } from '@microsoft/fetch-event-source';
+import { resolveApiUrl } from './utils/url';
+import { StreamCallback } from './types';
+import { DateRange } from 'rsuite/DateRangePicker';
+import { dateRangeFrontendToDateRangeBackend } from './utils/dates';
 
 export interface LogEntry {
   // ID of the sub-run.
@@ -79,28 +79,28 @@ export function useStreamLog(callbacks: StreamCallback = {}) {
       });
 
       await fetchEventSource(
-        resolveApiUrl("/whole-chain/stream_log").toString(),
+        resolveApiUrl('/whole-chain/stream_log').toString(),
         {
           signal: controller.signal,
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ input: payload, config }),
           async onopen(response) {
-            if (response.ok && response.headers.get("X-Question-Uid")) {
+            if (response.ok && response.headers.get('X-Question-Uid')) {
               startRef.current?.({
                 question,
                 dateRange,
-                questionId: response.headers.get("X-Question-Uid") as string,
+                questionId: response.headers.get('X-Question-Uid') as string,
               });
             }
           },
           onmessage(msg) {
-            if (msg.event === "data") {
+            if (msg.event === 'data') {
               innerLatest = reducer(innerLatest, JSON.parse(msg.data)?.ops);
               setLatest(innerLatest);
               chunkRef.current?.(JSON.parse(msg.data), innerLatest);
             }
-            if (msg.event === "error") {
+            if (msg.event === 'error') {
               controller?.abort();
               setController(null);
               completionRef.current?.();
@@ -125,10 +125,10 @@ export function useStreamLog(callbacks: StreamCallback = {}) {
           //   errorRef.current?.();
           //   throw error;
           // },
-        }
+        },
       );
     },
-    []
+    [],
   );
 
   const stopStream = useCallback(() => {

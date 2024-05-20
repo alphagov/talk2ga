@@ -16,11 +16,7 @@ def validate_sql(sql):
 
 
 def create_sql_chain(custom_prompt=None):
-    chain = (
-        generate_sql
-        | RunnableLambda(formatting.remove_sql_quotes)
-        | RunnableLambda(validate_sql)
-    )
+    chain = generate_sql | RunnableLambda(formatting.remove_sql_quotes) | RunnableLambda(validate_sql)
 
     return chain
 

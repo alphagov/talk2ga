@@ -61,9 +61,7 @@ async def create_question_and_add_id_to_res_and_req(request: Request, call_next)
     return response
 
 
-def pass_question_id_to_chain(
-    config: Dict[str, Any], request: Request
-) -> Dict[str, Any]:
+def pass_question_id_to_chain(config: Dict[str, Any], request: Request) -> Dict[str, Any]:
     if qid := request.state.question_id:
         config["question_id"] = qid
     else:
@@ -105,9 +103,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 
 @app.post("/question", response_model=QuestionRead)
-async def create_question_handler(
-    question: QuestionCreate, session: AsyncSession = Depends(get_session)
-):
+async def create_question_handler(question: QuestionCreate, session: AsyncSession = Depends(get_session)):
     db_question = Question.model_validate(question)
     session.add(db_question)
     await session.commit()
@@ -135,25 +131,19 @@ async def update_question_handler(
 
 
 @app.get("/question/{question_id}", response_model=QuestionRead)
-async def read_question_handler(
-    question_id: str, session: AsyncSession = Depends(get_session)
-):
+async def read_question_handler(question_id: str, session: AsyncSession = Depends(get_session)):
     db_question = await session.get(Question, question_id)
     if not db_question:
         raise HTTPException(status_code=404, detail="Question not found")
     return db_question
 
 
-app.mount(
-    "/static", StaticFiles(directory=os.path.join("webapp", "static")), name="static"
-)
+app.mount("/static", StaticFiles(directory=os.path.join("webapp", "static")), name="static")
 
 
 @app.get("/")
 def hello_world():
-    return HTMLResponse(
-        content=open("webapp/static/index.html").read(), status_code=200
-    )
+    return HTMLResponse(content=open("webapp/static/index.html").read(), status_code=200)
 
 
 @app.on_event("startup")

@@ -49,11 +49,7 @@ def get_schema_columns():
 def get_example_queries():
     directory_path = Path("llm/static/knowledge_base/sql_examples")
 
-    files = [
-        file.read_text()
-        for file in directory_path.iterdir()
-        if file.is_file() and file.name.endswith(".sql") and file.name != "TEMPLATE.sql"
-    ]
+    files = [file.read_text() for file in directory_path.iterdir() if file.is_file() and file.name.endswith(".sql") and file.name != "TEMPLATE.sql"]
 
     compiled_files = "\n".join(files)
 

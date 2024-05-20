@@ -9,9 +9,7 @@ from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.orm import sessionmaker
 
 
-async def create_question(
-    question: QuestionCreate, session: AsyncSession | None = None
-):
+async def create_question(question: QuestionCreate, session: AsyncSession | None = None):
     if session is None:
         async with async_session() as session:
             db_question = Question.model_validate(question)
@@ -37,9 +35,7 @@ async def log_error(question_id: int, error: str):
         return question
 
 
-async def add_generated_queries_to_question(
-    question_id: int, generated_queries: list[str], fresh_session: bool = False
-):
+async def add_generated_queries_to_question(question_id: int, generated_queries: list[str], fresh_session: bool = False):
     async def write_logic(session: AsyncSession):
         question = await session.get(Question, question_id)
         generated_queries_json = json.dumps(generated_queries)
@@ -51,9 +47,7 @@ async def add_generated_queries_to_question(
 
     if fresh_session:
         engine = create_async_engine(appconfig.DB_URL, echo=True)
-        async_session_single_time = sessionmaker(
-            engine, class_=AsyncSession, expire_on_commit=False
-        )
+        async_session_single_time = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
         async with async_session_single_time() as session:
             return await write_logic(session)
     else:
@@ -61,9 +55,7 @@ async def add_generated_queries_to_question(
             return await write_logic(session)
 
 
-async def add_executed_query_to_question(
-    question_id: int, executed_query: str, fresh_session: bool = False
-):
+async def add_executed_query_to_question(question_id: int, executed_query: str, fresh_session: bool = False):
     async def write_logic(session: AsyncSession):
         question = await session.get(Question, question_id)
         question.sqlmodel_update({"executed_sql_query": executed_query})
@@ -74,9 +66,7 @@ async def add_executed_query_to_question(
 
     if fresh_session:
         engine = create_async_engine(appconfig.DB_URL, echo=True)
-        async_session_single_time = sessionmaker(
-            engine, class_=AsyncSession, expire_on_commit=False
-        )
+        async_session_single_time = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
         async with async_session_single_time() as session:
             return await write_logic(session)
     else:
