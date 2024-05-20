@@ -75,9 +75,7 @@ function QuestionInput({
         </div>
         <DateRangePicker
           handleDateChange={handleDateChange}
-          value={selectedDateRange?.map(
-            ((dateString) => new Date(dateString)) as DateRange
-          )}
+          value={selectedDateRange as DateRange}
         />
       </div>
       <textarea
