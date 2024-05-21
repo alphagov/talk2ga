@@ -101,6 +101,14 @@ def insert_correct_dataset(sql):
 
 
 @_observe()
+def fix_small_issues(sql):
+    new_sql = sql.replace("COUNT_IF", "COUNTIF")
+    new_sql = new_sql.replace("count_if", "countif")
+
+    return new_sql
+
+
+@_observe()
 def remove_comments(sql):
     sql = re.sub(r"^(?:[\t\s]+)?--.*$", "", sql, flags=re.MULTILINE)
     sql = re.sub(r"/\*.*?\*/", "", sql, flags=re.DOTALL)
