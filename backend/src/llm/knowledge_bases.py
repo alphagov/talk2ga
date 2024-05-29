@@ -20,19 +20,19 @@ def get_smart_answers_knowledge_base():
         return f.read()
 
 
-def get_schema_description(type="json"):
+def get_schema_description(schema_type="json"):
     """
     Returns the content of the schema description knowledge base
     This knowledge base contains JSON schema description of the BigQuery dataset
     """
 
-    assert type.lower() in [
+    assert schema_type.lower() in [
         "json",
         "txt",
         "sql",
     ], "Invalid schema description type. Must be json, txt or sql."
 
-    file = f"llm/static/schema-description.{type.lower()}"
+    file = f"llm/static/schema-description.{schema_type.lower()}"
     with open(file, "r") as f:
         return f.read()
 
@@ -41,7 +41,7 @@ def get_schema_columns():
     """
     Returns the columns of the table
     """
-    schema = json.loads(get_schema_description())
+    schema = json.loads(get_schema_description(schema_type="json"))
     schema_columns = [col["name"] for col in schema]
     return schema_columns
 

@@ -1,3 +1,4 @@
+import appconfig
 from langchain_core.runnables import chain
 from llm.flags import _observe
 from llm.llm_chains.identify_ambiguities import identify_ambiguities
@@ -12,7 +13,7 @@ def refine_question(question: str):
     ambiguities = identify_ambiguities.invoke({"user_question": question})
     reworded_question = reword_question.invoke(
         {
-            "dataset_schema": get_schema_description(),
+            "dataset_schema": get_schema_description(schema_type=appconfig.DATASET_DESCRIPTION_FORMAT),
             "user_question": question,
             "identified_ambiguities": ambiguities,
         }
