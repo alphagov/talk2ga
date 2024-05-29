@@ -174,6 +174,8 @@ def log_error_to_analytics(func):
             return func(question, config, *args, **kwargs)
         except Exception as e:
             print(f"\n{func.__name__} failed\n")
+            print("ERROR:::::")
+            print(e)
 
             # Log error to analytics, side effect, failsafe
             if question_id := config.get("question_id"):
@@ -196,6 +198,7 @@ def selected_sql_passthrough(sql):
 @log_error_to_analytics
 @_observe()
 def whole_chain(json_input: str, config: dict[str, any], test_callback=None):
+    print("DEBUGGING whole_chain start")
     input = json.loads(json_input)
     original_question = input.get("question")
     question_id = config.get("question_id")
@@ -205,7 +208,7 @@ def whole_chain(json_input: str, config: dict[str, any], test_callback=None):
     response_object = None
 
     # sql, was_corrected = generate_sql_from_question(question, date_range, question_id)
-
+    print("DEBUGGING whole_chain initialised")
     if appconfig.FF_PROMPT_REFINEMENT_ENABLED:
         question = refine_question(original_question)
     else:
@@ -213,11 +216,15 @@ def whole_chain(json_input: str, config: dict[str, any], test_callback=None):
 
     while response_object is None and count_retries < max_tries:
         try:
+            print("DEBUGGING whole_chain first try")
             sql, was_corrected = generate_sql_from_question(question, date_range, question_id)
+            print("DEBUGGING whole_chain SQL generated")
             # Running the SQL though a passthrough just to get the sql from the stream log in the frontend
             # TODO: create API endpoints to record / get the SQL by question ID instead of using the stream log
             sql = selected_sql_passthrough.invoke(sql)
+            print("DEBUGGING whole_chain after passthrough")
             response_object = query_sql(sql, question_id)
+            print("DEBUGGING whole_chain SQL queried")
         except Exception as e:
             count_retries += 1
             print(f"\nquery_sql failed. Retrying {count_retries}/{max_tries}...\n")
