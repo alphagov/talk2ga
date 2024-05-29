@@ -32,7 +32,7 @@ def create_explain_sql_input(payload_json):
         "user_query": question,
         "sql_query": sql_query,
         "DATASET": appconfig.DATASET,
-        "schema_description": get_schema_description(),
+        "schema_description": get_schema_description(schema_type=appconfig.DATASET_DESCRIPTION_FORMAT),
         "knowledge_base": get_text_knowledge_base(),
     }
     print(obj)

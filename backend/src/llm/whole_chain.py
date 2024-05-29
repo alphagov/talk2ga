@@ -1,4 +1,5 @@
 # type: ignore
+import traceback
 import asyncio
 import json
 from llm.flags import _observe
@@ -36,7 +37,7 @@ def create_gen_sql_input(question):
         question = smart_answers_prompt(question)
     obj = {
         "DATASET": appconfig.DATASET,
-        "schema_description": get_schema_description(appconfig.DATASET_DESCRIPTION_FORMAT),
+        "schema_description": get_schema_description(schema_type=appconfig.DATASET_DESCRIPTION_FORMAT),
         "knowledge_base": get_text_knowledge_base(),
         "user_query": question,
         "example_queries": get_example_queries(),
@@ -143,7 +144,7 @@ def gen_sql_chain(input, date_range, question_id):
 def gen_sql_correction(payload: dict[str, list[str] | str]):
     input = {
         **payload,
-        "schema_description": get_schema_description(),
+        "schema_description": get_schema_description(schema_type=appconfig.DATASET_DESCRIPTION_FORMAT),
         "knowledge_base": get_text_knowledge_base(),
         "table_name": appconfig.DATASET,
     }
@@ -223,6 +224,8 @@ def whole_chain(json_input: str, config: dict[str, any], test_callback=None):
             count_retries += 1
             print(f"\nquery_sql failed. Retrying {count_retries}/{max_tries}...\n")
             print(e)
+            print("TRACEBACK:::::")
+            print(traceback.format_exc())
 
     if response_object is None:
         raise Exception("All attempts failed to generate and query SQL.")
