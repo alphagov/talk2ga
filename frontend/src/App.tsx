@@ -231,7 +231,7 @@ function Playground() {
 
   return (
     <>
-      <h1 className="govuk-heading-xl">Chat Analytics</h1>
+      <h1 className="govuk-heading-xl">What is your question <br /> for Google Analytics?</h1>
       <div className="govuk-grid-row">
         <div
           className={
