@@ -262,6 +262,7 @@ export function App() {
     <>
       <Router>
         <Routes>
+          <Route path="/static/about" />
           <Route path="/:questionId" element={<Playground />} />
           <Route path="/static/:questionId" element={<Playground />} />
           <Route path="/" element={<Playground />} />
