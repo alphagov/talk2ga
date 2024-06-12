@@ -28,6 +28,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { defaultDateRange } from './components/DateRangePicker';
 import { getQuestionData } from './apiService';
+import { About } from './about';
 
 type DurationTrack = {
   startTime?: Date;
@@ -289,7 +290,7 @@ export function App() {
     <>
       <Router>
         <Routes>
-          <Route path="/static/about" />
+          <Route path="/static/about" element={<About />}/>
           <Route path="/:questionId" element={<Playground />} />
           <Route path="/static/:questionId" element={<Playground />} />
           <Route path="/" element={<Playground />} />
