@@ -36,6 +36,7 @@ TABLE_NAME = "flattened_daily_ga_data_"
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 DATASET_DESCRIPTION_FORMAT = os.getenv("DATASET_DESCRIPTION_FORMAT", "SQL")
 MAX_RESULTS = int(os.getenv("MAX_RESULTS", 20))
+MAX_QUERY_COST_USD = int(os.getenv("MAX_QUERY_COST_USD", 1.055))
 
 
 if __name__ == "__main__":

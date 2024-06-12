@@ -30,6 +30,26 @@ def get_connection(fresh: bool = False):
 client = bigquery.Client(project=GCP_PROJECT)
 
 
+def get_query_size_bytes(sql):
+    dry_run_config = bigquery.QueryJobConfig(
+        dry_run=True,
+        use_query_cache=False,
+    )
+    query_job = client.query(sql, job_config=dry_run_config)
+    return query_job.total_bytes_processed
+
+
+def get_query_cost_usd(sql):
+    COST_1TB_USD = 5.0
+    query_size_GBs = get_query_size_bytes(sql) / 1e9
+    cost_usd = query_size_GBs * COST_1TB_USD / 1e3
+    return cost_usd
+
+
+class QueryCostExceedsLimit(Exception):
+    pass
+
+
 @_observe()
 def query_sql(sql, question_id):
     """
@@ -41,6 +61,12 @@ def query_sql(sql, question_id):
         sql,
         fresh_session=True,
     )
+
+    cost_usd = get_query_cost_usd(sql)
+    print(f"Query cost: ${cost_usd}")
+    if cost_usd > appconfig.MAX_QUERY_COST_USD:
+        raise QueryCostExceedsLimit(f"Query cost exceeds the limit. Cost: {cost_usd}, Limit: {appconfig.MAX_QUERY_COST_USD}, Question ID: {question_id}")
+
     query_job = client.query(sql)
     rows = query_job.result()  # Waits for query to finish
     results = [dict(row.items()) for row in rows]
