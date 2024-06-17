@@ -1,4 +1,5 @@
 # type: ignore
+from typing import AsyncIterator
 import traceback
 import asyncio
 import json
@@ -196,9 +197,35 @@ def selected_sql_passthrough(sql):
 
 
 @chain
+def error_handler_log(error_input):
+    return error_input
+
+
+def error_handler_streamer(func):
+    def wrapper(json_input: str, config: dict[str, any], *args, **kwargs):
+        try:
+            return func(json_input, config, *args, **kwargs)
+        except Exception as e:
+            print("\n\nTHIS IS A TEST OF THE ERROR LOG STREAMER\n\n")
+            error_handler_log.invoke(
+                {
+                    "TEST": "TEST FOR LOG IN BROWSER",
+                    "error": str(e),
+                    "traceback": traceback.format_exc(),
+                    "question": json_input,
+                    "config": config,
+                }
+            )
+            raise e
+
+    return wrapper
+
+
+@chain
 @log_error_to_analytics
 @_observe()
-def whole_chain(json_input: str, config: dict[str, any], test_callback=None):
+@error_handler_streamer
+def whole_chain(json_input: str, config: dict[str, any], test_callback=None) -> AsyncIterator[str]:
     input = json.loads(json_input)
     original_question = input.get("question")
     question_id = config.get("question_id")
