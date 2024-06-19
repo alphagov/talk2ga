@@ -2,6 +2,7 @@
 import os
 from typing import Any, Dict
 from fastapi import FastAPI, Depends, Request
+from fastapi.responses import StreamingResponse
 
 from langserve import add_routes
 
@@ -89,6 +90,23 @@ add_routes(
     explain_sql_chain.with_types(input_type=str, output_type=str),
     path="/explain",
 )
+
+
+async def generate_chat_response_from_whole_chain(msg: str):
+    import json
+
+    payload = json.dumps({"question": msg, "dateRange": {"start_date": "2024-06-18", "end_date": "2024-06-18"}})
+    yield "data: Starting the chain\n\n"
+    async for chunk in whole_chain.astream(payload):
+        content = chunk.replace("\n", "<br>")
+        yield f"data: {content}\n\n"
+
+
+@app.get("/call-custom-chain/{msg}")
+async def call_custom_chain(msg: str, request: Request):
+    config = {"question_id": "madeup"}
+    return StreamingResponse(generate_chat_response_from_whole_chain(msg=msg), media_type="text/event-stream")
+
 
 #######
 #
