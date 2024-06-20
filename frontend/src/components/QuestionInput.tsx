@@ -66,7 +66,7 @@ function QuestionInput({
     <div className="govuk-form-group">
       <h1 className="govuk-label-wrapper">
         <label className="govuk-label govuk-label--m">
-          Question
+          Enter a question
         </label>
       </h1>
       <div className="legend-container">
@@ -78,18 +78,18 @@ function QuestionInput({
           value={selectedDateRange as DateRange}
         />
       </div>
-      <textarea
-        className="govuk-textarea"
+      <input
+        className="govuk-input"
         id="more-detail"
         name="moreDetail"
-        rows={1}
+        // rows={1}
         aria-describedby="more-detail-hint"
         value={forcedValue || inputData.data}
         onChange={(e) => {
-          const target = e.target as HTMLTextAreaElement;
+          const target = e.target as HTMLInputElement;
           setInputData({ data: target.value, errors: [] });
         }}
-      ></textarea>
+      ></input>
 
       <div className="questionBtnsContainer">
         <button

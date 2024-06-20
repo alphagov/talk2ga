@@ -232,7 +232,9 @@ function Playground() {
 
   return (
     <>
-      <h1 className="govuk-heading-xl">What is your question <br /> for Google Analytics?</h1>
+      <h1 className="govuk-heading-l">Ask about GOV.UK analytics</h1>
+      <p className="govuk-body-l">This experimental tool uses AI to answer questions
+about the performance of GOV.UK. </p>
       <div className="govuk-grid-row">
         <div
           className={
