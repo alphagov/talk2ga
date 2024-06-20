@@ -61,7 +61,7 @@ function QuestionInput({
     <form onSubmit={handleSubmit} className="govuk-form-group">
       <h1 className="govuk-label-wrapper">
         <label className="govuk-label govuk-label--m">
-          Question
+          Enter a question
         </label>
       </h1>
       <div className="legend-container">
