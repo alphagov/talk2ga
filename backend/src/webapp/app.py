@@ -50,7 +50,8 @@ def add_uid_to_request_state(request: Request, question_id):
 
 @app.middleware("http")
 async def create_question_and_add_id_to_res_and_req(request: Request, call_next):
-    if request.url.path == "/whole-chain/stream_log":
+    allow_list = ["/whole-chain/stream_log", "/custom_chain"]
+    if request.url.path in allow_list:
         body = await request.json()
         question = Question(**{"text": body["input"]})
         question = await create_question(question)
@@ -58,7 +59,7 @@ async def create_question_and_add_id_to_res_and_req(request: Request, call_next)
 
     response = await call_next(request)
 
-    if request.url.path == "/whole-chain/stream_log":
+    if request.url.path in allow_list:
         response = add_uid_to_response(response, question.id)
 
     return response
@@ -96,23 +97,26 @@ add_routes(
 
 async def generate_chat_events(input):
     events_allow_list = ["on_chain_start", "on_chain_end"]
-    async for event in whole_chain.astream_events(input, version="v1"):
-        if event.get("event") in events_allow_list and event.get("data") and "prompt" not in event.get("name", "").lower():
-            obj = {"event_type": event["event"], "event_name": event["name"]}
-            try:
-                if output := event["data"].get("output"):
-                    obj["output"] = output
-            except Exception as e:
-                raise e
-            json_obj = json.dumps(obj)
-            try:
-                yield f"data: {json_obj}\n\n"
-            except Exception as e:
-                raise e
+    try:
+        async for event in whole_chain.astream_events(input, version="v1"):
+            if event.get("event") in events_allow_list and event.get("data") and "prompt" not in event.get("name", "").lower():
+                obj = {"event_type": event["event"], "event_name": event["name"]}
+                try:
+                    if output := event["data"].get("output"):
+                        obj["output"] = output
+                except Exception as e:
+                    raise e
+                json_obj = json.dumps(obj)
+                try:
+                    yield f"data: {json_obj}\n\n"
+                except Exception as e:
+                    raise e
+    except Exception as e:
+        yield f"error: {str(e)}\n\n"
 
 
-@app.post("/call_custom_chain")
-async def call_custom_chain(request: Request):
+@app.post("/custom_chain")
+async def custom_chain(request: Request):
     body = await request.json()
     input = body.get("input")
     # config = body.get("config", {})
