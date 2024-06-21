@@ -131,7 +131,10 @@ function Playground() {
       setQuestion(question);
     context.current.onStart['setQuestionId'] = ({ questionId }) =>
       questionId && setCurrentQuestionId(questionId);
-    context.current.onStart['setIsStreaming'] = () => setIsStreaming(true);
+    context.current.onStart['setIsStreaming'] = () => {
+      console.log('Setting is streaming');
+      setIsStreaming(true);
+    };
     context.current.onStart['setHasCompletedFalse'] = () =>
       setHasCompleted(false);
 
@@ -222,7 +225,7 @@ function Playground() {
   const successful = hasCompleted && !isError;
 
   if (successful && latest) {
-    !mainAnswer && setMainAnswer(streamOutputToString(latest.streamed_output));
+    !mainAnswer && setMainAnswer(latest as unknown as string);
   }
 
   const handleSubmit = preventEdits(startStream);

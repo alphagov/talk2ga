@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 import os
+import json
 from typing import Any, Dict
 from fastapi import FastAPI, Depends, Request
 from fastapi.responses import StreamingResponse
 
 from langserve import add_routes
+from langchain_core.messages import AIMessageChunk
 
 from llm.llm_chains.generate_sql import gen as generate_sql
 
@@ -92,20 +94,29 @@ add_routes(
 )
 
 
-async def generate_chat_response_from_whole_chain(msg: str):
-    import json
+async def generate_chat_events(input):
+    events_allow_list = ["on_chain_start", "on_chain_end"]
+    async for event in whole_chain.astream_events(input, version="v1"):
+        if event.get("event") in events_allow_list and event.get("data") and "prompt" not in event.get("name", "").lower():
+            obj = {"event_type": event["event"], "event_name": event["name"]}
+            try:
+                if output := event["data"].get("output"):
+                    obj["output"] = output
+            except Exception as e:
+                raise e
+            json_obj = json.dumps(obj)
+            try:
+                yield f"data: {json_obj}\n\n"
+            except Exception as e:
+                raise e
 
-    payload = json.dumps({"question": msg, "dateRange": {"start_date": "2024-06-18", "end_date": "2024-06-18"}})
-    yield "data: Starting the chain\n\n"
-    async for chunk in whole_chain.astream(payload):
-        content = chunk.replace("\n", "<br>")
-        yield f"data: {content}\n\n"
 
-
-@app.get("/call-custom-chain/{msg}")
-async def call_custom_chain(msg: str, request: Request):
-    config = {"question_id": "madeup"}
-    return StreamingResponse(generate_chat_response_from_whole_chain(msg=msg), media_type="text/event-stream")
+@app.post("/call_custom_chain")
+async def call_custom_chain(request: Request):
+    body = await request.json()
+    input = body.get("input")
+    # config = body.get("config", {})
+    return StreamingResponse(generate_chat_events(input), media_type="text/event-stream")
 
 
 #######
