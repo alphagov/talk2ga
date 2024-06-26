@@ -79,7 +79,6 @@ export function useStreamLog(callbacks: StreamCallback = {}) {
         body: JSON.stringify({ input: payload, config }),
         headers: { 'Content-Type': 'application/json' },
         async onopen(response) {
-          console.log({ response });
           if (response.ok && response.headers.get('X-Question-Uid')) {
             startRef.current?.({
               question,
@@ -88,19 +87,6 @@ export function useStreamLog(callbacks: StreamCallback = {}) {
             });
           }
         },
-        // onmessage(msg) {
-        //   if (msg.event === 'data') {
-        // innerLatest = reducer(innerLatest, JSON.parse(msg.data)?.ops);
-        //     setLatest(innerLatest);
-        //     chunkRef.current?.(JSON.parse(msg.data), innerLatest);
-        //   }
-        //   if (msg.event === 'error') {
-        //     controller?.abort();
-        //     setController(null);
-        //     completionRef.current?.();
-        //     errorRef.current?.(msg.data);
-        //     throw new Error(msg.data);
-        //   }
         onmessage(event) {
           const eventData = JSON.parse(event.data);
           if (
@@ -109,6 +95,9 @@ export function useStreamLog(callbacks: StreamCallback = {}) {
           ) {
             innerLatest = eventData['output'];
             setLatest(innerLatest);
+          } else if (eventData['event_type'] === 'error') {
+            completionRef.current?.();
+            errorRef.current?.(eventData['error_class']);
           }
         },
         openWhenHidden: true,
@@ -124,8 +113,9 @@ export function useStreamLog(callbacks: StreamCallback = {}) {
           });
         },
         // onerror(error) {
+        //   console.log('ON ERROR');
         //   setController(null);
-        //   errorRef.current?.();
+        //   // errorRef.current?.();
         //   throw error;
         // },
       });

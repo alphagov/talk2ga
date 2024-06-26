@@ -22,7 +22,7 @@ from llm.llm_chains import (
 from llm import validation
 from llm import formatting
 from llm.prompts.smart_answers import pertains_to_smart_answers, smart_answers_prompt
-from llm.db import query_sql
+from llm.db import query_sql, QueryCostExceedsLimit
 from llm.validation import InvalidSQLColumnsException
 from webapp import analytics_controller
 from webapp.exceptions import format_exception
@@ -170,7 +170,11 @@ def generate_sql_from_question(question: str, date_range, question_id: int) -> [
         return corrected_sql, True
 
 
-def log_error_to_analytics(func):
+def error_handler(func):
+    """
+    Logs error to analytics DB
+    """
+
     def wrapper(question: str, config: dict[str, any], *args, **kwargs):
         try:
             return func(question, config, *args, **kwargs)
@@ -180,11 +184,14 @@ def log_error_to_analytics(func):
             print(e)
 
             # Log error to analytics, side effect, failsafe
-            if question_id := config.get("question_id"):
-                asyncio.create_task(analytics_controller.log_error(question_id, format_exception(e)))
+            try:
+                if question_id := config.get("question_id"):
+                    asyncio.create_task(analytics_controller.log_error(question_id, format_exception(e)))
+            except Exception as e:
+                # If the error logging fails, just pass, it shouldn't affect the main flow
+                print(e)
+                pass
 
-            print("ERROR:::::")
-            print(e)
             raise e
 
     return wrapper
@@ -197,34 +204,8 @@ def selected_sql_passthrough(sql):
 
 
 @chain
-def error_handler_log(error_input):
-    return error_input
-
-
-def error_handler_streamer(func):
-    def wrapper(json_input: str, config: dict[str, any], *args, **kwargs):
-        try:
-            return func(json_input, config, *args, **kwargs)
-        except Exception as e:
-            print("\n\nTHIS IS A TEST OF THE ERROR LOG STREAMER\n\n")
-            error_handler_log.invoke(
-                {
-                    "TEST": "TEST FOR LOG IN BROWSER",
-                    "error": str(e),
-                    "traceback": traceback.format_exc(),
-                    "question": json_input,
-                    "config": config,
-                }
-            )
-            raise e
-
-    return wrapper
-
-
-@chain
-@log_error_to_analytics
+@error_handler
 @_observe()
-@error_handler_streamer
 def whole_chain(json_input: str, config: dict[str, any], test_callback=None) -> AsyncIterator[str]:
     input = json.loads(json_input)
     original_question = input.get("question")
@@ -253,6 +234,8 @@ def whole_chain(json_input: str, config: dict[str, any], test_callback=None) -> 
             print(e)
             print("TRACEBACK:::::")
             print(traceback.format_exc())
+            if type(e) == QueryCostExceedsLimit:
+                raise e
 
     if response_object is None:
         raise Exception("All attempts failed to generate and query SQL.")

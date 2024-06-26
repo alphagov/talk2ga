@@ -95,24 +95,28 @@ add_routes(
 )
 
 
+def build_sse_event(event):
+    obj = {"event_type": event["event"], "event_name": event["name"]}
+    if output := event["data"].get("output"):
+        obj["output"] = output
+    json_obj = json.dumps(obj)
+    return f"data: {json_obj}\n\n"
+
+
+def build_sse_error_event(e: Exception):
+    json_data = json.dumps({"event_type": "error", "error_class": type(e).__name__, "data": str(e)})
+    return f"data: {json_data}\n\n"
+
+
 async def generate_chat_events(input):
     events_allow_list = ["on_chain_start", "on_chain_end"]
     try:
         async for event in whole_chain.astream_events(input, version="v1"):
             if event.get("event") in events_allow_list and event.get("data") and "prompt" not in event.get("name", "").lower():
-                obj = {"event_type": event["event"], "event_name": event["name"]}
-                try:
-                    if output := event["data"].get("output"):
-                        obj["output"] = output
-                except Exception as e:
-                    raise e
-                json_obj = json.dumps(obj)
-                try:
-                    yield f"data: {json_obj}\n\n"
-                except Exception as e:
-                    raise e
+                yield build_sse_event(event)
     except Exception as e:
-        yield f"error: {str(e)}\n\n"
+        yield build_sse_error_event(e)
+        return
 
 
 @app.post("/custom_chain")
