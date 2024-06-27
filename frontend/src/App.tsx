@@ -9,7 +9,6 @@ import {
 } from 'react-router-dom';
 import { LogEntry, useStreamLog } from './useStreamLog';
 import { useAppStreamCallbacks } from './useStreamCallback';
-import { streamOutputToString } from './utils/streamToString';
 import { MainAnswer } from './components/MainAnswer';
 import ErrorAnswer from './components/ErrorAnswer';
 import {
@@ -48,6 +47,7 @@ function Playground() {
     DEFAULT_DURATION_TRACK,
   );
   const [isError, setIsError] = useState(false);
+  const [errorName, setErrorName] = useState<string | null>(null);
   const [selectedDateRange, setSelectedDateRange] = useState<DateRange | null>(
     defaultDateRange,
   );
@@ -177,6 +177,8 @@ function Playground() {
      * OnError
      */
     context.current.onError['setIsErrorTrue'] = () => setIsError(true);
+    context.current.onError['setErrorName'] = (errorName) =>
+      setErrorName(errorName as unknown as string);
     context.current.onError['recordFailure'] = () => {
       currentQuestionId &&
         recordQuestionCompletion(currentQuestionId, { succeeded: false });
@@ -222,7 +224,7 @@ function Playground() {
   const successful = hasCompleted && !isError;
 
   if (successful && latest) {
-    !mainAnswer && setMainAnswer(streamOutputToString(latest.streamed_output));
+    !mainAnswer && setMainAnswer(latest as unknown as string);
   }
 
   const handleSubmit = preventEdits(startStream);
@@ -251,7 +253,7 @@ function Playground() {
           />
           {isLoading && <TypeWriterLoading />}
           {mainAnswer && <MainAnswer text={mainAnswer} />}
-          {isError && <ErrorAnswer />}
+          {isError && <ErrorAnswer errorName={errorName} />}
           {hasCompleted && (
             <Feedback
               handleSatisfiedFeedback={onSatisfiedFeedback}

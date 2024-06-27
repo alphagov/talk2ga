@@ -1,9 +1,12 @@
 #!/usr/bin/env python
 import os
+import json
 from typing import Any, Dict
 from fastapi import FastAPI, Depends, Request
+from fastapi.responses import StreamingResponse
 
 from langserve import add_routes
+from langchain_core.messages import AIMessageChunk
 
 from llm.llm_chains.generate_sql import gen as generate_sql
 
@@ -47,7 +50,8 @@ def add_uid_to_request_state(request: Request, question_id):
 
 @app.middleware("http")
 async def create_question_and_add_id_to_res_and_req(request: Request, call_next):
-    if request.url.path == "/whole-chain/stream_log":
+    allow_list = ["/whole-chain/stream_log", "/custom_chain"]
+    if request.url.path in allow_list:
         body = await request.json()
         question = Question(**{"text": body["input"]})
         question = await create_question(question)
@@ -55,7 +59,7 @@ async def create_question_and_add_id_to_res_and_req(request: Request, call_next)
 
     response = await call_next(request)
 
-    if request.url.path == "/whole-chain/stream_log":
+    if request.url.path in allow_list:
         response = add_uid_to_response(response, question.id)
 
     return response
@@ -89,6 +93,39 @@ add_routes(
     explain_sql_chain.with_types(input_type=str, output_type=str),
     path="/explain",
 )
+
+
+def build_sse_event(event):
+    obj = {"event_type": event["event"], "event_name": event["name"]}
+    if output := event["data"].get("output"):
+        obj["output"] = output
+    json_obj = json.dumps(obj)
+    return f"data: {json_obj}\n\n"
+
+
+def build_sse_error_event(e: Exception):
+    json_data = json.dumps({"event_type": "error", "error_class": type(e).__name__, "data": str(e)})
+    return f"data: {json_data}\n\n"
+
+
+async def generate_chat_events(input):
+    events_allow_list = ["on_chain_start", "on_chain_end"]
+    try:
+        async for event in whole_chain.astream_events(input, version="v1"):
+            if event.get("event") in events_allow_list and event.get("data") and "prompt" not in event.get("name", "").lower():
+                yield build_sse_event(event)
+    except Exception as e:
+        yield build_sse_error_event(e)
+        return
+
+
+@app.post("/custom_chain")
+async def custom_chain(request: Request):
+    body = await request.json()
+    input = body.get("input")
+    # config = body.get("config", {})
+    return StreamingResponse(generate_chat_events(input), media_type="text/event-stream")
+
 
 #######
 #

@@ -1,5 +1,4 @@
 import { useCallback, useRef, useState } from 'react';
-import { applyPatch, Operation } from 'fast-json-patch';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
 import { resolveApiUrl } from './utils/url';
 import { StreamCallback } from './types';
@@ -43,10 +42,6 @@ export interface RunState {
   logs: { [name: string]: LogEntry };
 }
 
-function reducer(state: RunState | null, action: Operation[]) {
-  return applyPatch(state, action, true, false).newDocument;
-}
-
 export function useStreamLog(callbacks: StreamCallback = {}) {
   const [latest, setLatest] = useState<RunState | null>(null);
   const [controller, setController] = useState<AbortController | null>(null);
@@ -78,55 +73,52 @@ export function useStreamLog(callbacks: StreamCallback = {}) {
         dateRange: dateRangeFrontendToDateRangeBackend(dateRange),
       });
 
-      await fetchEventSource(
-        resolveApiUrl('/whole-chain/stream_log').toString(),
-        {
-          signal: controller.signal,
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ input: payload, config }),
-          async onopen(response) {
-            if (response.ok && response.headers.get('X-Question-Uid')) {
-              startRef.current?.({
-                question,
-                dateRange,
-                questionId: response.headers.get('X-Question-Uid') as string,
-              });
-            }
-          },
-          onmessage(msg) {
-            if (msg.event === 'data') {
-              innerLatest = reducer(innerLatest, JSON.parse(msg.data)?.ops);
-              setLatest(innerLatest);
-              chunkRef.current?.(JSON.parse(msg.data), innerLatest);
-            }
-            if (msg.event === 'error') {
-              controller?.abort();
-              setController(null);
-              completionRef.current?.();
-              errorRef.current?.(msg.data);
-              throw new Error(msg.data);
-            }
-          },
-          openWhenHidden: true,
-          onclose() {
-            setController(null);
-            completionRef.current?.();
-            successRef.current?.({
+      await fetchEventSource(resolveApiUrl(`/custom_chain`).toString(), {
+        signal: controller.signal,
+        method: 'POST',
+        body: JSON.stringify({ input: payload, config }),
+        headers: { 'Content-Type': 'application/json' },
+        async onopen(response) {
+          if (response.ok && response.headers.get('X-Question-Uid')) {
+            startRef.current?.({
               question,
               dateRange,
-              output: innerLatest?.final_output,
-              logs:
-                (innerLatest && JSON.stringify(innerLatest.logs)) || undefined,
+              questionId: response.headers.get('X-Question-Uid') as string,
             });
-          },
-          // onerror(error) {
-          //   setController(null);
-          //   errorRef.current?.();
-          //   throw error;
-          // },
+          }
         },
-      );
+        onmessage(event) {
+          const eventData = JSON.parse(event.data);
+          if (
+            eventData['event_type'] === 'on_chain_end' &&
+            eventData['event_name'] === 'wrapper'
+          ) {
+            innerLatest = eventData['output'];
+            setLatest(innerLatest);
+          } else if (eventData['event_type'] === 'error') {
+            completionRef.current?.();
+            errorRef.current?.(eventData['error_class']);
+          }
+        },
+        openWhenHidden: true,
+        onclose() {
+          setController(null);
+          completionRef.current?.();
+          successRef.current?.({
+            question,
+            dateRange,
+            output: innerLatest?.final_output,
+            logs:
+              (innerLatest && JSON.stringify(innerLatest.logs)) || undefined,
+          });
+        },
+        // onerror(error) {
+        //   console.log('ON ERROR');
+        //   setController(null);
+        //   // errorRef.current?.();
+        //   throw error;
+        // },
+      });
     },
     [],
   );

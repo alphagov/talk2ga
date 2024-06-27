@@ -14,7 +14,7 @@ export default defineConfig({
   plugins: [svgr(), react()],
   server: {
     proxy: {
-      '^.*/(question|config_schema|input_schema|stream_log|feedback)(/[a-zA-Z0-9-]*)?$':
+      '^.*/(question|config_schema|input_schema|stream_log|feedback|custom_chain)(/[a-zA-Z0-9-]*)?$':
         {
           target: 'http://127.0.0.1:80',
           changeOrigin: true,

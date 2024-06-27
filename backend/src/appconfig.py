@@ -27,7 +27,8 @@ assert DB_URL, "Database URL is not set in the environment"
 FF_LANGFUSE_ENABLED = os.getenv("FF_LANGFUSE_ENABLED", "false") == "true"
 FF_PROMPT_REFINEMENT_ENABLED = os.getenv("FF_PROMPT_REFINEMENT_ENABLED", "false") == "true"
 FF_PROMPT_EXAMPLE_ROWS = os.getenv("FF_PROMPT_EXAMPLE_ROWS", "true") == "true"
-NB_PARALLEL_SQL_GEN = int(os.getenv("NB_PARALLEL_SQL_GEN", 3))
+# NB_PARALLEL_SQL_GEN = int(os.getenv("NB_PARALLEL_SQL_GEN", 3))
+NB_PARALLEL_SQL_GEN = 1
 GCP_PROJECT = "data-insights-experimentation"
 GA4_PROJECT = "ga4-analytics-352613"
 DATASET = "flattened_dataset"
@@ -36,6 +37,7 @@ TABLE_NAME = "flattened_daily_ga_data_"
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 DATASET_DESCRIPTION_FORMAT = os.getenv("DATASET_DESCRIPTION_FORMAT", "SQL")
 MAX_RESULTS = int(os.getenv("MAX_RESULTS", 20))
+MAX_QUERY_COST_USD = int(os.getenv("MAX_QUERY_COST_USD", 1.055))
 
 
 if __name__ == "__main__":
