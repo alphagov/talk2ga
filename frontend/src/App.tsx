@@ -29,6 +29,7 @@ import { defaultDateRange } from './components/DateRangePicker';
 import { getQuestionData } from './apiService';
 import { showSqlFeatureFlag } from './envConfig';
 import { About } from './about';
+import Layout from './components/Layout';
 
 type DurationTrack = {
   startTime?: Date;
@@ -212,8 +213,8 @@ function Playground() {
   const handleSubmit = preventEdits(startStream);
 
   return (
-    <>
-      <h1 className="govuk-heading-l">Ask about GOV.UK analytics</h1>
+    <Layout> 
+    <h1 className="govuk-heading-l">Ask about GOV.UK analytics</h1>
       <p className="govuk-body-l">This experimental tool uses AI to answer questions
 about the performance of GOV.UK. </p>
       <div className="govuk-grid-row">
@@ -256,7 +257,7 @@ about the performance of GOV.UK. </p>
           </div>
         )}
       </div>
-    </>
+    </Layout>
   );
 }
 
