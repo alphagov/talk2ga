@@ -213,10 +213,12 @@ function Playground() {
   const handleSubmit = preventEdits(startStream);
 
   return (
-    <Layout> 
-    <h1 className="govuk-heading-l">Ask about GOV.UK analytics</h1>
-      <p className="govuk-body-l">This experimental tool uses AI to answer questions
-about the performance of GOV.UK. </p>
+    <Layout>
+      <h1 className="govuk-heading-l">Ask about GOV.UK analytics</h1>
+      <p className="govuk-body-l">
+        This experimental tool uses AI to answer questions about the performance
+        of GOV.UK.{' '}
+      </p>
       <div className="govuk-grid-row">
         <div
           className={
@@ -266,7 +268,7 @@ export function App() {
     <>
       <Router>
         <Routes>
-          <Route path="/static/about" element={<About />}/>
+          <Route path="/static/about" element={<About />} />
           <Route path="/:questionId" element={<Playground />} />
           <Route path="/static/:questionId" element={<Playground />} />
           <Route path="/" element={<Playground />} />
