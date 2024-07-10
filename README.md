@@ -51,7 +51,24 @@ LangFuse can be set up locally using Docker Compose or accessed via a Cloud Run-
      docker-compose up -d langfuse
      ```
 
-4. **Launching the Backend**
+4. **Environment Variables Management with direnv**
+
+   - Copy `.envrc.template` to `.envrc`:
+     ```
+     cp .envrc.template .envrc
+     ```
+   - Use direnv for loading the `.envrc` file into the shell. Install direnv following the [installation guide](https://direnv.net/docs/installation.html).
+   - Allow direnv in the project directory:
+     ```
+     direnv allow
+     ```
+   - Ensure the minimum required variables are set in `.envrc`:
+     ```
+     ENV=your_environment
+     DB_URL_LOCAL=your_database_url
+     ```
+
+5. **Launching the Backend**
    - Execute the following command within the `backend/` directory to run the backend locally:
      ```
      make run-local
