@@ -1,3 +1,6 @@
+################
+# APP CONFIG
+################
 export ENV=local
 # export ENV=development
 export DB_URL_LOCAL=postgresql+asyncpg://local:local@localhost:5433/local
