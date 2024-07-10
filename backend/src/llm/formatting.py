@@ -25,23 +25,17 @@ def remove_sql_quotes(input: str) -> str:
 
 @_observe()
 def insert_correct_dates(sql, date_range):
-    pattern_start_date = r"BETWEEN[\s\t\n]+'([0-9a-zA-Z_\-]{8,12})'[\s\t\n]+AND[\s\t\n]+'[0-9a-zA-Z_\-]{8,12}'"
-    pattern_end_date = r"BETWEEN[\s\t\n]+'[0-9a-zA-Z_\-]{8,12}'[\s\t\n]+AND[\s\t\n]+'([0-9a-zA-Z_\-]{8,12})'"
+    pattern_start_date = r"(BETWEEN[\s\t\n]+')([0-9a-zA-Z_\-]{8,12})('[\s\t\n]+AND[\s\t\n]+'[0-9a-zA-Z_\-]{8,12}')"
+    pattern_end_date = r"(BETWEEN[\s\t\n]+'[0-9a-zA-Z_\-]{8,12}'[\s\t\n]+AND[\s\t\n]+')([0-9a-zA-Z_\-]{8,12})(')"
 
-    start_date_matches = re.search(pattern_start_date, sql)
-    end_date_matches = re.search(pattern_end_date, sql)
+    def replace_start_date(match):
+        return match.group(1) + date_range["start_date"].replace("-", "") + match.group(3)
 
-    if not start_date_matches or not end_date_matches:
-        raise Exception("Invalid SQL query: no date range found")
+    def replace_end_date(match):
+        return match.group(1) + date_range["end_date"].replace("-", "") + match.group(3)
 
-    start_date_match = start_date_matches.group(1)
-    end_date_match = end_date_matches.group(1)
-
-    new_start_date = date_range["start_date"].replace("-", "")
-    new_end_date = date_range["end_date"].replace("-", "")
-
-    sql = sql.replace(start_date_match, new_start_date)
-    sql = sql.replace(end_date_match, new_end_date)
+    sql = re.sub(pattern_start_date, replace_start_date, sql)
+    sql = re.sub(pattern_end_date, replace_end_date, sql)
 
     return sql
 
