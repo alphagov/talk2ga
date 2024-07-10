@@ -31,7 +31,7 @@ LangFuse can be set up locally using Docker Compose or accessed via a Cloud Run-
    - Install and manage the required Python version specified in `backend/pyproject.toml` using pyenv. Follow the installation instructions from [pyenv GitHub](https://github.com/pyenv/pyenv).
      ```
      pyenv install 3.11.4
-     pyenv use 3.11.4
+     pyenv local 3.11.4
      ```
 
 2. **Virtual Environment Management with Poetry**
