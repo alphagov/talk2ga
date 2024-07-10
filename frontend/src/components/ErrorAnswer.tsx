@@ -9,7 +9,7 @@ class ErrorCopy {
 
 const errorTypeToErrorCopyMapping: { [key: string]: ErrorCopy } = {
   QueryCostExceedsLimit: new ErrorCopy('Query cost exceeds limit.', [
-    'Try reducing the cost bying a shorter date range',
+    'Consider selecting a shorter date range.',
   ]),
   any: new ErrorCopy("Oops, couldn't answer this one", [
     'Please try again',
