@@ -14,11 +14,11 @@ The application is structured around two core components:
 2. **Backend API**
    - Implemented with Python3 using FastAPI.
    - Manages CRUD operations for updating a PostgreSQL database that stores analytics usage data.
-   - Utilizes LLM (Large Language Model) models via the LangChain framework to process user queries and generate SQL queries for the GA4 dataset.
+   - Utilises LLM (Large Language Model) models via the LangChain framework to process user queries and generate SQL queries for the GA4 dataset.
 
 ## LangFuse Integration
 
-AskAnalytics integrates closely with LangFuse, an open-source dashboard designed to log and visualize the execution flow of each LLM chain initiated by users. This integration serves as a crucial debugging tool, offering detailed diagrams for monitoring and troubleshooting application performance.
+AskAnalytics integrates closely with LangFuse, an open-source dashboard designed to log and visualise the execution flow of each LLM chain initiated by users. This integration serves as a crucial debugging tool, offering detailed diagrams for monitoring and troubleshooting application performance.
 
 LangFuse can be set up locally using Docker Compose or accessed via a Cloud Run-hosted dashboard, providing flexibility in monitoring and managing application activities.
 
@@ -31,7 +31,7 @@ LangFuse can be set up locally using Docker Compose or accessed via a Cloud Run-
    - Install and manage the required Python version specified in `backend/pyproject.toml` using pyenv. Follow the installation instructions from [pyenv GitHub](https://github.com/pyenv/pyenv).
      ```
      pyenv install 3.11.4
-     pyenv use 3.11.4
+     pyenv local 3.11.4
      ```
 
 2. **Virtual Environment Management with Poetry**
