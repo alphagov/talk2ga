@@ -268,7 +268,7 @@ export function App() {
     <>
       <Router>
         <Routes>
-          <Route path="/static/about" element={<About />} />
+          <Route path="/about" element={<About />} />
           <Route path="/:questionId" element={<Playground />} />
           <Route path="/static/:questionId" element={<Playground />} />
           <Route path="/" element={<Playground />} />

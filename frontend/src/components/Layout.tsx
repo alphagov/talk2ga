@@ -45,7 +45,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               <ul id="navigation" className="govuk-header__navigation-list">
                 <li
                   className={`govuk-header__navigation-item ${
-                    location.pathname === '/static' || location.pathname === '/'
+                    location.pathname === '/'
                       ? 'govuk-header__navigation-item--active'
                       : ''
                   }`}
@@ -56,12 +56,12 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                 </li>
                 <li
                   className={`govuk-header__navigation-item ${
-                    location.pathname === '/static/about'
+                    location.pathname === '/about'
                       ? 'govuk-header__navigation-item--active'
                       : ''
                   }`}
                 >
-                  <Link className="govuk-header__link" to="/static/about">
+                  <Link className="govuk-header__link" to="/about">
                     Overview
                   </Link>
                 </li>
