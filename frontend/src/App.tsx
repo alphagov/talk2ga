@@ -1,13 +1,13 @@
 import './App.css';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   useParams,
 } from 'react-router-dom';
-import { LogEntry, useStreamLog } from './useStreamLog';
+import { useStreamLog } from './useStreamLog';
 import { useAppStreamCallbacks } from './useStreamCallback';
 import { MainAnswer } from './components/MainAnswer';
 import ErrorAnswer from './components/ErrorAnswer';
@@ -20,7 +20,6 @@ import SQLViewer from './components/SQLViewer';
 
 import QuestionInput from './components/QuestionInput';
 import TypeWriterLoading from './components/TypeWriterLoading';
-import Logs from './components/Logs';
 import { getUsername } from './localstorage';
 import { DateRange } from 'rsuite/esm/DateRangePicker';
 
@@ -40,7 +39,6 @@ const DEFAULT_DURATION_TRACK: DurationTrack = {};
 function Playground() {
   let { questionId: urlQuestionId } = useParams();
   const [isStreaming, setIsStreaming] = useState(false);
-  const [showLogs, setShowLogs] = useState(false);
   const [showSQLBtnActive, setShowSQLBtnActive] = useState(false);
   const [question, setQuestion] = useState<string | null>(null);
   const [duration, setDuration] = useState<DurationTrack>(
@@ -56,9 +54,6 @@ function Playground() {
   const { context, callbacks } = useAppStreamCallbacks();
   const { startStream, stopStream, latest } = useStreamLog(callbacks);
   const [fetchedSQL, setFetchedSQL] = useState<string | null>(null);
-  const [fetchedLogs, setFetchedLogs] = useState<{
-    [name: string]: LogEntry;
-  } | null>(null);
 
   if (urlQuestionId?.includes('static')) {
     urlQuestionId = undefined;
@@ -85,21 +80,15 @@ function Playground() {
     setCurrentQuestionId,
   } = useQuestions();
 
-  const showLogsRef = useRef<(() => void) | null>(null);
-  showLogsRef.current = () => {
-    setShowLogs(() => !showLogs);
-  };
-
   useEffect(() => {
     // Fetch question data if an ID is provided
     if (urlQuestionId) {
       getQuestionData(urlQuestionId)
-        .then(({ question, dateRange, mainAnswer, executedSql, logs }) => {
+        .then(({ question, dateRange, mainAnswer, executedSql }) => {
           setQuestion(question);
           setSelectedDateRange(dateRange as unknown as DateRange);
           setMainAnswer(mainAnswer);
           setFetchedSQL(executedSql);
-          setFetchedLogs(logs);
           setIsStreaming(false);
           setHasCompleted(true);
         })
@@ -110,15 +99,6 @@ function Playground() {
       // setIsLoaded(true);
     }
   }, [urlQuestionId]);
-
-  useEffect(() => {
-    window.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault();
-        showLogsRef.current?.();
-      }
-    });
-  }, []);
 
   /* Callbacks for ASK QUESTION */
   useEffect(() => {
@@ -242,9 +222,7 @@ function Playground() {
             handleSubmitQuestion={handleSubmit}
             handleStopStreaming={stopStream}
             isStreaming={isStreaming}
-            toggleShowLogs={showLogsRef.current}
             toggleShowSQL={handleToggleShowSQL}
-            showLogs={showLogs}
             showSQLBtnActive={showSQLBtnActive}
             hasCompleted={hasCompleted}
             selectedDateRange={selectedDateRange}
@@ -272,12 +250,6 @@ function Playground() {
               isLoadedQuestion={!!urlQuestionId}
             />
           </div>
-        )}
-      </div>
-      <div className="govuk-grid-row">
-        {fetchedLogs && <Logs logs={fetchedLogs} />}
-        {!fetchedLogs && showLogs && latest && latest.logs && (
-          <Logs logs={latest.logs} />
         )}
       </div>
     </>
