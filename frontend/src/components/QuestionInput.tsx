@@ -11,9 +11,7 @@ type QuestionInputProps = {
   handleSubmitQuestion: (question: string, dateRange: DateRange) => void;
   handleStopStreaming?: () => void;
   isStreaming: boolean;
-  toggleShowLogs: () => void;
   toggleShowSQL: () => void;
-  showLogs: boolean;
   showSQLBtnActive: boolean;
   hasCompleted: boolean;
   selectedDateRange: DateRange | null;
@@ -26,9 +24,7 @@ function QuestionInput({
   handleSubmitQuestion,
   handleStopStreaming,
   isStreaming,
-  toggleShowLogs,
   toggleShowSQL,
-  showLogs,
   showSQLBtnActive,
   hasCompleted,
   selectedDateRange,
@@ -100,16 +96,6 @@ function QuestionInput({
         >
           {isStreaming ? 'Abort' : 'Submit'}
         </button>
-        {hasCompleted && (
-          <button
-            onClick={toggleShowLogs}
-            type="submit"
-            className="govuk-button govuk-button--secondary"
-            data-module="govuk-button"
-          >
-            {showLogs ? 'Hide Logs' : 'Show Logs'}
-          </button>
-        )}
         {hasCompleted && (
           <button
             onClick={toggleShowSQL}
