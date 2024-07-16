@@ -60,13 +60,11 @@ function QuestionInput({
   return (
     <form onSubmit={handleSubmit} className="govuk-form-group">
       <h1 className="govuk-label-wrapper">
-        <label className="govuk-label govuk-label--l">
-          What is your question?
-        </label>
+        <label className="govuk-label govuk-label--m">Enter a question</label>
       </h1>
       <div className="legend-container">
         <div id="more-detail-hint" className="govuk-hint">
-          It is better to provide specific URLs or page titles
+          Specific page titles or URLs can improve accuracy
         </div>
         <DateRangePicker
           handleDateChange={handleDateChange}
