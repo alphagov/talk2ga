@@ -27,6 +27,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { defaultDateRange } from './components/DateRangePicker';
 import { getQuestionData } from './apiService';
+import { showSqlFeatureFlag } from './envConfig';
 
 type DurationTrack = {
   startTime?: Date;
@@ -242,7 +243,7 @@ function Playground() {
             />
           )}
         </div>
-        {showSql && question && fetchedSQL && (
+        {showSqlFeatureFlag && showSql && question && fetchedSQL && (
           <div className="govuk-grid-column-one-half">
             <SQLViewer
               question={question}
