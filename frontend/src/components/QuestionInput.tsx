@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import DateRangePicker from './DateRangePicker';
 import { DateRange } from 'rsuite/DateRangePicker';
+import { showSqlFeatureFlag } from '../envConfig';
 
 type InputData = {
   data: string;
@@ -96,7 +97,7 @@ function QuestionInput({
         >
           {isStreaming ? 'Abort' : 'Submit'}
         </button>
-        {hasCompleted && (
+        {showSqlFeatureFlag && hasCompleted && (
           <button
             onClick={toggleShowSQL}
             type="submit"
