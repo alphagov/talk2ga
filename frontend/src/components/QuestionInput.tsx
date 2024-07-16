@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import DateRangePicker from './DateRangePicker';
 import { DateRange } from 'rsuite/DateRangePicker';
 import { showSqlFeatureFlag } from '../envConfig';
@@ -36,7 +36,9 @@ function QuestionInput({
     data: '',
     errors: [],
   });
-  const submitRef = useRef<(() => void) | null>(null);
+
+  const submitRef = useRef(() => {});
+
   submitRef.current = () => {
     if (isStreaming) {
       handleStopStreaming && handleStopStreaming();
@@ -46,21 +48,17 @@ function QuestionInput({
     }
   };
 
-  useEffect(() => {
-    window.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault();
-        submitRef.current?.();
-      }
-    });
-  }, []);
-
   const handleDateChange = (date: DateRange | null) => {
     setSelectedDateRange(date);
   };
 
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    submitRef.current();
+  };
+
   return (
-    <div className="govuk-form-group">
+    <form onSubmit={handleSubmit} className="govuk-form-group">
       <h1 className="govuk-label-wrapper">
         <label className="govuk-label govuk-label--l">
           What is your question?
@@ -75,22 +73,19 @@ function QuestionInput({
           value={selectedDateRange as DateRange}
         />
       </div>
-      <textarea
-        className="govuk-textarea"
+      <input
+        className="govuk-input"
         id="more-detail"
         name="moreDetail"
-        rows={1}
+        type="text"
         aria-describedby="more-detail-hint"
         value={forcedValue || inputData.data}
         onChange={(e) => {
-          const target = e.target as HTMLTextAreaElement;
-          setInputData({ data: target.value, errors: [] });
+          setInputData({ data: e.target.value, errors: [] });
         }}
-      ></textarea>
-
+      />
       <div className="questionBtnsContainer">
         <button
-          onClick={submitRef.current}
           type="submit"
           className="govuk-button"
           data-module="govuk-button"
@@ -100,7 +95,7 @@ function QuestionInput({
         {showSqlFeatureFlag && hasCompleted && (
           <button
             onClick={toggleShowSQL}
-            type="submit"
+            type="button"
             className="govuk-button govuk-button--secondary"
             data-module="govuk-button"
           >
@@ -108,7 +103,7 @@ function QuestionInput({
           </button>
         )}
       </div>
-    </div>
+    </form>
   );
 }
 
