@@ -75,18 +75,18 @@ function QuestionInput({
           value={selectedDateRange as DateRange}
         />
       </div>
-      <textarea
-        className="govuk-textarea"
+      <input
+        className="govuk-input"
         id="more-detail"
         name="moreDetail"
-        rows={1}
+        type="text"
         aria-describedby="more-detail-hint"
         value={forcedValue || inputData.data}
         onChange={(e) => {
-          const target = e.target as HTMLTextAreaElement;
+          const target = e.target as HTMLInputElement;
           setInputData({ data: target.value, errors: [] });
         }}
-      ></textarea>
+      />
 
       <div className="questionBtnsContainer">
         <button
