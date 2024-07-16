@@ -270,7 +270,6 @@ export function App() {
         <Routes>
           <Route path="/about" element={<About />} />
           <Route path="/:questionId" element={<Playground />} />
-          <Route path="/static/:questionId" element={<Playground />} />
           <Route path="/" element={<Playground />} />
         </Routes>
       </Router>
