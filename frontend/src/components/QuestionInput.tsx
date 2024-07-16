@@ -1,8 +1,7 @@
-import { useRef, useState } from 'react';
-// import DateRangePicker from './DateRangePicker';
-import { DatePicker, InputWidth } from 'react-govuk-datepicker';
-import { DateRange } from 'rsuite/DateRangePicker';
+import { useState } from 'react';
 import { showSqlFeatureFlag } from '../envConfig';
+import { DateRangeInput } from './DateRangeInput';
+import type { FrontendDateRange } from '../types';
 
 type InputData = {
   data: string;
@@ -10,16 +9,18 @@ type InputData = {
 };
 
 type QuestionInputProps = {
-  handleSubmitQuestion: (question: string, dateRange: DateRange) => void;
+  handleSubmitQuestion: (
+    question: string,
+    dateRange: FrontendDateRange,
+  ) => void;
   handleStopStreaming?: () => void;
   isStreaming: boolean;
   toggleShowSQL: () => void;
   showSQLBtnActive: boolean;
   hasCompleted: boolean;
-  selectedDateRange: DateRange | null;
-  setSelectedDateRange: (date: DateRange | null) => void;
+  selectedDateRange: FrontendDateRange | null;
   forcedValue?: string | null;
-  forcedDateRange?: DateRange | null;
+  forcedDateRange?: FrontendDateRange | null;
 };
 
 function QuestionInput({
@@ -30,7 +31,6 @@ function QuestionInput({
   showSQLBtnActive,
   hasCompleted,
   selectedDateRange,
-  setSelectedDateRange,
   forcedValue,
 }: QuestionInputProps) {
   const [inputData, setInputData] = useState<InputData>({
@@ -38,29 +38,28 @@ function QuestionInput({
     errors: [],
   });
 
-  const [fromDate, setFromDate] = useState<string>('');
-  const [toDate, setToDate] = useState<string>('');
+  const [dateRange, setDateRange] = useState<FrontendDateRange | null>(
+    selectedDateRange,
+  );
 
-  const submitRef = useRef(() => {});
-
-  submitRef.current = () => {
-    if (isStreaming) {
-      handleStopStreaming && handleStopStreaming();
-    } else {
-      selectedDateRange &&
-        handleSubmitQuestion(inputData.data, selectedDateRange);
-    }
-  };
+  const [isDateRangeValid, setIsDateRangeValid] = useState<boolean>(true);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    submitRef.current();
+    if (isStreaming) {
+      handleStopStreaming && handleStopStreaming();
+    } else if (isDateRangeValid && dateRange) {
+      handleSubmitQuestion(inputData.data, dateRange);
+    }
   };
 
-  const onFromDateChange = (date: string) => setFromDate(date);
-  const onFromDateBlur = () => {};
-  const onToDateChange = (date: string) => setToDate(date);
-  const onToDateBlur = () => {};
+  const handleDateRangeChange = (dateRange: FrontendDateRange | null) => {
+    setDateRange(dateRange);
+  };
+
+  const handleDateValidationChange = (isValid: boolean) => {
+    setIsDateRangeValid(isValid);
+  };
 
   return (
     <form onSubmit={handleSubmit} className="govuk-form-group">
@@ -81,38 +80,17 @@ function QuestionInput({
           setInputData({ data: e.target.value, errors: [] });
         }}
       />
-      <h2 className="govuk-heading-s govuk-!-margin-top-7">
-        Date range to query
-      </h2>
-      <DatePicker
-        identifier="from-date"
-        label="From"
-        labelClassExt="govuk-label--s"
-        hint="For example, 18/06/2024"
-        width={InputWidth.Char10}
-        multiQuestion={true}
-        value={fromDate}
-        // error={error?.message}
-        onChange={onFromDateChange}
-        onBlur={onFromDateBlur}
-      />
-      <DatePicker
-        identifier="to-date"
-        label="To"
-        labelClassExt="govuk-label--s"
-        hint="For example, 19/06/2024"
-        width={InputWidth.Char10}
-        multiQuestion={true}
-        value={toDate}
-        // error={error?.message}
-        onChange={onToDateChange}
-        onBlur={onToDateBlur}
+      <DateRangeInput
+        initialDateRange={selectedDateRange || [null, null]}
+        onDateRangeChange={handleDateRangeChange}
+        onValidationChange={handleDateValidationChange}
       />
       <div className="questionBtnsContainer">
         <button
           type="submit"
           className="govuk-button"
           data-module="govuk-button"
+          disabled={!isDateRangeValid}
         >
           {isStreaming ? 'Abort' : 'Submit'}
         </button>
