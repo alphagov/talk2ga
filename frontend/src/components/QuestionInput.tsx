@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
-import DateRangePicker from './DateRangePicker';
+// import DateRangePicker from './DateRangePicker';
+import { DatePicker, InputWidth } from 'react-govuk-datepicker';
 import { DateRange } from 'rsuite/DateRangePicker';
 import { showSqlFeatureFlag } from '../envConfig';
 
@@ -37,6 +38,9 @@ function QuestionInput({
     errors: [],
   });
 
+  const [fromDate, setFromDate] = useState<string>('');
+  const [toDate, setToDate] = useState<string>('');
+
   const submitRef = useRef(() => {});
 
   submitRef.current = () => {
@@ -48,28 +52,23 @@ function QuestionInput({
     }
   };
 
-  const handleDateChange = (date: DateRange | null) => {
-    setSelectedDateRange(date);
-  };
-
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     submitRef.current();
   };
 
+  const onFromDateChange = (date: string) => setFromDate(date);
+  const onFromDateBlur = () => {};
+  const onToDateChange = (date: string) => setToDate(date);
+  const onToDateBlur = () => {};
+
   return (
     <form onSubmit={handleSubmit} className="govuk-form-group">
-      <h1 className="govuk-label-wrapper">
-        <label className="govuk-label govuk-label--m">Enter a question</label>
-      </h1>
+      <h1 className="govuk-heading-s">Enter a question</h1>
       <div className="legend-container">
         <div id="more-detail-hint" className="govuk-hint">
           Specific page titles or URLs can improve accuracy
         </div>
-        <DateRangePicker
-          handleDateChange={handleDateChange}
-          value={selectedDateRange as DateRange}
-        />
       </div>
       <input
         className="govuk-input"
@@ -81,6 +80,33 @@ function QuestionInput({
         onChange={(e) => {
           setInputData({ data: e.target.value, errors: [] });
         }}
+      />
+      <h2 className="govuk-heading-s govuk-!-margin-top-7">
+        Date range to query
+      </h2>
+      <DatePicker
+        identifier="from-date"
+        label="From"
+        labelClassExt="govuk-label--s"
+        hint="For example, 18/06/2024"
+        width={InputWidth.Char10}
+        multiQuestion={true}
+        value={fromDate}
+        // error={error?.message}
+        onChange={onFromDateChange}
+        onBlur={onFromDateBlur}
+      />
+      <DatePicker
+        identifier="to-date"
+        label="To"
+        labelClassExt="govuk-label--s"
+        hint="For example, 19/06/2024"
+        width={InputWidth.Char10}
+        multiQuestion={true}
+        value={toDate}
+        // error={error?.message}
+        onChange={onToDateChange}
+        onBlur={onToDateBlur}
       />
       <div className="questionBtnsContainer">
         <button
