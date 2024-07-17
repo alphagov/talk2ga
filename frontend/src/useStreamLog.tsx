@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
 import { resolveApiUrl } from './utils/url';
-import { StreamCallback } from './types';
+import { FrontendDateRange, StreamCallback } from './types';
 import { dateRangeFrontendToDateRangeBackend } from './utils/dates';
 
 export interface LogEntry {
@@ -61,7 +61,11 @@ export function useStreamLog(callbacks: StreamCallback = {}) {
   completionRef.current = callbacks.onComplete;
 
   const startStream = useCallback(
-    async (question: string, dateRange: DateRange, config?: unknown) => {
+    async (
+      question: string,
+      dateRange: FrontendDateRange,
+      config?: unknown,
+    ) => {
       const controller = new AbortController();
       setController(controller);
 
