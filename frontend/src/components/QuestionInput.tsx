@@ -1,7 +1,7 @@
-import { useRef, useState } from 'react';
-import DateRangePicker from './DateRangePicker';
-import { DateRange } from 'rsuite/DateRangePicker';
+import { useState } from 'react';
 import { showSqlFeatureFlag } from '../envConfig';
+import { DateRangeInput } from './DateRangeInput';
+import type { FrontendDateRange } from '../types';
 
 type InputData = {
   data: string;
@@ -9,16 +9,18 @@ type InputData = {
 };
 
 type QuestionInputProps = {
-  handleSubmitQuestion: (question: string, dateRange: DateRange) => void;
+  handleSubmitQuestion: (
+    question: string,
+    dateRange: FrontendDateRange,
+  ) => void;
   handleStopStreaming?: () => void;
   isStreaming: boolean;
   toggleShowSQL: () => void;
   showSQLBtnActive: boolean;
   hasCompleted: boolean;
-  selectedDateRange: DateRange | null;
-  setSelectedDateRange: (date: DateRange | null) => void;
+  selectedDateRange: FrontendDateRange | null;
   forcedValue?: string | null;
-  forcedDateRange?: DateRange | null;
+  forcedDateRange?: FrontendDateRange | null;
 };
 
 function QuestionInput({
@@ -29,7 +31,6 @@ function QuestionInput({
   showSQLBtnActive,
   hasCompleted,
   selectedDateRange,
-  setSelectedDateRange,
   forcedValue,
 }: QuestionInputProps) {
   const [inputData, setInputData] = useState<InputData>({
@@ -37,39 +38,36 @@ function QuestionInput({
     errors: [],
   });
 
-  const submitRef = useRef(() => {});
+  const [dateRange, setDateRange] = useState<FrontendDateRange | null>(
+    selectedDateRange,
+  );
 
-  submitRef.current = () => {
-    if (isStreaming) {
-      handleStopStreaming && handleStopStreaming();
-    } else {
-      selectedDateRange &&
-        handleSubmitQuestion(inputData.data, selectedDateRange);
-    }
-  };
-
-  const handleDateChange = (date: DateRange | null) => {
-    setSelectedDateRange(date);
-  };
+  const [isDateRangeValid, setIsDateRangeValid] = useState<boolean>(true);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    submitRef.current();
+    if (isStreaming) {
+      handleStopStreaming && handleStopStreaming();
+    } else if (isDateRangeValid && dateRange) {
+      handleSubmitQuestion(inputData.data, dateRange);
+    }
+  };
+
+  const handleDateRangeChange = (dateRange: FrontendDateRange | null) => {
+    setDateRange(dateRange);
+  };
+
+  const handleDateValidationChange = (isValid: boolean) => {
+    setIsDateRangeValid(isValid);
   };
 
   return (
     <form onSubmit={handleSubmit} className="govuk-form-group">
-      <h1 className="govuk-label-wrapper">
-        <label className="govuk-label govuk-label--m">Enter a question</label>
-      </h1>
+      <h1 className="govuk-heading-s">Enter a question</h1>
       <div className="legend-container">
         <div id="more-detail-hint" className="govuk-hint">
           Specific page titles or URLs can improve accuracy
         </div>
-        <DateRangePicker
-          handleDateChange={handleDateChange}
-          value={selectedDateRange as DateRange}
-        />
       </div>
       <input
         className="govuk-input"
@@ -82,11 +80,17 @@ function QuestionInput({
           setInputData({ data: e.target.value, errors: [] });
         }}
       />
+      <DateRangeInput
+        initialDateRange={selectedDateRange || [null, null]}
+        onDateRangeChange={handleDateRangeChange}
+        onValidationChange={handleDateValidationChange}
+      />
       <div className="questionBtnsContainer">
         <button
           type="submit"
           className="govuk-button"
           data-module="govuk-button"
+          disabled={!isDateRangeValid}
         >
           {isStreaming ? 'Abort' : 'Submit'}
         </button>

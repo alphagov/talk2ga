@@ -1,11 +1,13 @@
 import type { Operation } from 'fast-json-patch';
 import type { RunState } from './useStreamLog';
-import { DateRange } from 'rsuite/esm/DateRangePicker';
+
+export type FrontendDateRange = [Date | null, Date | null];
+export type BackendDateRange = { start_date: string; end_date: string };
 
 export interface StreamCallback {
   onSuccess?: (ctx: {
     question: string;
-    dateRange?: DateRange;
+    dateRange?: FrontendDateRange;
     output: unknown;
     logs?: string;
   }) => void;
@@ -16,7 +18,7 @@ export interface StreamCallback {
   onError?: (error: unknown) => void;
   onStart?: (ctx: {
     question: string;
-    dateRange?: DateRange;
+    dateRange?: FrontendDateRange;
     questionId?: string;
   }) => void;
   onComplete?: () => void;

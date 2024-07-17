@@ -21,15 +21,14 @@ import SQLViewer from './components/SQLViewer';
 import QuestionInput from './components/QuestionInput';
 import TypeWriterLoading from './components/TypeWriterLoading';
 import { getUsername } from './localstorage';
-import { DateRange } from 'rsuite/esm/DateRangePicker';
 
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { defaultDateRange } from './components/DateRangePicker';
 import { getQuestionData } from './apiService';
 import { showSqlFeatureFlag } from './envConfig';
 import { About } from './about';
 import Layout from './components/Layout';
+import { FrontendDateRange } from './types';
 
 type DurationTrack = {
   startTime?: Date;
@@ -49,9 +48,8 @@ function Playground() {
   );
   const [isError, setIsError] = useState(false);
   const [errorName, setErrorName] = useState<string | null>(null);
-  const [selectedDateRange, setSelectedDateRange] = useState<DateRange | null>(
-    defaultDateRange,
-  );
+  const [selectedDateRange, setSelectedDateRange] =
+    useState<FrontendDateRange | null>(null);
   const [mainAnswer, setMainAnswer] = useState<string | null>(null);
   const [hasCompleted, setHasCompleted] = useState<boolean>(false);
   const { context, callbacks } = useAppStreamCallbacks();
@@ -89,7 +87,7 @@ function Playground() {
       getQuestionData(urlQuestionId)
         .then(({ question, dateRange, mainAnswer, executedSql }) => {
           setQuestion(question);
-          setSelectedDateRange(dateRange as unknown as DateRange);
+          setSelectedDateRange(dateRange as unknown as FrontendDateRange);
           setMainAnswer(mainAnswer);
           setFetchedSQL(executedSql);
           setIsStreaming(false);
@@ -233,7 +231,6 @@ function Playground() {
             showSQLBtnActive={showSQLBtnActive}
             hasCompleted={hasCompleted}
             selectedDateRange={selectedDateRange}
-            setSelectedDateRange={setSelectedDateRange}
             forcedValue={question}
           />
           {isLoading && <TypeWriterLoading />}

@@ -2,7 +2,6 @@ import { useCallback, useRef, useState } from 'react';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
 import { resolveApiUrl } from './utils/url';
 import { StreamCallback } from './types';
-import { DateRange } from 'rsuite/DateRangePicker';
 import { dateRangeFrontendToDateRangeBackend } from './utils/dates';
 
 export interface LogEntry {
