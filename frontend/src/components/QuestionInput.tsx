@@ -75,6 +75,7 @@ function QuestionInput({
         name="moreDetail"
         type="text"
         aria-describedby="more-detail-hint"
+        placeholder="What is the most viewed page?"
         value={forcedValue || inputData.data}
         onChange={(e) => {
           setInputData({ data: e.target.value, errors: [] });
