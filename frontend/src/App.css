@@ -2,6 +2,14 @@
 /* CUSTOM STYLES */
 /* --------------------------------------------------------------- */
 
+.govuk-body-l, .govuk-body-lead {
+  margin-bottom: 50px;
+}
+
+.question-group {
+  margin-bottom: 50px;
+}
+
 .feedback-form-container {
   padding: 20px;
   margin-top: 30px;
@@ -57,6 +65,10 @@
 /**
 *  Date Picker
 */
+
+.datepicker-container .govuk-form-group {
+  margin-bottom: 0;
+}
 
 .rs-input-group.rs-input-group-lg.rs-input-group-inside {
   border: 2px solid black;

@@ -122,9 +122,12 @@ export function DateRangeInput({
 
   return (
     <>
-      <h2 className="govuk-heading-s govuk-!-margin-top-7">
+    <div className='govuk-form-group'>
+    <fieldset className="govuk-fieldset" role="group" aria-describedby="date-hint">
+      <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">
         Date range to query
-      </h2>
+      </legend>
+      <div className="datepicker-container">
       <DatePicker
         identifier="from-date"
         label="From"
@@ -149,6 +152,9 @@ export function DateRangeInput({
         onChange={onToDateChange}
         onBlur={onToDateBlur}
       />
+      </div>
+      </fieldset>
+      </div>
     </>
   );
 }
