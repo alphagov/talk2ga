@@ -72,3 +72,11 @@ input.rs-date-range-input.rs-input {
 div.rs-picker-daterange-content {
   font-family: GDS Transport, arial, sans-serif !important;
 }
+
+/**
+* Main answer
+*/
+
+.main-answer-container {
+  background-color: #f3f2f1;
+}
