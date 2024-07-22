@@ -50,7 +50,7 @@ function Playground() {
   const [errorName, setErrorName] = useState<string | null>(null);
   const [selectedDateRange, setSelectedDateRange] =
     useState<FrontendDateRange | null>(null);
-  const [mainAnswer, setMainAnswer] = useState<string | null>(null);
+  const [answerJSON, setAnswerJSON] = useState<string | null>();
   const [hasCompleted, setHasCompleted] = useState<boolean>(false);
   const { context, callbacks } = useAppStreamCallbacks();
   const { startStream, stopStream, latest } = useStreamLog(callbacks);
@@ -88,7 +88,7 @@ function Playground() {
         .then(({ question, dateRange, mainAnswer, executedSql }) => {
           setQuestion(question);
           setSelectedDateRange(dateRange as unknown as FrontendDateRange);
-          setMainAnswer(mainAnswer);
+          setAnswerJSON(mainAnswer);
           setFetchedSQL(executedSql);
           setIsStreaming(false);
           setHasCompleted(true);
@@ -185,17 +185,6 @@ function Playground() {
     'You cannot provide feedback when a question is already loaded',
   );
 
-  /**
-   * DEPRECATED: This is a fallback method to get the SQL from the logs
-   * We should be using the `executedSql` field from the getQuestionData() api call instead
-   */
-  // const getSqlFromLogs = () =>
-  //   (latest &&
-  //     latest.logs &&
-  //     (latest.logs.selected_sql_passthrough?.final_output as { output: string })
-  //       ?.output) ||
-  //   "Error getting the SQL";
-
   const isLoading = isStreaming && !hasCompleted;
 
   const handleToggleShowSQL = () =>
@@ -205,7 +194,7 @@ function Playground() {
   const successful = hasCompleted && !isError;
 
   if (successful && latest) {
-    !mainAnswer && setMainAnswer(latest as unknown as string);
+    !answerJSON && setAnswerJSON(latest as unknown as string);
   }
 
   const handleSubmit = preventEdits(startStream);
@@ -234,7 +223,14 @@ function Playground() {
             forcedValue={question}
           />
           {isLoading && <TypeWriterLoading />}
-          {mainAnswer && <MainAnswer text={mainAnswer} />}
+          {answerJSON && fetchedSQL && (
+            <MainAnswer
+              answerJSON={answerJSON}
+              dateRange={[new Date(), new Date()]}
+              sql={fetchedSQL}
+              question={question || 'question'}
+            />
+          )}
           {isError && <ErrorAnswer errorName={errorName} />}
           {hasCompleted && (
             <Feedback

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { showSqlFeatureFlag } from '../envConfig';
 import { DateRangeInput } from './DateRangeInput';
 import type { FrontendDateRange } from '../types';
@@ -38,9 +38,7 @@ function QuestionInput({
     errors: [],
   });
 
-  const [dateRange, setDateRange] = useState<FrontendDateRange | null>(
-    selectedDateRange,
-  );
+  const dateRangeRef = useRef<FrontendDateRange | null>(selectedDateRange);
 
   const [isDateRangeValid, setIsDateRangeValid] = useState<boolean>(true);
 
@@ -48,13 +46,13 @@ function QuestionInput({
     e.preventDefault();
     if (isStreaming) {
       handleStopStreaming && handleStopStreaming();
-    } else if (isDateRangeValid && dateRange) {
-      handleSubmitQuestion(inputData.data, dateRange);
+    } else if (isDateRangeValid && dateRangeRef.current) {
+      handleSubmitQuestion(inputData.data, dateRangeRef.current);
     }
   };
 
   const handleDateRangeChange = (dateRange: FrontendDateRange | null) => {
-    setDateRange(dateRange);
+    dateRangeRef.current = dateRange;
   };
 
   const handleDateValidationChange = (isValid: boolean) => {
@@ -82,7 +80,7 @@ function QuestionInput({
         }}
       />
       <DateRangeInput
-        initialDateRange={selectedDateRange || [null, null]}
+        initialDateRange={selectedDateRange}
         onDateRangeChange={handleDateRangeChange}
         onValidationChange={handleDateValidationChange}
       />

@@ -1,7 +1,7 @@
 import type { Operation } from 'fast-json-patch';
 import type { RunState } from './useStreamLog';
 
-export type FrontendDateRange = [Date | null, Date | null];
+export type FrontendDateRange = [Date, Date];
 export type BackendDateRange = { start_date: string; end_date: string };
 
 export interface StreamCallback {

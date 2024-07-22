@@ -65,7 +65,7 @@ async def create_question_and_add_id_to_res_and_req(request: Request, call_next)
     return response
 
 
-def pass_question_id_to_chain(config: Dict[str, Any], request: Request) -> Dict[str, Any]:
+def add_question_id_to_config(config: Dict[str, Any], request: Request) -> Dict[str, Any]:
     if qid := request.state.question_id:
         config["question_id"] = qid
     else:
@@ -84,7 +84,7 @@ add_routes(
     app,
     whole_chain.with_types(input_type=str, output_type=str),
     path="/whole-chain",
-    per_req_config_modifier=pass_question_id_to_chain,
+    per_req_config_modifier=add_question_id_to_config,
 )
 
 
@@ -108,10 +108,10 @@ def build_sse_error_event(e: Exception):
     return f"data: {json_data}\n\n"
 
 
-async def generate_chat_events(input):
+async def generate_chat_events(input, config={}):
     events_allow_list = ["on_chain_start", "on_chain_end"]
     try:
-        async for event in whole_chain.astream_events(input, version="v1"):
+        async for event in whole_chain.astream_events(input, config, version="v1"):
             if event.get("event") in events_allow_list and event.get("data") and "prompt" not in event.get("name", "").lower():
                 yield build_sse_event(event)
     except Exception as e:
@@ -123,8 +123,9 @@ async def generate_chat_events(input):
 async def custom_chain(request: Request):
     body = await request.json()
     input = body.get("input")
-    # config = body.get("config", {})
-    return StreamingResponse(generate_chat_events(input), media_type="text/event-stream")
+    config_from_client = body.get("config", {})
+    config = add_question_id_to_config(config_from_client, request)
+    return StreamingResponse(generate_chat_events(input, config), media_type="text/event-stream")
 
 
 #######

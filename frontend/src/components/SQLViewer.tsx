@@ -48,7 +48,7 @@ const SQLViewer = ({ sql, question, isLoadedQuestion }: SQLViewerProps) => {
   }, [latest, latest?.logs, latest?.final_output, question]);
 
   useEffect(() => {
-    // Highlight syntax every time the component mounts or updates
+    // Highlight syntax each time the component mounts or updates
     Prism.highlightAll();
   }, []);
 
