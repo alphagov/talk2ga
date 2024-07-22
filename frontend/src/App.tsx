@@ -209,7 +209,9 @@ function Playground() {
       <div className="govuk-grid-row">
         <div
           className={
-            showSql ? 'govuk-grid-column-one-half' : 'govuk-grid-column-two-thirds'
+            showSql
+              ? 'govuk-grid-column-one-half'
+              : 'govuk-grid-column-two-thirds'
           }
         >
           <QuestionInput

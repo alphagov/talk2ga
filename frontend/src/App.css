@@ -2,7 +2,8 @@
 /* CUSTOM STYLES */
 /* --------------------------------------------------------------- */
 
-.govuk-body-l, .govuk-body-lead {
+.govuk-body-l,
+.govuk-body-lead {
   margin-bottom: 50px;
 }
 
