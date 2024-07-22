@@ -228,7 +228,6 @@ function Playground() {
               answerJSON={answerJSON}
               dateRange={[new Date(), new Date()]}
               sql={fetchedSQL}
-              isPreLoadedQuestion={!!urlQuestionId}
               question={question || 'question'}
             />
           )}

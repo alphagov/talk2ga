@@ -8,6 +8,7 @@ import { useStreamLogExplain } from '../useStreamLogExplain';
 import { useAppStreamCallbacks } from '../useStreamCallback';
 import { streamOutputToString } from '../utils/streamToString';
 import { toast } from 'react-toastify';
+import { FrontendDateRange } from '../types';
 
 function splitByLineReturns(input: string) {
   return input.split(/\r\n|\r|\n/);
@@ -85,13 +86,11 @@ export function MainAnswer({
   answerJSON,
   dateRange,
   sql,
-  isPreLoadedQuestion,
   question,
 }: {
   answerJSON: string;
   dateRange: FrontendDateRange;
   sql: string;
-  isPreLoadedQuestion: boolean;
   question: string;
 }) {
   const { context, callbacks } = useAppStreamCallbacks();
@@ -131,16 +130,6 @@ export function MainAnswer({
   }, []);
 
   const fetchSqlExplained = () => question && startStream(question, sql);
-
-  const handleExplainSQLClick = () => {
-    if (isPreLoadedQuestion) {
-      toast.error(
-        'You cannot run an explain on a loaded question. Please ask a new question.',
-      );
-    } else {
-      fetchSqlExplained();
-    }
-  };
 
   const copySqlToClipboard = () => {
     navigator.clipboard.writeText(formattedSql);
@@ -200,7 +189,7 @@ export function MainAnswer({
           </button>
         </div>
       </details>
-      <details className="govuk-details">
+      <details className="govuk-details" onClick={fetchSqlExplained}>
         <summary className="govuk-details__summary">
           <span className="govuk-details__summary-text">SQL Explained</span>
         </summary>
