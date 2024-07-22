@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Fragment } from 'react';
 import { format } from 'sql-formatter';
 // @ts-ignore
 import Prism from 'prismjs';
@@ -21,6 +21,43 @@ function formatDate(date: Date): string {
   };
   return date.toLocaleDateString('en-GB', options);
 }
+
+function formatText(text: string) {
+  // Split text by bold markers
+  const sections = text.split(/\*\*(.*?)\*\*/g).map((section, index) => {
+    // Alternate sections will be bold text
+    if (index % 2 === 1) {
+      return <strong key={index}>{section}</strong>;
+    } else {
+      // Handle line breaks
+      return section.split('\n').map((line, idx) => (
+        <Fragment key={idx}>
+          {line}
+          {idx < section.split('\n').length - 1 && <br />}
+        </Fragment>
+      ));
+    }
+  });
+
+  return <div>{sections}</div>;
+}
+
+const FormattedStreamedTextComponent = ({
+  streamedContent,
+}: {
+  streamedContent: string;
+}) => {
+  const [text, setText] = useState('');
+
+  console.log({ streamedContent });
+
+  useEffect(() => {
+    console.log('Setting Text');
+    setText(String(streamedContent));
+  }, [streamedContent]);
+
+  return <div>{formatText(text)}</div>;
+};
 
 export function MainAnswer({
   answerTitle,
@@ -145,9 +182,13 @@ export function MainAnswer({
           <span className="govuk-details__summary-text">SQL Explained</span>
         </summary>
         <div className="govuk-details__text">
-          {!isSqlExplanedLoading && latest
-            ? streamOutputToString(latest.streamed_output)
-            : 'Loading...'}
+          {!isSqlExplanedLoading && latest ? (
+            <FormattedStreamedTextComponent
+              streamedContent={streamOutputToString(latest.streamed_output)}
+            />
+          ) : (
+            'Loading...'
+          )}
         </div>
       </details>
     </div>
