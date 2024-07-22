@@ -15,7 +15,7 @@ const formatDateForWidget = (date: Date) => {
 };
 
 type DateRangeInputProps = {
-  initialDateRange: FrontendDateRange;
+  initialDateRange: FrontendDateRange | null;
   onDateRangeChange: (dateRange: FrontendDateRange) => void;
   onValidationChange: (isValid: boolean) => void;
 };
@@ -26,10 +26,10 @@ export function DateRangeInput({
   onValidationChange,
 }: DateRangeInputProps) {
   const [fromDate, setFromDate] = useState<string>(
-    initialDateRange[0] ? formatDateForWidget(initialDateRange[0]) : '',
+    initialDateRange?.[0] ? formatDateForWidget(initialDateRange[0]) : '',
   );
   const [toDate, setToDate] = useState<string>(
-    initialDateRange[1] ? formatDateForWidget(initialDateRange[1]) : '',
+    initialDateRange?.[1] ? formatDateForWidget(initialDateRange[1]) : '',
   );
 
   const [dateFromError, setDateFromError] = useState<string | undefined>();
@@ -115,7 +115,7 @@ export function DateRangeInput({
       parseDate(fromDate),
       parseDate(toDate),
     ] as FrontendDateRange);
-  }, []);
+  }, [initialDateRange]);
 
   const onFromDateBlur = () => {};
   const onToDateBlur = () => {};

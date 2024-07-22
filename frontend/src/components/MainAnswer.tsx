@@ -1,4 +1,13 @@
-import { FrontendDateRange } from '../types';
+import { useEffect, useState } from 'react';
+import { format } from 'sql-formatter';
+// @ts-ignore
+import Prism from 'prismjs';
+import 'prismjs/components/prism-sql';
+import 'prismjs/themes/prism-coy.css';
+import { useStreamLogExplain } from '../useStreamLogExplain';
+import { useAppStreamCallbacks } from '../useStreamCallback';
+import { streamOutputToString } from '../utils/streamToString';
+import { toast } from 'react-toastify';
 
 function splitByLineReturns(input: string) {
   return input.split(/\r\n|\r|\n/);
@@ -14,15 +23,77 @@ function formatDate(date: Date): string {
 }
 
 export function MainAnswer({
-  text,
+  answerTitle,
+  answerText,
   dateRange,
+  sql,
+  isPreLoadedQuestion,
+  question,
 }: {
-  text: string;
+  answerTitle: string;
+  answerText: string;
   dateRange: FrontendDateRange;
+  sql: string;
+  isPreLoadedQuestion: boolean;
+  question: string;
 }) {
+  const { context, callbacks } = useAppStreamCallbacks();
+  const { startStream, latest } = useStreamLogExplain(callbacks);
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [hasCompleted, setHasCompleted] = useState<boolean>(false);
+
+  /* Callbacks for EXPLAIN SQL */
+  useEffect(() => {
+    // OnStart callbacks
+    context.current.onStart['setIsStreaming'] = () => setIsStreaming(true);
+    context.current.onStart['setHasCompletedFalse'] = () =>
+      setHasCompleted(false);
+
+    // OnSuccess callbacks
+    // context.current.onSuccess["recordSuccess"] = () =>
+    //   currentQuestionId &&
+    //   recordQuestionCompletion(currentQuestionId, {
+    //     succeeded: true,
+    //     logs_json: latest && JSON.stringify(latest.logs),
+    //     final_output: latest && streamOutputToString(latest.streamed_output),
+    //   });
+    context.current.onSuccess['setIsNotStreaming'] = () =>
+      setIsStreaming(false);
+    context.current.onSuccess['setHasCompletedTrue'] = () =>
+      setHasCompleted(true);
+
+    // OnError callbacks
+    // context.current.onError["recordQuestionFailure"] = () =>
+    //   currentQuestionId &&
+    //   recordQuestionCompletion(currentQuestionId, { succeeded: false });
+  }, [latest, latest?.logs, latest?.final_output, question]);
+
+  useEffect(() => {
+    // Highlight syntax every time the component mounts or updates
+    Prism.highlightAll();
+  }, []);
+
+  const fetchSqlExplained = () => question && startStream(question, sql);
+
+  const handleExplainSQLClick = () => {
+    if (isPreLoadedQuestion) {
+      toast.error(
+        'You cannot run an explain on a loaded question. Please ask a new question.',
+      );
+    } else {
+      fetchSqlExplained();
+    }
+  };
+
+  const copySqlToClipboard = () => navigator.clipboard.writeText(formattedSql);
+
+  const formattedSql = format(sql);
+
   const dateString = `${formatDate(dateRange[0])} to ${formatDate(
     dateRange[1],
   )}`;
+
+  const isSqlExplanedLoading = isStreaming && !hasCompleted;
   return (
     <div
       className="main-answer-container govuk-!-static-padding-5"
@@ -32,9 +103,9 @@ export function MainAnswer({
         <span className="govuk-caption-m govuk-!-static-margin-bottom-4">
           {dateString}
         </span>
-        Top 5 countries with the most users:
+        {answerTitle}
       </h1>
-      {splitByLineReturns(text).map((line, i) => (
+      {splitByLineReturns(answerText).map((line, i) => (
         <p key={i} className="govuk-body">
           {line}
         </p>
@@ -48,14 +119,20 @@ export function MainAnswer({
           Verify the result before sharing
         </strong>
       </div>
-      <details className="govuk-details">
+      <details className="govuk-details" onClick={fetchSqlExplained}>
         <summary className="govuk-details__summary">
           <span className="govuk-details__summary-text">Generated SQL</span>
         </summary>
         <div className="govuk-details__text">
-          We need to know your nationality so we can work out which elections
-          you’re entitled to vote in. If you cannot provide your nationality,
-          you’ll have to send copies of identity documents through the post.
+          {sql}
+          <br />
+          <button
+            className="govuk-button govuk-button--secondary sql-copy-btn"
+            data-module="govuk-button"
+            onClick={copySqlToClipboard}
+          >
+            Copy
+          </button>
         </div>
       </details>
       <details className="govuk-details">
@@ -63,9 +140,9 @@ export function MainAnswer({
           <span className="govuk-details__summary-text">SQL Explained</span>
         </summary>
         <div className="govuk-details__text">
-          We need to know your nationality so we can work out which elections
-          you’re entitled to vote in. If you cannot provide your nationality,
-          you’ll have to send copies of identity documents through the post.
+          {!isSqlExplanedLoading && latest
+            ? streamOutputToString(latest.streamed_output)
+            : 'Loading...'}
         </div>
       </details>
     </div>

@@ -42,7 +42,9 @@ function Playground() {
   let { questionId: urlQuestionId } = useParams();
   const [isStreaming, setIsStreaming] = useState(false);
   const [showSQLBtnActive, setShowSQLBtnActive] = useState(false);
-  const [question, setQuestion] = useState<string | null>(null);
+  const [question, setQuestion] = useState<string | null>(
+    'What is the most viewed page?',
+  );
   const [duration, setDuration] = useState<DurationTrack>(
     DEFAULT_DURATION_TRACK,
   );
@@ -50,7 +52,7 @@ function Playground() {
   const [errorName, setErrorName] = useState<string | null>(null);
   const [selectedDateRange, setSelectedDateRange] =
     useState<FrontendDateRange | null>(null);
-  const [mainAnswer, setMainAnswer] = useState<string | null>(null);
+  const [mainAnswer, setMainAnswer] = useState<string | null>();
   const [hasCompleted, setHasCompleted] = useState<boolean>(false);
   const { context, callbacks } = useAppStreamCallbacks();
   const { startStream, stopStream, latest } = useStreamLog(callbacks);
@@ -234,7 +236,16 @@ function Playground() {
             forcedValue={question}
           />
           {isLoading && <TypeWriterLoading />}
-          {mainAnswer && <MainAnswer text={mainAnswer} />}
+          {mainAnswer && (
+            <MainAnswer
+              answerTitle={'This is a title'}
+              answerText={mainAnswer}
+              dateRange={[new Date(), new Date()]}
+              sql={fetchedSQL || 'sql'}
+              isPreLoadedQuestion={!!urlQuestionId}
+              question={question || 'question'}
+            />
+          )}
           {isError && <ErrorAnswer errorName={errorName} />}
           {hasCompleted && (
             <Feedback
