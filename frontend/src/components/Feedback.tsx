@@ -330,7 +330,7 @@ export default function Feedback({
       />
     );
   } else if (state === FeedbackState.Satisfied) {
-    feedbackComponent = <SatisfiedFeedback />;
+    feedbackComponent = <FormFeedback onSubmit={onSubmitFeedbackForm} />;
   } else if (state === FeedbackState.Form) {
     feedbackComponent = <FormFeedback onSubmit={onSubmitFeedbackForm} />;
   } else if (state === FeedbackState.FormSent) {
