@@ -85,7 +85,10 @@ export function MainAnswer({
     }
   };
 
-  const copySqlToClipboard = () => navigator.clipboard.writeText(formattedSql);
+  const copySqlToClipboard = () => {
+    navigator.clipboard.writeText(formattedSql);
+    toast.info('SQL copied to clipboard');
+  };
 
   const formattedSql = format(sql);
 
@@ -124,7 +127,9 @@ export function MainAnswer({
           <span className="govuk-details__summary-text">Generated SQL</span>
         </summary>
         <div className="govuk-details__text">
-          {sql}
+          <pre className="sql-viewer-container">
+            <code className="language-sql">{formattedSql}</code>
+          </pre>
           <br />
           <button
             className="govuk-button govuk-button--secondary sql-copy-btn"

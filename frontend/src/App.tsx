@@ -236,12 +236,12 @@ function Playground() {
             forcedValue={question}
           />
           {isLoading && <TypeWriterLoading />}
-          {mainAnswer && (
+          {mainAnswer && fetchedSQL && (
             <MainAnswer
               answerTitle={'This is a title'}
               answerText={mainAnswer}
               dateRange={[new Date(), new Date()]}
-              sql={fetchedSQL || 'sql'}
+              sql={fetchedSQL}
               isPreLoadedQuestion={!!urlQuestionId}
               question={question || 'question'}
             />
