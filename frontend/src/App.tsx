@@ -234,7 +234,7 @@ function Playground() {
             />
           )}
           {isError && <ErrorAnswer errorName={errorName} />}
-          {hasCompleted && (
+          {/* {hasCompleted && ( */}
             <Feedback
               handleSatisfiedFeedback={onSatisfiedFeedback}
               handleNotSatisfiedFeedback={onNotSatisfiedFeedback}
@@ -242,7 +242,7 @@ function Playground() {
                 onNotSatisfiedFeedbackDetailsSubmit
               }
             />
-          )}
+          {/* )} */}
         </div>
         {showSqlFeatureFlag && showSql && question && fetchedSQL && (
           <div className="govuk-grid-column-one-half">
