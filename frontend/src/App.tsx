@@ -211,7 +211,7 @@ function Playground() {
           className={
             showSql
               ? 'govuk-grid-column-one-half'
-              : 'govuk-grid-column-two-thirds'
+              : 'govuk-grid-column-three-quarters'
           }
         >
           <QuestionInput
