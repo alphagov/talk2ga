@@ -23,19 +23,33 @@ function formatDate(date: Date): string {
 }
 
 function formatText(text: string) {
-  // Split text by bold markers
   const sections = text.split(/\*\*(.*?)\*\*/g).map((section, index) => {
-    // Alternate sections will be bold text
+    // Process sections with bold markers
     if (index % 2 === 1) {
       return <strong key={index}>{section}</strong>;
     } else {
-      // Handle line breaks
-      return section.split('\n').map((line, idx) => (
-        <Fragment key={idx}>
-          {line}
-          {idx < section.split('\n').length - 1 && <br />}
-        </Fragment>
-      ));
+      // Process sections with line breaks and code markers
+      return section.split('\n').map((line, idx) => {
+        // Split text by code markers
+        const codeSections = line.split(/`(.*?)`/g).map((part, codeIndex) => {
+          if (codeIndex % 2 === 1) {
+            return (
+              <code key={codeIndex} className="code-highligh-sql-explanation">
+                {part}
+              </code>
+            );
+          } else {
+            return part;
+          }
+        });
+
+        return (
+          <Fragment key={idx}>
+            {codeSections}
+            {idx < section.split('\n').length - 1 && <br />}
+          </Fragment>
+        );
+      });
     }
   });
 
@@ -49,26 +63,32 @@ const FormattedStreamedTextComponent = ({
 }) => {
   const [text, setText] = useState('');
 
-  console.log({ streamedContent });
-
   useEffect(() => {
-    console.log('Setting Text');
     setText(String(streamedContent));
   }, [streamedContent]);
 
   return <div>{formatText(text)}</div>;
 };
 
+const parseAnswerJSON = (answerJSON: string) => {
+  let pureJSON = answerJSON.split('```json')[1];
+  pureJSON = pureJSON.split('```')[0];
+  pureJSON = pureJSON.trim().replace(/(\r\n|\n|\r)/gm, '');
+  const answer = JSON.parse(pureJSON);
+  return {
+    answerTitle: answer.title,
+    answerText: answer.output,
+  };
+};
+
 export function MainAnswer({
-  answerTitle,
-  answerText,
+  answerJSON,
   dateRange,
   sql,
   isPreLoadedQuestion,
   question,
 }: {
-  answerTitle: string;
-  answerText: string;
+  answerJSON: string;
   dateRange: FrontendDateRange;
   sql: string;
   isPreLoadedQuestion: boolean;
@@ -134,6 +154,9 @@ export function MainAnswer({
   )}`;
 
   const isSqlExplanedLoading = isStreaming && !hasCompleted;
+
+  const { answerTitle, answerText } = parseAnswerJSON(answerJSON);
+
   return (
     <div
       className="main-answer-container govuk-!-static-padding-5"

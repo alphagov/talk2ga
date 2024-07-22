@@ -85,3 +85,12 @@ div.rs-picker-daterange-content {
   border: 1px solid black;
   box-shadow: 0 -1px 0 #929191 inset;
 }
+
+.code-highligh-sql-explanation {
+  background-color: #fff;
+  color: #444;
+  /* border: 1px solid salmon; */
+  border-radius: 5px;
+  font-size: 16px;
+  padding: 2px 10px;
+}
