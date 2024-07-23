@@ -235,13 +235,13 @@ function Playground() {
           )}
           {isError && <ErrorAnswer errorName={errorName} />}
           {hasCompleted && (
-          <Feedback
-            handleSatisfiedFeedback={onSatisfiedFeedback}
-            handleNotSatisfiedFeedback={onNotSatisfiedFeedback}
-            handleNotSatisfiedFeedbackFormSubmit={
-              onNotSatisfiedFeedbackDetailsSubmit
-            }
-          />
+            <Feedback
+              handleSatisfiedFeedback={onSatisfiedFeedback}
+              handleNotSatisfiedFeedback={onNotSatisfiedFeedback}
+              handleNotSatisfiedFeedbackFormSubmit={
+                onNotSatisfiedFeedbackDetailsSubmit
+              }
+            />
           )}
         </div>
         {showSqlFeatureFlag && showSql && question && fetchedSQL && (
