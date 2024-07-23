@@ -77,20 +77,6 @@ const DefaultFeedback = ({
   </div>
 );
 
-const SatisfiedFeedback = () => (
-  <div
-    className="gem-c-feedback__prompt gem-c-feedback__js-show js-prompt"
-    tabIndex={-1}
-  >
-    <div
-      className="gem-c-feedback__prompt-questions gem-c-feedback__prompt-success js-prompt-success"
-      role="alert"
-    >
-      Thank you for your feedback
-    </div>
-  </div>
-);
-
 type TextInputData = {
   data: string;
   errors: string[];
