@@ -27,7 +27,7 @@ const DefaultFeedback = ({
       <div className="gem-c-feedback__prompt-questions js-prompt-questions">
         <div className="gem-c-feedback__prompt-question-answer">
           <h2 className="gem-c-feedback__prompt-question">
-            Are you happy with the answer?
+            Is the response as you expected?
           </h2>
           <ul className="gem-c-feedback__option-list">
             <li
@@ -73,20 +73,6 @@ const DefaultFeedback = ({
           </ul>
         </div>
       </div>
-    </div>
-  </div>
-);
-
-const SatisfiedFeedback = () => (
-  <div
-    className="gem-c-feedback__prompt gem-c-feedback__js-show js-prompt"
-    tabIndex={-1}
-  >
-    <div
-      className="gem-c-feedback__prompt-questions gem-c-feedback__prompt-success js-prompt-success"
-      role="alert"
-    >
-      Thank you for your feedback
     </div>
   </div>
 );
@@ -160,10 +146,11 @@ const FormFeedback = ({
       tabIndex={-1}
     >
       <fieldset className="govuk-fieldset feedback-form-container">
-        <legend className="govuk-fieldset__legend govuk-fieldset__legend--l">
-          <h1 className="govuk-fieldset__heading">
-            Help us improve Chat Analytics
-          </h1>
+        <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">
+          <h2 className="govuk-fieldset__heading">
+            Thank you! We'd love to hear more about your experience so we can
+            improve it
+          </h2>
         </legend>
         <div
           className={`govuk-form-group ${
@@ -171,7 +158,8 @@ const FormFeedback = ({
           }`}
         >
           <label className="govuk-label" htmlFor="feedbackDetails">
-            What could have been better?
+            Please describe how the response matched or didn't match your
+            expectations
           </label>
           {detailData?.errors.length
             ? detailData?.errors.map((error, index) => (
@@ -203,8 +191,8 @@ const FormFeedback = ({
           }`}
         >
           <label className="govuk-label" htmlFor="feedbackSql">
-            (Optional) If you know, please paste the correct SQL code for this
-            question
+            (Optional) If you know how the SQL query could be improved or
+            corrected, please enter the alternative query
           </label>
           {sqlData?.errors.length
             ? sqlData?.errors.map((error, index) => (
@@ -236,14 +224,8 @@ const FormFeedback = ({
           }`}
         >
           <label className="govuk-label" htmlFor="feedbackDetails">
-            What is your name? (Optional){' '}
-            <span style={{ fontSize: 16 }}>
-              <br />
-              <i>
-                By letting us contacting you, you'll help us fine tune our
-                model.
-              </i>
-            </span>
+            (Optional) If you don't mind being contacted about your feedback,
+            please leave your name{' '}
           </label>
           {usernameData?.errors.length
             ? usernameData?.errors.map((error, index) => (
@@ -278,7 +260,7 @@ const FormFeedback = ({
           data-module="govuk-button"
           onClick={submit}
         >
-          Save and continue
+          Send feedback
         </button>
       </fieldset>
     </div>
@@ -294,7 +276,7 @@ const FormSentFeedback = () => (
       className="gem-c-feedback__prompt-questions gem-c-feedback__prompt-success js-prompt-success"
       role="alert"
     >
-      Thank you for your feedback. We are looking into it.
+      Thank you, your feedback is much appreciated! 🚀
     </div>
   </div>
 );
@@ -338,7 +320,7 @@ export default function Feedback({
       />
     );
   } else if (state === FeedbackState.Satisfied) {
-    feedbackComponent = <SatisfiedFeedback />;
+    feedbackComponent = <FormFeedback onSubmit={onSubmitFeedbackForm} />;
   } else if (state === FeedbackState.Form) {
     feedbackComponent = <FormFeedback onSubmit={onSubmitFeedbackForm} />;
   } else if (state === FeedbackState.FormSent) {
