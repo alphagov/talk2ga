@@ -122,33 +122,43 @@ export function DateRangeInput({
 
   return (
     <>
-      <h2 className="govuk-heading-s govuk-!-margin-top-7">
-        Date range to query
-      </h2>
-      <DatePicker
-        identifier="from-date"
-        label="From"
-        labelClassExt="govuk-label--s"
-        hint="For example, 18/06/2024"
-        width={InputWidth.Char10}
-        multiQuestion={true}
-        value={fromDate}
-        error={dateFromError}
-        onChange={onFromDateChange}
-        onBlur={onFromDateBlur}
-      />
-      <DatePicker
-        identifier="to-date"
-        label="To"
-        labelClassExt="govuk-label--s"
-        hint="For example, 19/06/2024"
-        width={InputWidth.Char10}
-        multiQuestion={true}
-        value={toDate}
-        error={dateToError}
-        onChange={onToDateChange}
-        onBlur={onToDateBlur}
-      />
+      <div className="govuk-form-group">
+        <fieldset
+          className="govuk-fieldset"
+          role="group"
+          aria-describedby="date-hint"
+        >
+          <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">
+            Date range to query
+          </legend>
+          <div className="datepicker-container">
+            <DatePicker
+              identifier="from-date"
+              label="From"
+              labelClassExt="govuk-label--s"
+              hint="For example, 18/06/2024"
+              width={InputWidth.Char10}
+              multiQuestion={true}
+              value={fromDate}
+              error={dateFromError}
+              onChange={onFromDateChange}
+              onBlur={onFromDateBlur}
+            />
+            <DatePicker
+              identifier="to-date"
+              label="To"
+              labelClassExt="govuk-label--s"
+              hint="For example, 19/06/2024"
+              width={InputWidth.Char10}
+              multiQuestion={true}
+              value={toDate}
+              error={dateToError}
+              onChange={onToDateChange}
+              onBlur={onToDateBlur}
+            />
+          </div>
+        </fieldset>
+      </div>
     </>
   );
 }

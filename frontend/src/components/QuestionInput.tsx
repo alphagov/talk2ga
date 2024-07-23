@@ -60,25 +60,25 @@ function QuestionInput({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="govuk-form-group">
-      <h1 className="govuk-heading-s">Enter a question</h1>
-      <div className="legend-container">
+    <form onSubmit={handleSubmit}>
+      <div className="govuk-form-group question-group">
+        <label className="govuk-label govuk-label--m">Enter a question</label>
         <div id="more-detail-hint" className="govuk-hint">
           Specific page titles or URLs can improve accuracy
         </div>
+        <input
+          className="govuk-input"
+          id="more-detail"
+          name="moreDetail"
+          type="text"
+          aria-describedby="more-detail-hint"
+          placeholder="Eg. What is the most viewed page?"
+          value={forcedValue || inputData.data}
+          onChange={(e) => {
+            setInputData({ data: e.target.value, errors: [] });
+          }}
+        />
       </div>
-      <input
-        className="govuk-input"
-        id="more-detail"
-        name="moreDetail"
-        type="text"
-        aria-describedby="more-detail-hint"
-        placeholder="What is the most viewed page?"
-        value={forcedValue || inputData.data}
-        onChange={(e) => {
-          setInputData({ data: e.target.value, errors: [] });
-        }}
-      />
       <DateRangeInput
         initialDateRange={selectedDateRange}
         onDateRangeChange={handleDateRangeChange}

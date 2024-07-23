@@ -201,7 +201,7 @@ function Playground() {
 
   return (
     <Layout>
-      <h1 className="govuk-heading-l">Ask about GOV.UK analytics</h1>
+      <h1 className="govuk-heading-xl">Ask about GOV.UK analytics</h1>
       <p className="govuk-body-l">
         This experimental tool uses AI to answer questions about the performance
         of GOV.UK.{' '}
@@ -209,7 +209,9 @@ function Playground() {
       <div className="govuk-grid-row">
         <div
           className={
-            showSql ? 'govuk-grid-column-one-half' : 'govuk-grid-column-full'
+            showSql
+              ? 'govuk-grid-column-one-half'
+              : 'govuk-grid-column-three-quarters'
           }
         >
           <QuestionInput

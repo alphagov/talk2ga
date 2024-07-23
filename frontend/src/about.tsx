@@ -36,7 +36,14 @@ export function About() {
         <p className="govuk-body">
           If you have any thoughts or suggestions about this tool, or how we can
           better serve your needs for data insights, you can let us know using
-          this form.
+          this{' '}
+          <a
+            href="https://docs.google.com/forms/d/e/1FAIpQLSeSinPTFPkYIb-jAebaD6id0fD0cT7P4YaG2ke6Ebebm_H7nA/viewform"
+            target="_blank"
+          >
+            Google form
+          </a>
+          .
         </p>
         <h2 className="govuk-heading-l">Contact</h2>
         <p className="govuk-body">GOV.UK Data Insights Team</p>
