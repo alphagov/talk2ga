@@ -162,7 +162,8 @@ const FormFeedback = ({
       <fieldset className="govuk-fieldset feedback-form-container">
         <legend className="govuk-fieldset__legend govuk-fieldset__legend--m">
           <h2 className="govuk-fieldset__heading">
-            Thank you! We'd love to hear more about your experience so we can improve it
+            Thank you! We'd love to hear more about your experience so we can
+            improve it
           </h2>
         </legend>
         <div
@@ -171,7 +172,8 @@ const FormFeedback = ({
           }`}
         >
           <label className="govuk-label" htmlFor="feedbackDetails">
-            Please describe how the response matched or didn't match your expectations
+            Please describe how the response matched or didn't match your
+            expectations
           </label>
           {detailData?.errors.length
             ? detailData?.errors.map((error, index) => (
@@ -203,7 +205,8 @@ const FormFeedback = ({
           }`}
         >
           <label className="govuk-label" htmlFor="feedbackSql">
-            (Optional) If you know how the SQL query could be improved or corrected, please enter the alternative query
+            (Optional) If you know how the SQL query could be improved or
+            corrected, please enter the alternative query
           </label>
           {sqlData?.errors.length
             ? sqlData?.errors.map((error, index) => (
@@ -235,7 +238,8 @@ const FormFeedback = ({
           }`}
         >
           <label className="govuk-label" htmlFor="feedbackDetails">
-            (Optional) If you don't mind being contacted about your feedback, please leave your name {' '}
+            (Optional) If you don't mind being contacted about your feedback,
+            please leave your name{' '}
           </label>
           {usernameData?.errors.length
             ? usernameData?.errors.map((error, index) => (

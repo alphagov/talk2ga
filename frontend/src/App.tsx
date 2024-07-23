@@ -234,15 +234,15 @@ function Playground() {
             />
           )}
           {isError && <ErrorAnswer errorName={errorName} />}
-          {/* {hasCompleted && ( */}
-            <Feedback
-              handleSatisfiedFeedback={onSatisfiedFeedback}
-              handleNotSatisfiedFeedback={onNotSatisfiedFeedback}
-              handleNotSatisfiedFeedbackFormSubmit={
-                onNotSatisfiedFeedbackDetailsSubmit
-              }
-            />
-          {/* )} */}
+          {hasCompleted && (
+          <Feedback
+            handleSatisfiedFeedback={onSatisfiedFeedback}
+            handleNotSatisfiedFeedback={onNotSatisfiedFeedback}
+            handleNotSatisfiedFeedbackFormSubmit={
+              onNotSatisfiedFeedbackDetailsSubmit
+            }
+          />
+          )}
         </div>
         {showSqlFeatureFlag && showSql && question && fetchedSQL && (
           <div className="govuk-grid-column-one-half">
