@@ -187,9 +187,10 @@ def error_handler(func):
             try:
                 if question_id := config.get("question_id"):
                     asyncio.create_task(analytics_controller.log_error(question_id, format_exception(e)))
-            except Exception as e:
+            except Exception as log_err_err:
+                print("\n\n\n\nCANNOT LOG ERROR\n\n\n\n")
                 # If the error logging fails, just pass, it shouldn't affect the main flow
-                print(e)
+                print(log_err_err)
                 pass
 
             raise e
