@@ -16,7 +16,6 @@ import {
   useQuestions,
 } from './useQuestionAnalytics';
 import Feedback from './components/Feedback';
-import SQLViewer from './components/SQLViewer';
 
 import QuestionInput from './components/QuestionInput';
 import TypeWriterLoading from './components/TypeWriterLoading';
@@ -25,7 +24,6 @@ import { getUsername } from './localstorage';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { getQuestionData } from './apiService';
-import { showSqlFeatureFlag } from './envConfig';
 import { About } from './about';
 import Layout from './components/Layout';
 import { FrontendDateRange } from './types';
@@ -48,7 +46,6 @@ const DEFAULT_DURATION_TRACK: DurationTrack = {};
 function Playground() {
   let { questionId: urlQuestionId } = useParams();
   const [isStreaming, setIsStreaming] = useState(false);
-  const [showSQLBtnActive, setShowSQLBtnActive] = useState(false);
   const [question, setQuestion] = useState<string | null>(null);
   const [isError, setIsError] = useState(false);
   const [errorName, setErrorName] = useState<string | null>(null);
@@ -218,11 +215,6 @@ function Playground() {
 
   const isLoading = isStreaming && !hasCompleted;
 
-  const handleToggleShowSQL = () =>
-    setShowSQLBtnActive(() => !showSQLBtnActive);
-
-  const showSql = hasCompleted && showSQLBtnActive;
-
   const handleSubmit = preventEdits(
     (question: string, dateRange: FrontendDateRange) => {
       setCompletedQuestion(null);
@@ -241,21 +233,12 @@ function Playground() {
         of GOV.UK.{' '}
       </p>
       <div className="govuk-grid-row">
-        <div
-          className={
-            showSql
-              ? 'govuk-grid-column-one-half'
-              : 'govuk-grid-column-three-quarters'
-          }
-        >
+        <div className={'govuk-grid-column-three-quarters'}>
           <QuestionInput
             onSubmit={handleSubmit}
             onDateRangeChange={handleDateRangeChange}
             stopStreaming={stopStream}
-            toggleShowSQL={handleToggleShowSQL}
             isStreaming={isStreaming}
-            showSQLBtnActive={showSQLBtnActive}
-            hasCompleted={hasCompleted}
             initialDateRange={initialDateRange.current}
           />
           {isLoading && <TypeWriterLoading />}
@@ -278,15 +261,6 @@ function Playground() {
             />
           )}
         </div>
-        {showSqlFeatureFlag && showSql && question && fetchedSQL && (
-          <div className="govuk-grid-column-one-half">
-            <SQLViewer
-              question={question}
-              sql={fetchedSQL}
-              isLoadedQuestion={!!urlQuestionId}
-            />
-          </div>
-        )}
       </div>
     </Layout>
   );
