@@ -9,28 +9,27 @@ type InputData = {
 };
 
 type QuestionInputProps = {
-  handleSubmitQuestion: (
-    question: string,
-    dateRange: FrontendDateRange,
-  ) => void;
-  handleStopStreaming?: () => void;
-  isStreaming: boolean;
+  onSubmit: (question: string, dateRange: FrontendDateRange) => void;
+  onDateRangeChange?: (dateRange: FrontendDateRange | null) => void;
+  stopStreaming?: () => void;
   toggleShowSQL: () => void;
+  isStreaming: boolean;
   showSQLBtnActive: boolean;
   hasCompleted: boolean;
-  selectedDateRange: FrontendDateRange | null;
+  initialDateRange: FrontendDateRange | null;
   forcedValue?: string | null;
   forcedDateRange?: FrontendDateRange | null;
 };
 
 function QuestionInput({
-  handleSubmitQuestion,
-  handleStopStreaming,
-  isStreaming,
+  onSubmit,
+  onDateRangeChange,
+  stopStreaming,
   toggleShowSQL,
+  isStreaming,
   showSQLBtnActive,
   hasCompleted,
-  selectedDateRange,
+  initialDateRange,
   forcedValue,
 }: QuestionInputProps) {
   const [inputData, setInputData] = useState<InputData>({
@@ -38,21 +37,22 @@ function QuestionInput({
     errors: [],
   });
 
-  const dateRangeRef = useRef<FrontendDateRange | null>(selectedDateRange);
+  const dateRangeRef = useRef<FrontendDateRange | null>(initialDateRange);
 
   const [isDateRangeValid, setIsDateRangeValid] = useState<boolean>(true);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (isStreaming) {
-      handleStopStreaming && handleStopStreaming();
+      stopStreaming && stopStreaming();
     } else if (isDateRangeValid && dateRangeRef.current) {
-      handleSubmitQuestion(inputData.data, dateRangeRef.current);
+      onSubmit(inputData.data, dateRangeRef.current);
     }
   };
 
   const handleDateRangeChange = (dateRange: FrontendDateRange | null) => {
     dateRangeRef.current = dateRange;
+    onDateRangeChange && onDateRangeChange(dateRange);
   };
 
   const handleDateValidationChange = (isValid: boolean) => {
@@ -80,7 +80,7 @@ function QuestionInput({
         />
       </div>
       <DateRangeInput
-        initialDateRange={selectedDateRange}
+        initialDateRange={initialDateRange}
         onDateRangeChange={handleDateRangeChange}
         onValidationChange={handleDateValidationChange}
       />
