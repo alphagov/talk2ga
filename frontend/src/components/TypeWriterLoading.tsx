@@ -12,8 +12,13 @@ const Typewriter = ({ text, delay }: { text: string; delay: number }) => {
       }, delay);
 
       return () => clearTimeout(timeout);
+    } else {
+      setTimeout(() => {
+        setCurrentText(text[0]);
+        setCurrentIndex(1);
+      }, 500);
     }
-  }, [currentIndex, delay, text]); // Depend on currentIndex, delay, and text for re-render
+  }, [currentIndex, delay, text]);
 
   return <span>{currentText}</span>;
 };
