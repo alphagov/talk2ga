@@ -1,5 +1,4 @@
 import { useRef, useState } from 'react';
-import { showSqlFeatureFlag } from '../envConfig';
 import { DateRangeInput } from './DateRangeInput';
 import type { FrontendDateRange } from '../types';
 
@@ -12,23 +11,15 @@ type QuestionInputProps = {
   onSubmit: (question: string, dateRange: FrontendDateRange) => void;
   onDateRangeChange?: (dateRange: FrontendDateRange | null) => void;
   stopStreaming?: () => void;
-  toggleShowSQL: () => void;
   isStreaming: boolean;
-  showSQLBtnActive: boolean;
-  hasCompleted: boolean;
   initialDateRange: FrontendDateRange | null;
-  forcedValue?: string | null;
-  forcedDateRange?: FrontendDateRange | null;
 };
 
 function QuestionInput({
   onSubmit,
   onDateRangeChange,
   stopStreaming,
-  toggleShowSQL,
   isStreaming,
-  showSQLBtnActive,
-  hasCompleted,
   initialDateRange,
 }: QuestionInputProps) {
   const [inputData, setInputData] = useState<InputData>({
@@ -91,16 +82,6 @@ function QuestionInput({
         >
           {isStreaming ? 'Abort' : 'Submit'}
         </button>
-        {showSqlFeatureFlag && hasCompleted && (
-          <button
-            onClick={toggleShowSQL}
-            type="button"
-            className="govuk-button govuk-button--secondary"
-            data-module="govuk-button"
-          >
-            {showSQLBtnActive ? 'Hide SQL' : 'Show SQL'}
-          </button>
-        )}
       </div>
     </form>
   );
