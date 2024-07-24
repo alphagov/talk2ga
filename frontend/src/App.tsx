@@ -1,6 +1,6 @@
 import './App.css';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   BrowserRouter as Router,
   Routes,
@@ -36,6 +36,13 @@ type DurationTrack = {
   durationMs?: number;
 };
 
+type CompletedQuestion = {
+  dateRange: FrontendDateRange;
+  question: string;
+  answerJSON: string;
+  sql: string;
+};
+
 const DEFAULT_DURATION_TRACK: DurationTrack = {};
 
 function Playground() {
@@ -43,18 +50,18 @@ function Playground() {
   const [isStreaming, setIsStreaming] = useState(false);
   const [showSQLBtnActive, setShowSQLBtnActive] = useState(false);
   const [question, setQuestion] = useState<string | null>(null);
-  const [duration, setDuration] = useState<DurationTrack>(
-    DEFAULT_DURATION_TRACK,
-  );
   const [isError, setIsError] = useState(false);
   const [errorName, setErrorName] = useState<string | null>(null);
-  const [selectedDateRange, setSelectedDateRange] =
-    useState<FrontendDateRange | null>(null);
-  const [answerJSON, setAnswerJSON] = useState<string | null>();
   const [hasCompleted, setHasCompleted] = useState<boolean>(false);
   const { context, callbacks } = useAppStreamCallbacks();
   const { startStream, stopStream, latest } = useStreamLog(callbacks);
   const [fetchedSQL, setFetchedSQL] = useState<string | null>(null);
+  const [completedQuestion, setCompletedQuestion] =
+    useState<CompletedQuestion | null>(null);
+
+  const initialDateRange = useRef<FrontendDateRange | null>(null);
+  const selectedDateRange = useRef<FrontendDateRange | null>(null);
+  const duration = useRef<DurationTrack>(DEFAULT_DURATION_TRACK);
 
   if (urlQuestionId?.includes('static')) {
     urlQuestionId = undefined;
@@ -87,8 +94,13 @@ function Playground() {
       getQuestionData(urlQuestionId)
         .then(({ question, dateRange, mainAnswer, executedSql }) => {
           setQuestion(question);
-          setSelectedDateRange(dateRange as unknown as FrontendDateRange);
-          setAnswerJSON(mainAnswer);
+          initialDateRange.current = dateRange as unknown as FrontendDateRange;
+          setCompletedQuestion({
+            dateRange: dateRange as unknown as FrontendDateRange,
+            question,
+            answerJSON: mainAnswer,
+            sql: executedSql,
+          });
           setFetchedSQL(executedSql);
           setIsStreaming(false);
           setHasCompleted(true);
@@ -107,7 +119,7 @@ function Playground() {
      * OnStart
      */
     context.current.onStart['setDurationStart'] = () =>
-      setDuration({ ...DEFAULT_DURATION_TRACK, startTime: new Date() });
+      (duration.current = { ...DEFAULT_DURATION_TRACK, startTime: new Date() });
     context.current.onStart['setQuestion'] = ({ question }) =>
       setQuestion(question);
     context.current.onStart['setQuestionId'] = ({ questionId }) =>
@@ -122,14 +134,15 @@ function Playground() {
     context.current.onComplete['recordCompletion'] = () => {
       const endTime = new Date();
       const durationMs =
-        duration.startTime && endTime.getTime() - duration.startTime.getTime();
+        duration.current.startTime &&
+        endTime.getTime() - duration.current.startTime.getTime();
       currentQuestionId &&
         recordQuestionCompletion(currentQuestionId, {
           logs_json: latest && JSON.stringify(latest.logs),
           duration: durationMs,
           username: getUsername() || undefined,
         });
-      setDuration({ ...duration, endTime, durationMs });
+      duration.current = { ...duration, endTime, durationMs };
     };
     context.current.onComplete['setIsNotStreaming'] = () =>
       setIsStreaming(false);
@@ -166,6 +179,24 @@ function Playground() {
     };
   }, [latest, latest?.logs, latest?.final_output, currentQuestionId]);
 
+  useEffect(() => {
+    if (
+      hasCompleted &&
+      !isError &&
+      latest &&
+      selectedDateRange.current &&
+      question &&
+      fetchedSQL
+    ) {
+      setCompletedQuestion({
+        dateRange: selectedDateRange.current,
+        question,
+        answerJSON: latest as unknown as string,
+        sql: fetchedSQL,
+      });
+    }
+  }, [hasCompleted, isError, latest, question, fetchedSQL]);
+
   const onSatisfiedFeedback = preventEdits((callback: CallableFunction) => {
     currentQuestionId && recordFeedbackSatisfied(currentQuestionId);
     callback();
@@ -191,13 +222,16 @@ function Playground() {
     setShowSQLBtnActive(() => !showSQLBtnActive);
 
   const showSql = hasCompleted && showSQLBtnActive;
-  const successful = hasCompleted && !isError;
 
-  if (successful && latest) {
-    !answerJSON && setAnswerJSON(latest as unknown as string);
-  }
+  const handleSubmit = preventEdits(
+    (question: string, dateRange: FrontendDateRange) => {
+      setCompletedQuestion(null);
+      startStream(question, dateRange);
+    },
+  );
 
-  const handleSubmit = preventEdits(startStream);
+  const handleDateRangeChange = (dateRange: FrontendDateRange | null) =>
+    (selectedDateRange.current = dateRange);
 
   return (
     <Layout>
@@ -215,22 +249,22 @@ function Playground() {
           }
         >
           <QuestionInput
-            handleSubmitQuestion={handleSubmit}
-            handleStopStreaming={stopStream}
-            isStreaming={isStreaming}
+            onSubmit={handleSubmit}
+            onDateRangeChange={handleDateRangeChange}
+            stopStreaming={stopStream}
             toggleShowSQL={handleToggleShowSQL}
+            isStreaming={isStreaming}
             showSQLBtnActive={showSQLBtnActive}
             hasCompleted={hasCompleted}
-            selectedDateRange={selectedDateRange}
-            forcedValue={question}
+            initialDateRange={initialDateRange.current}
           />
           {isLoading && <TypeWriterLoading />}
-          {answerJSON && fetchedSQL && (
+          {completedQuestion && (
             <MainAnswer
-              answerJSON={answerJSON}
-              dateRange={[new Date(), new Date()]}
-              sql={fetchedSQL}
-              question={question || 'question'}
+              answerJSON={completedQuestion.answerJSON}
+              dateRange={completedQuestion.dateRange}
+              sql={completedQuestion.sql}
+              question={completedQuestion.question}
             />
           )}
           {isError && <ErrorAnswer errorName={errorName} />}

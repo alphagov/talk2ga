@@ -9,50 +9,48 @@ type InputData = {
 };
 
 type QuestionInputProps = {
-  handleSubmitQuestion: (
-    question: string,
-    dateRange: FrontendDateRange,
-  ) => void;
-  handleStopStreaming?: () => void;
-  isStreaming: boolean;
+  onSubmit: (question: string, dateRange: FrontendDateRange) => void;
+  onDateRangeChange?: (dateRange: FrontendDateRange | null) => void;
+  stopStreaming?: () => void;
   toggleShowSQL: () => void;
+  isStreaming: boolean;
   showSQLBtnActive: boolean;
   hasCompleted: boolean;
-  selectedDateRange: FrontendDateRange | null;
+  initialDateRange: FrontendDateRange | null;
   forcedValue?: string | null;
   forcedDateRange?: FrontendDateRange | null;
 };
 
 function QuestionInput({
-  handleSubmitQuestion,
-  handleStopStreaming,
-  isStreaming,
+  onSubmit,
+  onDateRangeChange,
+  stopStreaming,
   toggleShowSQL,
+  isStreaming,
   showSQLBtnActive,
   hasCompleted,
-  selectedDateRange,
-  forcedValue,
+  initialDateRange,
 }: QuestionInputProps) {
   const [inputData, setInputData] = useState<InputData>({
     data: '',
     errors: [],
   });
-
-  const dateRangeRef = useRef<FrontendDateRange | null>(selectedDateRange);
-
   const [isDateRangeValid, setIsDateRangeValid] = useState<boolean>(true);
+
+  const dateRangeRef = useRef<FrontendDateRange | null>(initialDateRange);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (isStreaming) {
-      handleStopStreaming && handleStopStreaming();
+      stopStreaming && stopStreaming();
     } else if (isDateRangeValid && dateRangeRef.current) {
-      handleSubmitQuestion(inputData.data, dateRangeRef.current);
+      onSubmit(inputData.data, dateRangeRef.current);
     }
   };
 
   const handleDateRangeChange = (dateRange: FrontendDateRange | null) => {
     dateRangeRef.current = dateRange;
+    onDateRangeChange && onDateRangeChange(dateRange);
   };
 
   const handleDateValidationChange = (isValid: boolean) => {
@@ -73,14 +71,14 @@ function QuestionInput({
           type="text"
           aria-describedby="more-detail-hint"
           placeholder="Eg. What is the most viewed page?"
-          value={forcedValue || inputData.data}
+          value={inputData.data}
           onChange={(e) => {
             setInputData({ data: e.target.value, errors: [] });
           }}
         />
       </div>
       <DateRangeInput
-        initialDateRange={selectedDateRange}
+        initialDateRange={initialDateRange}
         onDateRangeChange={handleDateRangeChange}
         onValidationChange={handleDateValidationChange}
       />
