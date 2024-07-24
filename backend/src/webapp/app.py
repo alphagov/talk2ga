@@ -6,7 +6,6 @@ from fastapi import FastAPI, Depends, Request
 from fastapi.responses import StreamingResponse
 
 from langserve import add_routes
-from langchain_core.messages import AIMessageChunk
 
 from llm.llm_chains.generate_sql import gen as generate_sql
 
@@ -20,6 +19,8 @@ from fastapi.responses import HTMLResponse
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from webapp.analytics_controller import create_question
+from webapp.admin.admin import add_admin_dashboard
+from webapp.db import engine
 
 
 app = FastAPI(
@@ -36,6 +37,8 @@ app.add_middleware(
     allow_headers=["*"],
     expose_headers=["*"],
 )
+
+add_admin_dashboard(app, engine)
 
 
 def add_uid_to_response(response, question_id):
