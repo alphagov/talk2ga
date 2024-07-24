@@ -1,3 +1,5 @@
+import json
+
 from datetime import datetime
 from sqladmin import ModelView
 from webapp.models import Question
@@ -7,6 +9,11 @@ def convert_date_to_readable(model, attribute) -> str:
     dt = datetime.fromisoformat(str(model.created_at))
     readable_date = dt.strftime("%d-%m-%Y %H:%M:%S")
     return readable_date
+
+
+def format_question_text(model, attribute) -> str:
+    text_obj = json.loads(model.text)
+    return f"{text_obj['question']} ({text_obj['dateRange']['start_date']} -> {text_obj['dateRange']['end_date']})"
 
 
 class QuestionAdmin(ModelView, model=Question):
@@ -57,7 +64,7 @@ class QuestionAdmin(ModelView, model=Question):
         Question.executed_sql_query: "SQL Query",
     }
 
-    column_formatters = {Question.created_at: convert_date_to_readable}
+    column_formatters = {Question.created_at: convert_date_to_readable, Question.text: format_question_text}
 
 
 def get_admin_classes():
