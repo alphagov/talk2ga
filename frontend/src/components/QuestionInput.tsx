@@ -30,16 +30,14 @@ function QuestionInput({
   showSQLBtnActive,
   hasCompleted,
   initialDateRange,
-  forcedValue,
 }: QuestionInputProps) {
   const [inputData, setInputData] = useState<InputData>({
     data: '',
     errors: [],
   });
+  const [isDateRangeValid, setIsDateRangeValid] = useState<boolean>(true);
 
   const dateRangeRef = useRef<FrontendDateRange | null>(initialDateRange);
-
-  const [isDateRangeValid, setIsDateRangeValid] = useState<boolean>(true);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -73,7 +71,7 @@ function QuestionInput({
           type="text"
           aria-describedby="more-detail-hint"
           placeholder="Eg. What is the most viewed page?"
-          value={forcedValue || inputData.data}
+          value={inputData.data}
           onChange={(e) => {
             setInputData({ data: e.target.value, errors: [] });
           }}

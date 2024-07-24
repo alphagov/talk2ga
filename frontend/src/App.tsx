@@ -225,6 +225,7 @@ function Playground() {
 
   const handleSubmit = preventEdits(
     (question: string, dateRange: FrontendDateRange) => {
+      setCompletedQuestion(null);
       startStream(question, dateRange);
     },
   );
@@ -256,7 +257,6 @@ function Playground() {
             showSQLBtnActive={showSQLBtnActive}
             hasCompleted={hasCompleted}
             initialDateRange={initialDateRange.current}
-            forcedValue={question}
           />
           {isLoading && <TypeWriterLoading />}
           {completedQuestion && (
