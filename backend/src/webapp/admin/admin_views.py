@@ -4,6 +4,10 @@ from webapp.models import Question
 
 
 class QuestionAdmin(ModelView, model=Question):
+    can_create = False
+    can_edit = False
+    can_delete = False
+
     column_list = [
         Question.text,
         Question.succeeded,
