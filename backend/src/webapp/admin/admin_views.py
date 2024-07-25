@@ -17,6 +17,8 @@ def format_question_text(model, attribute) -> str:
 
 
 class QuestionAdmin(ModelView, model=Question):
+    name_plural = "Questions"
+
     page_size = 100
     page_size_options = [10, 25, 50, 100, 200, 500]
 
