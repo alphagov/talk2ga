@@ -21,13 +21,15 @@ from fastapi.staticfiles import StaticFiles
 from webapp.analytics_controller import create_question
 from webapp.admin.admin import add_admin_dashboard
 from webapp.db import engine
-
+from fastapi.templating import Jinja2Templates
 
 app = FastAPI(
     title="LangChain Server",
     version="1.0",
     description="A simple api server using Langchain's Runnable interfaces",
 )
+
+templates = Jinja2Templates(directory="templates")
 
 app.add_middleware(
     CORSMiddleware,
