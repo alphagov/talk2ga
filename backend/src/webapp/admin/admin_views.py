@@ -21,7 +21,7 @@ class QuestionAdmin(ModelView, model=Question):
     page_size_options = [10, 25, 50, 100, 200, 500]
 
     column_default_sort = ("created_at", True)
-    column_sortable_list = ["created_at", "succeeded", "username", "user_email", "has_feedback", "is_feedback_positive"]
+    column_sortable_list = ["created_at", "succeeded", "username", "user_email", "has_feedback", "is_feedback_positive", "duration"]
 
     can_create = False
     can_edit = False
@@ -32,18 +32,18 @@ class QuestionAdmin(ModelView, model=Question):
         Question.succeeded,
         Question.text,
         Question.final_output,
-        Question.executed_sql_query,
         Question.error_msg,
-        # Question.logs_json,
         Question.duration,
         Question.username,
         Question.user_email,
         Question.has_feedback,
         Question.is_feedback_positive,
         Question.feedback_text,
-        Question.suggested_sql_correction,
-        Question.explanations,
-        Question.generated_sql_queries,
+        # Question.executed_sql_query,
+        # Question.explanations,
+        # Question.suggested_sql_correction,
+        # Question.generated_sql_queries,
+        # Question.logs_json,
     ]
 
     column_labels = {
