@@ -198,5 +198,5 @@ def run_server():
     import uvicorn
 
     print("Running server...")
-    uvicorn.run("webapp.app:app", host="0.0.0.0", port=80, reload=True)
+    uvicorn.run("webapp.app:app", host="0.0.0.0", port=80, reload=True, forwarded_allow_ips="*", proxy_headers=True)
     print("Server running :check:")
