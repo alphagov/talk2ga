@@ -59,6 +59,9 @@ async def create_question_and_add_id_to_res_and_req(request: Request, call_next)
     if request.url.path in allow_list:
         body = await request.json()
         question = Question(**{"text": body["input"]})
+        if "x-goog-authenticated-user-email" in request.headers:
+            email = request.headers.get("x-goog-authenticated-user-email", "").split("accounts.google.com:")[-1]
+            question = Question(**{"text": body["input"], "user_email": email})
         question = await create_question(question)
         request = add_uid_to_request_state(request, question.id)
 
