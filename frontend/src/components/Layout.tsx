@@ -77,8 +77,12 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               Experimental
             </strong>
             <span className="govuk-phase-banner__text">
-              This is a working prototype with limited functionality. Your
-              feedback will help us to improve it.
+              {"This is a working prototype with limited functionality. Your "}
+              <a
+              href="https://docs.google.com/forms/d/e/1FAIpQLSeSinPTFPkYIb-jAebaD6id0fD0cT7P4YaG2ke6Ebebm_H7nA/viewform"
+              target="_blank"
+              >feedback
+              </a> {"will help us to improve it."}
             </span>
           </p>
         </div>
