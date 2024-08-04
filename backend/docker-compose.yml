@@ -1,6 +1,6 @@
 version: '3'
 services:
-  db:
+  db-local:
     image: postgres
     environment:
       POSTGRES_USER: local
@@ -10,6 +10,30 @@ services:
       - ./exports:/tmp/exports
     ports:
       - '5433:5432'
+
+  db-dev:
+    image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:2.10.1
+    volumes:
+      - $HOME/.config/gcloud/application_default_credentials.json:/path/to/service-account-key.json
+    ports:
+      - '127.0.0.1:5436:5432'
+    command: --address 0.0.0.0 --port 5432 --auto-iam-authn --credentials-file /path/to/service-account-key.json data-insights-experimentation:europe-west2:askanalytics-dev
+
+  db-old-prod:
+    image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:2.10.1
+    volumes:
+      - $HOME/.config/gcloud/application_default_credentials.json:/path/to/service-account-key.json
+    ports:
+      - '127.0.0.1:5434:5432'
+    command: --address 0.0.0.0 --port 5432 --auto-iam-authn --credentials-file /path/to/service-account-key.json data-insights-experimentation:europe-west2:chat-analytics-dev
+
+  db-prod:
+    image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:2.10.1
+    volumes:
+      - $HOME/.config/gcloud/application_default_credentials.json:/path/to/service-account-key.json
+    ports:
+      - '127.0.0.1:5435:5432'
+    command: --address 0.0.0.0 --port 5432 --auto-iam-authn --credentials-file /path/to/service-account-key.json data-insights-experimentation:europe-west2:askanalytics-production
 
   api:
     build:
@@ -23,18 +47,10 @@ services:
     ports:
       - '80:80'
 
-  cloud-sql-proxy:
-    image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:2.10.1
-    volumes:
-      - $HOME/.config/gcloud/application_default_credentials.json:/path/to/service-account-key.json
-    ports:
-      - '127.0.0.1:5434:5432'
-    command: --address 0.0.0.0 --port 5432 --auto-iam-authn --credentials-file /path/to/service-account-key.json data-insights-experimentation:europe-west2:chat-analytics-dev
-
   langfuse:
     image: ghcr.io/langfuse/langfuse:latest
     depends_on:
-      - db
+      - db-local
     ports:
       - '3000:3000'
     environment:

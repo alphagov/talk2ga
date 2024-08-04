@@ -10,4 +10,9 @@ wipe-db:
 print-env:
 	@cd src/webapp && python config.py
 
-.PHONY: run print-env
+ENV ?= local
+
+run-migrations:
+	ENV=$(ENV) alembic upgrade head
+
+.PHONY: run print-env run_migrations

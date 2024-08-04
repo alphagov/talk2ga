@@ -3,7 +3,7 @@ from webapp.models import Question, QuestionCreate
 from sqlmodel.ext.asyncio.session import AsyncSession
 from webapp.db import async_session
 
-import appconfig
+import config
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.orm import sessionmaker
@@ -46,7 +46,7 @@ async def add_generated_queries_to_question(question_id: int, generated_queries:
         return question
 
     if fresh_session:
-        engine = create_async_engine(appconfig.DB_URL, echo=True)
+        engine = create_async_engine(config.database.URL, echo=True)
         async_session_single_time = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
         async with async_session_single_time() as session:
             return await write_logic(session)
@@ -65,7 +65,7 @@ async def add_executed_query_to_question(question_id: int, executed_query: str, 
         return question
 
     if fresh_session:
-        engine = create_async_engine(appconfig.DB_URL, echo=True)
+        engine = create_async_engine(config.database.URL, echo=True)
         async_session_single_time = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
         async with async_session_single_time() as session:
             return await write_logic(session)

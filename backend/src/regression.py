@@ -166,7 +166,6 @@ def run_test_suite(options: dict = {}):
 
         print(format_test_passed(test_name, passed))
 
-    print("\n\n\n")
     for test_name, result in test_results.items():
         print(format_test_passed(test_name, result["passed"]))
 
