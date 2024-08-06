@@ -1,4 +1,4 @@
-import appconfig
+import config
 from llm.prompts.example_rows_fragment import example_rows
 
 fragment_1 = """You are tasked with generating BigQuery SQL queries specifically for GA4 analytics data that is sharded daily. Each query must target specific shards using the `_TABLE_SUFFIX` keyword. This is a non-negotiable part of the syntax.
@@ -29,6 +29,6 @@ fragment_prompt_example_rows = f"""- Example Rows: `{example_rows}`"""
 
 sql_generation_prompt = f"""
 {fragment_1}
-{fragment_prompt_example_rows if appconfig.FF_PROMPT_EXAMPLE_ROWS else ""}
+{fragment_prompt_example_rows if config.llm_chain.FF_PROMPT_EXAMPLE_ROWS else ""}
 {fragment_2}
 """

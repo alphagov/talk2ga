@@ -12,7 +12,7 @@ from llm.knowledge_bases import (
     get_schema_columns,
     get_example_queries,
 )
-import appconfig
+import config as appconfig
 from llm.llm_chains import (
     generate_sql,
     format_output,
@@ -37,8 +37,8 @@ def create_gen_sql_input(question):
     if pertains_to_smart_answers(question):
         question = smart_answers_prompt(question)
     obj = {
-        "DATASET": appconfig.DATASET,
-        "schema_description": get_schema_description(schema_type=appconfig.DATASET_DESCRIPTION_FORMAT),
+        "DATASET": appconfig.bigquery.DATASET,
+        "schema_description": get_schema_description(schema_type=appconfig.llm_chain.DATASET_DESCRIPTION_FORMAT),
         "knowledge_base": get_text_knowledge_base(),
         "user_query": question,
         "example_queries": get_example_queries(),
@@ -111,7 +111,7 @@ def gen_sql_chain(input, date_range, question_id):
 
     @_observe()
     def parallel_sql_gen(input):
-        amount = appconfig.NB_PARALLEL_SQL_GEN
+        amount = appconfig.llm_chain.NB_PARALLEL_SQL_GEN
         runnable_parallel = RunnableParallel({f"gen{i+1}": (generate_sql.gen | sql_enhancement | validation_chain) for i in range(amount)})
         outputs = runnable_parallel.invoke(input)
 
@@ -145,9 +145,9 @@ def gen_sql_chain(input, date_range, question_id):
 def gen_sql_correction(payload: dict[str, list[str] | str]):
     input = {
         **payload,
-        "schema_description": get_schema_description(schema_type=appconfig.DATASET_DESCRIPTION_FORMAT),
+        "schema_description": get_schema_description(schema_type=appconfig.llm_chain.DATASET_DESCRIPTION_FORMAT),
         "knowledge_base": get_text_knowledge_base(),
-        "table_name": appconfig.DATASET,
+        "table_name": appconfig.bigquery.DATASET,
     }
     valid_sql = (generate_sql_correction.chain | RunnableLambda(formatting.remove_sql_quotes) | RunnableLambda(validation.is_valid_sql)).invoke(input)
 
@@ -217,7 +217,7 @@ def whole_chain(json_input: str, config: dict[str, any], test_callback=None) -> 
     response_object = None
 
     # sql, was_corrected = generate_sql_from_question(question, date_range, question_id)
-    if appconfig.FF_PROMPT_REFINEMENT_ENABLED:
+    if appconfig.llm_chain.FF_PROMPT_REFINEMENT_ENABLED:
         question = refine_question(original_question)
     else:
         question = original_question

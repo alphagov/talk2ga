@@ -13,9 +13,13 @@ from alembic import context
 def get_url():
     env_name = os.getenv("ENV")
     if env_name == "local":
-        return os.getenv("DB_URL_LOCAL")
+        return os.getenv("LOCAL_DB_URL")
     elif env_name == "development":
-        return os.getenv("DB_URL_DEV")
+        return os.getenv("DEV_DB_URL")
+    elif env_name == "old-production":
+        return os.getenv("OLD_PROD_DB_URL")
+    elif env_name == "production":
+        return os.getenv("PROD_DB_URL")
     else:
         raise Exception(f"No DB URL for environment: {env_name}")
 

@@ -123,6 +123,7 @@ async def generate_chat_events(input, config={}):
             if event.get("event") in events_allow_list and event.get("data") and "prompt" not in event.get("name", "").lower():
                 yield build_sse_event(event)
     except Exception as e:
+        print(e)
         yield build_sse_error_event(e)
         return
 

@@ -3,6 +3,7 @@ name = "talk2ga"
 version = "0.1.0"
 description = ""
 authors = ["Your Name <you@example.com>"]
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "3.11.4"
@@ -31,6 +32,7 @@ langfuse = "^2.25.0"
 sqlglot = {extras = ["rs"], version = "^23.11.2"}
 sqlparse = "^0.5.0"
 sqladmin = "^0.18.0"
+google-cloud-secret-manager = "^2.20.2"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.1.1"

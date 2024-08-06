@@ -1,33 +1,11 @@
+import config
 from google.cloud import bigquery
-from langchain.sql_database import SQLDatabase
-from appconfig import SQLALCHEMY_URL, GCP_PROJECT
 from llm.flags import _observe
 from utils.side_effects import run_async_side_effect
 from webapp import analytics_controller
-import appconfig
 
 
-_cache = {}
-connection_key = "db_connection"
-
-
-def create_connection():
-    print("Connecting to the database...")
-    db_conn = SQLDatabase.from_uri(SQLALCHEMY_URL)
-    print("Connected to the database\n\n")
-    _cache[connection_key] = db_conn
-    return db_conn
-
-
-def get_connection(fresh: bool = False):
-    if fresh:
-        return create_connection()
-
-    if _cache.get("connection_key", None):
-        return _cache[connection_key]
-
-
-client = bigquery.Client(project=GCP_PROJECT)
+client = bigquery.Client(project=config.base.GCP_PROJECT)
 
 
 def get_query_size_bytes(sql):
@@ -64,12 +42,12 @@ def query_sql(sql, question_id):
 
     cost_usd = get_query_cost_usd(sql)
     print(f"Query cost: ${cost_usd}")
-    if cost_usd > appconfig.MAX_QUERY_COST_USD:
-        raise QueryCostExceedsLimit(f"Query cost exceeds the limit. Cost: {cost_usd}, Limit: {appconfig.MAX_QUERY_COST_USD}, Question ID: {question_id}")
+    if cost_usd > config.llm_chain.MAX_QUERY_COST_USD:
+        raise QueryCostExceedsLimit(f"Query cost exceeds the limit. Cost: {cost_usd}, Limit: {config.llm_chain.MAX_QUERY_COST_USD}, Question ID: {question_id}")
 
     query_job = client.query(sql)
     rows = query_job.result()  # Waits for query to finish
     results = [dict(row.items()) for row in rows]
-    truncated_results = results[: appconfig.MAX_RESULTS]
+    truncated_results = results[: config.llm_chain.MAX_RESULTS]
 
     return truncated_results
