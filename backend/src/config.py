@@ -19,24 +19,29 @@ class SecretManager:
 
 class BaseConfig:
     ENV = os.getenv("ENV")
-    IS_CLOUD = os.getenv("RUN_CONTEXT", "cloud") == "cloud"
+    RUN_CONTEXT = os.getenv("RUN_CONTEXT")
+
+    assert ENV, "ENV environment variable must be set"
+    assert RUN_CONTEXT and RUN_CONTEXT in ["local", "cloud"], "RUN_CONTEXT environment variable must be set to 'cloud' or 'local'"
+
+    IS_CLOUD = RUN_CONTEXT == "cloud"
     GCP_PROJECT = os.getenv("GCP_PROJECT") or "data-insights-experimentation"
 
 
 class DatabaseConfig(BaseConfig):
     @staticmethod
     def get_database_url():
-        SECRET_ID_MAP = {"development": "db-url-dev", "old-production": "db-url-old-prod", "production": "db-url-prod"}
+        CLOUD_DB_URL_MAP = {"development": "db-url-dev", "old-production": "db-url-old-prod", "production": "db-url-prod"}
         LOCAL_DB_URL_MAP = {"local": "LOCAL_DB_URL", "development": "DEV_DB_URL", "old-production": "OLD_PROD_DB_URL", "production": "PROD_DB_URL"}
         if BaseConfig.IS_CLOUD:
-            secret_id = SECRET_ID_MAP.get(BaseConfig.ENV)
+            secret_id = CLOUD_DB_URL_MAP.get(BaseConfig.ENV)
             if not secret_id:
-                raise ValueError(f"Unknown environment: {BaseConfig.ENV}")
+                raise ValueError(f"Unknown environment for cloud DB URL: {BaseConfig.ENV}")
             return SecretManager.get_secret(secret_id)
         else:
             env_var = LOCAL_DB_URL_MAP.get(BaseConfig.ENV)
             if not env_var:
-                raise ValueError(f"Unknown environment: {BaseConfig.ENV}")
+                raise ValueError(f"Unknown environment for local DB URL env var: {BaseConfig.ENV}")
             db_url = os.getenv(env_var)
             if not db_url:
                 raise ValueError(f"Database URL not set for environment variable: {env_var}")
@@ -48,7 +53,7 @@ class DatabaseConfig(BaseConfig):
 class LangfuseConfig(BaseConfig):
     @staticmethod
     def get_langfuse_key(key_type):
-        LANGFUSE_KEY_MAP = {"development": {"public": "langfuse-public-key-dev", "secret": "langfuse-secret-key-dev"}, "production": {"public": "langfuse-public-key-prod", "secret": "langfuse-secret-key-prod"}}
+        LANGFUSE_KEY_MAP = {"development": {"public": "langfuse-dev-public-key", "secret": "langfuse-dev-secret-key", "host": "langfuse-dev-host"}, "production": {"public": "langfuse-prod-public-key", "secret": "langfuse-prod-secret-key", "host": "langfuse-prod-host"}}
         key_map = LANGFUSE_KEY_MAP.get(BaseConfig.ENV)
         if not key_map:
             raise ValueError(f"Unknown environment: {BaseConfig.ENV}")
@@ -59,13 +64,20 @@ class LangfuseConfig(BaseConfig):
 
     ENABLED = os.getenv("FF_LANGFUSE_ENABLED", "false") == "true"
 
+    print("Langfuse is enabled." if ENABLED else "Langfuse is disabled.")
+
     PUBLIC_KEY = (os.getenv("LANGFUSE_PUBLIC_KEY") or get_langfuse_key("public")) if ENABLED else None
-    PRIVATE_KEY = (os.getenv("LANGFUSE_SECRET_KEY") or get_langfuse_key("secret")) if ENABLED else None
+    SECRET_KEY = (os.getenv("LANGFUSE_SECRET_KEY") or get_langfuse_key("secret")) if ENABLED else None
+    HOST = (os.getenv("LANGFUSE_HOST") or get_langfuse_key("host")) if ENABLED else None
 
     if ENABLED:
-        if not PUBLIC_KEY or not PRIVATE_KEY:
+        if not PUBLIC_KEY or not SECRET_KEY:
             ENABLED = False
             print("Langfuse is disabled because the public or private key could not be retrieved.")
+        else:
+            os.environ["LANGFUSE_HOST"] = HOST or ""
+            os.environ["LANGFUSE_PUBLIC_KEY"] = PUBLIC_KEY or ""
+            os.environ["LANGFUSE_SECRET_KEY"] = SECRET_KEY or ""
 
 
 class BigQueryConfig(BaseConfig):
