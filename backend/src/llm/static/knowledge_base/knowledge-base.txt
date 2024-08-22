@@ -44,3 +44,18 @@ desktop
 tablet
 smart tv
 mobile
+
+
+
+# Search Term Queries
+When querying for search terms, use the search_term column, which contains the keywords entered by users in the search box. To analyze which search terms led to specific pages, focus on the select_item event in the event_name column.
+
+
+# Event Filtering for Search
+Use event_name = 'select_item' to identify events where users clicked on a search result to navigate to a specific page. This event indicates that the user selected a result from the search results page.
+
+# Target Page Identification
+To determine the destination page that users navigated to, filter using the link_url column, which contains the full URL of the page that was opened from the search results.
+
+# Search Results Page Context
+To ensure the event occurred on the search results page, filter by cleaned_page_location = '/search/all', which represents the search results page path.
