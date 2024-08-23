@@ -59,3 +59,12 @@ To determine the destination page that users navigated to, filter using the link
 
 # Search Results Page Context
 To ensure the event occurred on the search results page, filter by cleaned_page_location = '/search/all', which represents the search results page path.
+
+
+
+# Search Event Analysis
+To identify pages where users may struggle to find content, focus on the search event in the event_name column. This event is triggered when users perform a search using the search bar on any page of the website.
+
+# Search Frequency by Page
+To determine which pages have the highest number of searches, group the results by the cleaned_page_location column and count the number of search events. Pages with the most searches may indicate where users struggle to find information.
+These entries should provide clear guidance to the LLM on how to generate SQL queries to identify pages where users might be having trouble finding the content they need. The SQL knowledge base entry outlines the necessary query structure, and the text knowledge base entry provides context for understanding the search event and its relevance to user behavior.
