@@ -1,6 +1,7 @@
--- Question: What search terms did users enter to reach a specific page?
+-- Question: What search terms did users enter to reach page "/sign-in-universal-credit"?
 -- Description: Retrieves and ranks search terms users entered that led them to a specific page using the `select_item` event.
 -- Explanation: Filters by the `select_item` event on the search results page and the destination page URL. Splits the `search_term` into individual words, counts occurrences, and returns the most common terms.
+-- Note: The `link_url` column contains only URL slugs (e.g., '/sign-in-universal-credit'). Do not use absolute URLs (e.g., 'https://www.gov.uk/sign-in-universal-credit') in the WHERE clause.
 
 -- SQL
 SELECT

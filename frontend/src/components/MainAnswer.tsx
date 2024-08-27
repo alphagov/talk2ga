@@ -72,8 +72,11 @@ const FormattedStreamedTextComponent = ({
 };
 
 const parseAnswerJSON = (answerJSON: string) => {
-  let pureJSON = answerJSON.split('```json')[1];
-  pureJSON = pureJSON.split('```')[0];
+  let pureJSON = '';
+  if (answerJSON.includes('```json')) {
+    pureJSON = answerJSON.split('```json')[1];
+    pureJSON = pureJSON.split('```')[0];
+  }
   pureJSON = pureJSON.trim().replace(/(\r\n|\n|\r)/gm, '');
   const answer = JSON.parse(pureJSON);
   return {

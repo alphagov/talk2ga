@@ -17,6 +17,8 @@ You must interpret these results. The way you format the text must be as follow:
 - If the results is not a list, write a single sentence that meaningfully shares the results, with the appropriate values in it.
 
 
+
+
 You must write the formatted text in the following JSON format, so that it can be parsed as the actual output, and a descriptive short title for the output:
 
 {{
