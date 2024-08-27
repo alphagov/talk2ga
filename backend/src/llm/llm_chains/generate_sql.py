@@ -20,7 +20,7 @@ def create_sql_generation_chain(custom_prompt=None):
     output_parser = StrOutputParser()
     prompt = ChatPromptTemplate.from_template(custom_prompt or sql_generation_prompt)
     # _chain = prompt | chat_gpt_4_turbo | output_parser
-    _chain = prompt | prompt_logger | code_bison_6k | output_parser
+    _chain = prompt | prompt_logger | chat_gpt_4_turbo | output_parser
 
     return _chain
 
