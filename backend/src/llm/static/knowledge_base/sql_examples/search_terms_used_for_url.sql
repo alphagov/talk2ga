@@ -5,17 +5,16 @@
 
 -- SQL
 SELECT
-  word,
+  search_term,
   COUNT(*) AS word_count
 FROM
   `ga4-analytics-352613.flattened_dataset.flattened_daily_ga_data_20240821`,
-  UNNEST(SPLIT(search_term, ' ')) AS word
 WHERE
   event_name = 'select_item'
   AND cleaned_page_location = '/search/all'
   AND link_url = '/sign-in-universal-credit'
 GROUP BY
-  word
+  search_term
 ORDER BY
-  word_count DESC
+  search_term DESC
 LIMIT 10;
